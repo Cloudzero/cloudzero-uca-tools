@@ -1,0 +1,26 @@
+version: v1.0
+name: myPythonLib
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu1804
+global_job_config:
+  prologue:
+    commands:
+      - sem-version python 3.8
+      - checkout
+      - cache restore dev-requirements-$SEMAPHORE_GIT_BRANCH-$(checksum requirements-dev.txt),requirements
+      - make init
+  epilogue:
+    commands:
+      - cache store dev-requirements-$SEMAPHORE_GIT_BRANCH-$(checksum requirements-dev.txt) /home/semaphore/.pyenv/3.8
+blocks:
+  - name: Run Tests
+    task:
+      jobs:
+        - name: Lint
+          commands:
+            - flake8
+        - name: Tests
+          commands:
+            - pytest
