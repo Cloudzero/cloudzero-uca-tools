@@ -1,5 +1,6 @@
-# Copyright (c) 2016-present, CloudZero, Inc. All rights reserved.
-# Licensed under the BSD-style license. See LICENSE file in the project root for full license information.
+# Copyright (c) 2021 CloudZero, Inc. All rights reserved.
+# Licensed under the MIT License. See LICENSE file in the project root for full license information.
+# Direct all questions to support@cloudzero.com
 
 
 NAME ?= myPythonLib

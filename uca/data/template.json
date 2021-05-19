@@ -1,0 +1,9 @@
+{
+  "timestamp": "$timestamp",
+  "granularity": "$granularity",
+  "cost-context": "cost-per-title",
+  "id": "$unit_id",
+  "target": {},
+  "telemetry-stream": "aggregate-requests-default",
+  "value": "$unit_value"
+}

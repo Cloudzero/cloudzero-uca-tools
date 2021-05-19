@@ -1,94 +1,46 @@
-#!/usr/bin/env python
-# Copyright (c) 2016-present, CloudZero, Inc. All rights reserved.
-# Licensed under the BSD-style license. See LICENSE file in the project root for full license information.
-
-import io
+# Copyright (c) 2021 CloudZero, Inc. All rights reserved.
+# Licensed under the MIT License. See LICENSE file in the project root for full license information.
+# Direct all questions to support@cloudzero.com
 import os
-import sys
-from shutil import rmtree
 
-from setuptools import setup, Command, find_packages
+from ucatoolz import __version__
+from setuptools import setup, find_packages
 
-from mypythonlib import __version__
-
-# Package meta-data.
-NAME = 'mypythonlib'
-DESCRIPTION = 'Standard open source python library'
-URL = 'https://github.com/Cloudzero/mypythonlib'
-EMAIL = 'support@cloudzero.com'
-AUTHOR = 'CloudZero'
-
-here = os.path.abspath(os.path.dirname(__file__))
 
 # What packages are required for this module to be executed?
+here = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(here, 'requirements.txt')) as f:
     REQUIRED = f.read().splitlines()
 
-# Import the README and use it as the long-description.
-# Note: this will only work if 'README.rst' is present in your MANIFEST.in file!
-with io.open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
-    long_description = '\n' + f.read()
+PROJECT_URL = "https://www.cloudzero.com"
+doclink = "Please visit {}.".format(PROJECT_URL)
 
-
-class UploadCommand(Command):
-    """Support setup.py upload."""
-
-    description = 'Build and publish the package.'
-    user_options = []
-
-    @staticmethod
-    def status(s):
-        """Prints things in bold."""
-        print('\033[1m{0}\033[0m'.format(s))
-
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
-
-    def run(self):
-        try:
-            self.status('Removing previous builds…')
-            rmtree(os.path.join(here, 'dist'))
-        except OSError:
-            pass
-
-        self.status('Building Source and Wheel (universal) distribution…')
-        os.system('{0} setup.py sdist bdist_wheel --universal'.format(sys.executable))
-
-        self.status('Uploading the package to PyPi via Twine…')
-        os.system('twine upload dist/*')
-
-        sys.exit()
-
-
-# Where the magic happens:
 setup(
-    name=NAME,
+    name='uca',
     version=__version__,
-    description=DESCRIPTION,
-    long_description=long_description,
-    long_description_content_type='text/markdown',
-    author=AUTHOR,
-    author_email=EMAIL,
-    url=URL,
-    packages=find_packages(exclude=['tests*']),
-
-    install_requires=REQUIRED,
+    description='CloudZero UCA Tools',
+    long_description=doclink,
+    author='CloudZero',
+    author_email='support@cloudzero.com',
+    url=PROJECT_URL,
+    packages=find_packages(),
+    entry_points={
+        'console_scripts': ['uca=uca.main:cli']
+    },
+    package_data={'uca': ['data/*']},
     include_package_data=True,
-    license='BSD',
+    install_requires=REQUIRED,
+    license="Proprietary",
+    zip_safe=False,
+    keywords='CloudZero UCA Tools',
+    platforms=['MacOS', 'Unix'],
     classifiers=[
-        'License :: OSI Approved :: BSD License',
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'Natural Language :: English',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.8',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: MacOS',
+        'Operating System :: Unix'
     ],
-    # $ setup.py upload support.
-    cmdclass={
-        'upload': UploadCommand,
-    },
 )
