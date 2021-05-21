@@ -1,7 +1,13 @@
 # Copyright (c) 2021 CloudZero, Inc. All rights reserved.
 # Licensed under the MIT License. See LICENSE file in the project root for full license information.
 # Direct all questions to support@cloudzero.com
+import sys
+
 from colored import fg, attr
+
+
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
 
 
 def get_input(question, default=None):

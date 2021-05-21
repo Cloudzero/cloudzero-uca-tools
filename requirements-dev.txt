@@ -4,12 +4,12 @@
 docker>=5.0.0
 flake8>=3.9.2
 flake8-copyright>=0.2.2
-autopep8>=1.5.4
+autopep8>=1.5.7
 pycodestyle>=2.6.0
 pytest>=6.2.4
-pytest-cov>=2.10.1
-pytest-mock>=3.3.1
-twine>=3.2.0
-setuptools>=50.3.0
+pytest-cov>=2.12.0
+pytest-mock>=3.6.1
+twine>=3.4.1
+setuptools>=56.2.0
 wheel>=0.36.2
 -r requirements.txt

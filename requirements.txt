@@ -1,13 +1,8 @@
-PyYAML>=5.3.1
-requests~=2.23.0
+requests>=2.25.1
 termcolor>=1.1.0
-six>=1.15.0
-pytz>=2020.4
-humanize>=3.1.0
 colored>=1.4.2
-cachetools>=4.1.1
 simplejson>=3.17.2
-tabulate>=0.8.7
 progressbar>=2.5
 stringcase>=1.2.0
-click>=8.0.0
+click>=8.0.1
+jq>=1.1.3
