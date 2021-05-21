@@ -9,6 +9,7 @@ import sys
 import boto3
 import botocore
 import click
+import simplejson as json
 
 from uca.common.aws import list_s3_bucket_contents, parse_s3_url, read_file_from_s3
 from uca.common.cli import eprint
@@ -77,13 +78,16 @@ def generate_uca_command(start, end, template, data, granularity, api_key):
               required=False,
               help="Optional transformation script using jq (https://stedolan.github.io/jq/). Used when the source data needs modification or cleanup. See README.md for supported formats and usage instructions")
 @click.option("--api-key", "-k",
-              required=True,
+              required=False,
               help="API Key to use")
+@click.option("--output", "-o",
+              required=False,
+              help="Instead of sending events to the API, append the events to an output file")
 @click.option("--dry-run", "-dry",
               is_flag=True,
               required=False,
               help="Perform a dry run, read and transform the data but do not send it to the API")
-def transmit_uca_command(source, transform, api_key, dry_run):
+def transmit_uca_command(source, transform, api_key, output, dry_run):
     print(f"Transmitting data from {source} to CloudZero")
     print("-----------------------------------------------------------------------------------------")
 
@@ -121,21 +125,33 @@ def transmit_uca_command(source, transform, api_key, dry_run):
                     file_data = read_file_from_s3(client, bucket, file['Key']).readlines()
                     uca_to_send, good_records, bad_records = transform_file(file_data, transform_script)
                     print(f" - s3://{bucket}/{file['Key']} | {good_records} events ({bad_records} bad) | {sys.getsizeof(file_data):,} bytes")
-                    if not dry_run:
-                        print('   Sending to API')
-                        send_uca_events(api_key, uca_to_send)
-                    else:
-                        print('   Dry run, skipping send')
+                    if api_key:
+                        if not dry_run:
+                            print('   Sending to API')
+                            send_uca_events(api_key, uca_to_send)
+                        else:
+                            print('   Dry run, skipping send')
+                    elif output:
+                        with open(os.path.expanduser(output), 'a') as output_file:
+                            for line in uca_to_send:
+                                output_file.write(json.dumps(line) + '\n')
+
+
             else:
                 print(f" - s3://{bucket}/{key}\n")
                 print("   --------------------------------------------------------------------------------------")
                 file_data = read_file_from_s3(client, bucket, key).readlines()
                 uca_to_send = transform_file(file_data, transform_script)
-                if not dry_run:
-                    print('   Sending to API')
-                    send_uca_events(api_key, uca_to_send)
-                else:
-                    print('   Dry run, skipping send')
+                if api_key:
+                    if not dry_run:
+                        print('   Sending to API')
+                        send_uca_events(api_key, uca_to_send)
+                    else:
+                        print('   Dry run, skipping send')
+                elif output:
+                    with open(os.path.expanduser(output), 'a') as output_file:
+                        for line in uca_to_send:
+                            output_file.write(json.dumps(line) + '\n')
 
         except botocore.exceptions.ClientError:
             eprint(f"\nERROR: Access denied, please ensure your AWS session has access to {source}")
