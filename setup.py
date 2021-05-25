@@ -3,7 +3,7 @@
 # Direct all questions to support@cloudzero.com
 import os
 
-from ucatoolz import __version__
+from uca import __version__
 from setuptools import setup, find_packages
 
 
