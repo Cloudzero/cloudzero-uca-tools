@@ -1,9 +1,11 @@
 # CloudZero UCA Tools
-Utilities for generating, transforming and transmitting UCA data
+Utilities for generating, transforming and transmitting unit cost analytics (UCA) data to the CloudZero API.
+Visit our [UCA documentation](https://docs.cloudzero.com/docs/enhanced-unit-cost-analytics) to learn more about
+[CloudZero](https://www.cloudzero.com) and our enhanced unit cost analytics capabilities.
 
 ## Features
-* Generate UCA v1.2 data
 * Transmit UCA v1.2 data to CloudZero (using the CloudZero UCA API)
+* Generate UCA v1.2 data
 * Transform ELB/ALB and CloudFront logs into UCA data (Coming Soon!)
 
 ## Installation
@@ -11,14 +13,85 @@ Utilities for generating, transforming and transmitting UCA data
 
 ## Usage
 CloudZero UCA tools exist to produce UCA events that can then be transmitted to the CloudZero API
-for analysis and processing. To use the CloudZero API, you should first obtain an API key from https://app.cloudzero.com/organization/api-keys
+for analysis and processing. To use the CloudZero API, you should first obtain an [API key](https://app.cloudzero.com/organization/api-keys)
+from https://app.cloudzero.com/organization/api-keys
+
+### Data Transmission
+UCA data transmission allows you easily send UCA data directly to the CloudZero API without having to write code.
+Prepare an input file with one or more correctly formatted JSON UCA records as quickly send it to the CloudZero API. 
+
+#### Help
+    $ uca transmit --help
+    Usage: uca transmit [OPTIONS]
+    
+    Options:
+      -s, --source TEXT         Source data, in text or gzip + text format,
+                                supports file:// or s3:// paths  [required]
+      -t, --transform TEXT      Optional transformation script using jq
+                                (https://stedolan.github.io/jq/). Used when the
+                                source data needs modification or cleanup. See
+                                README.md for supported formats and usage
+                                instructions
+      -k, --api-key TEXT        API Key to use
+      -o, --output TEXT         Instead of sending events to the API, append the
+                                events to an output file
+      -c, --configuration TEXT  UCA configuration file (JSON)
+      -dry, --dry-run           Perform a dry run, read and transform the data but
+                                do not send it to the API
+      --help                    Show this message and exit.
+
+#### Examples
+
+#### Using JQ Transforms
+CloudZero UCA tools can use JQ scripts to transform the source data on the fly before transmission. This is helpful
+when you have minor or even major changes you want to make to the data quickly and it would be more complicated or
+impossible to alter the input data (for example an existing system is producing UCA data in an older format).
+
+##### Example JQ Script
+The following script requires the `id` field to be present (records missing this field will be skipped), followed
+by setting the target field using a metadata and cost-context field, followed by setting the cost-context to a 
+constant value and then deleting the metadata and uca fields
+
+    select(.id != "")
+    | .target = {"tag:environment": [.metadata.environment], "feature": [.["cost-context"]] }
+    | .["cost-context"] = "cost-per-title"
+    | del(.metadata, .uca)
+
+###### Example Input:
+    {
+      "uca": "v1.3",
+      "timestamp": "2021-05-25 13:00:00+0000",
+      "granularity": "HOURLY",
+      "cost-context": "rosebud",
+      "id": "frank",
+      "target": {},
+      "telemetry-stream": "test-data",
+      "value": "1073641",
+      "metadata": {
+        "environment": "production"
+      }
+    }
+
+###### Example Transformed Output:
+    {
+      "timestamp": "2021-05-25 13:00:00",
+      "granularity": "HOURLY",
+      "cost-context": "Cost-Per-Customer",
+      "id": "frank",
+      "target": {
+        "tag:environment": ["production"],
+        "feature": ["rosebud"]
+      },
+      "telemetry-stream": "test-data",
+      "value": "1073641"
+    }
+
 
 ### Data Generation
 UCA data generation is useful when you need to account for static assets and cost allocations
 that need to be accounted for to fill gaps in your UCA data or for testing purposes.
-####Examples
 
-#####Help:
+#### Help
     $ uca generate --help
     Usage: uca generate [OPTIONS]
     
@@ -35,7 +108,7 @@ that need to be accounted for to fill gaps in your UCA data or for testing purpo
                                 do not send it to the API
       --help                    Show this message and exit.
 
-##### Generate
+#### Examples
 Generate UCA data between 2021-03-13 and 2021-04-07 using data/configuration.json and data/data.csv as input. Perform only a dry run and do not send the results to the CloudZero API
 
     $ uca generate -s 2021-03-13 -e 2021-04-07 -c data/configuration.json -d data/data.csv --dry-run
