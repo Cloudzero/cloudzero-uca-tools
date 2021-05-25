@@ -8,6 +8,9 @@ Visit our [UCA documentation](https://docs.cloudzero.com/docs/enhanced-unit-cost
 * Generate UCA v1.2 data
 * Transform ELB/ALB and CloudFront logs into UCA data (Coming Soon!)
 
+## prerequisite
+* pip - run the setup process
+
 ## Installation
       $ pip install --user cloudzero-uca-tools
 
