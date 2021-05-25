@@ -20,7 +20,7 @@ blocks:
       jobs:
         - name: Lint
           commands:
-            - flake8
+            - make lint
         - name: Tests
           commands:
-            - pytest
+            - make test

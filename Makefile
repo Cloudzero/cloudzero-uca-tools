@@ -53,10 +53,11 @@ check-docker:                            ## Exits if docker is not installed and
 init:                                    ## ensures all dev dependencies into the current virtualenv
 	@if [[ "$$VIRTUAL_ENV" = "" ]] ; then printf "$(WARN_COLOR)WARN:$(NO_COLOR) No virtualenv found, install dependencies globally." ; fi
 	pip install -r requirements-dev.txt
+	python ./setup.py develop
 
 
 test: check-docker                       ## runs the unit tests on all available python runtimes
-	pytest
+	pytest uca tests
 
 
 lint:                                    ## lints the code via adherence to PEP8 standards
