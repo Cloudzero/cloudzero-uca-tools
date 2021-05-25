@@ -1,9 +1,10 @@
 # Copyright (c) 2021 CloudZero, Inc. All rights reserved.
-# Licensed under the MIT License. See LICENSE file in the project root for full license information.
+# Licensed under the BSD License. See LICENSE file in the project root for full license information.
 # Direct all questions to support@cloudzero.com
+import io
 import os
 
-from uca import __version__
+from uca.__version__ import __version__
 from setuptools import setup, find_packages
 
 
@@ -13,13 +14,15 @@ with open(os.path.join(here, 'requirements.txt')) as f:
     REQUIRED = f.read().splitlines()
 
 PROJECT_URL = "https://www.cloudzero.com"
-doclink = "Please visit {}.".format(PROJECT_URL)
+with io.open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
+    long_description = '\n' + f.read()
 
 setup(
-    name='uca',
+    name='cloudzero-uca-tools',
     version=__version__,
     description='CloudZero UCA Tools',
-    long_description=doclink,
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     author='CloudZero',
     author_email='support@cloudzero.com',
     url=PROJECT_URL,
@@ -39,7 +42,7 @@ setup(
         'Intended Audience :: Developers',
         'Natural Language :: English',
         'Programming Language :: Python :: 3.8',
-        'License :: OSI Approved :: MIT License',
+        'License :: OSI Approved :: BSD License',
         'Operating System :: MacOS',
         'Operating System :: Unix'
     ],

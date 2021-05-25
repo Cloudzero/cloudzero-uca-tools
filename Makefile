@@ -1,5 +1,5 @@
 # Copyright (c) 2021 CloudZero, Inc. All rights reserved.
-# Licensed under the MIT License. See LICENSE file in the project root for full license information.
+# Licensed under the BSD License. See LICENSE file in the project root for full license information.
 # Direct all questions to support@cloudzero.com
 
 
@@ -10,7 +10,7 @@ INFO_COLOR = \033[1;32m
 WARN_COLOR = \033[1;33m
 NO_COLOR = \033[0m
 
-.PHONY: init build test upload check-version
+.PHONY: init build test upload
 default: test
 
 #################
