@@ -13,7 +13,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(here, 'requirements.txt')) as f:
     REQUIRED = f.read().splitlines()
 
-PROJECT_URL = "https://www.cloudzero.com"
+PROJECT_URL = "https://github.com/Cloudzero/cloudzero-uca-tools"
 with io.open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = '\n' + f.read()
 
