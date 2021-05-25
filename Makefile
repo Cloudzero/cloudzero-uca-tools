@@ -10,7 +10,7 @@ INFO_COLOR = \033[1;32m
 WARN_COLOR = \033[1;33m
 NO_COLOR = \033[0m
 
-.PHONY: init build test
+.PHONY: init build test upload check-version
 default: test
 
 #################
@@ -63,29 +63,30 @@ lint:                                    ## lints the code via adherence to PEP8
 	flake8
 
 
-lint-fix:								                 ## fixes the code in place so that it will pass `make lint`
+lint-fix:								## fixes the code in place so that it will pass `make lint`
 	autopep8 --ignore E265,E266,E402 --in-place --recursive --max-line-length=120 --exclude vendored .
 
 
-clean-pyc:                               ## rms pyc, pyo, *~, and __pycache__
+clean:                                 ## Clean workspace, clean...
 	find . -name '*.pyc' -exec rm -f {} +
 	find . -name '*.pyo' -exec rm -f {} +
 	find . -name '*~' -exec rm -f {} +
 	find . -name '__pycache__' -exec rm -fr {} +
 
 
-build: test                              ## builds sdist
-	./setup.py sdist
 
-
-check-version:													 ## check that version is not in pypi
-	@version=$$(awk '/version/{print $$NF}' pyfaaster/__version__.py |  tr -d "'") ; \
-	 curl --http1.1 -IN "https://pypi.python.org/pypi?:action=display&name=pyfaaster&version=$${version}" | \
+check-version:							## check that version is not in pypi
+	@version=$$(awk '/version/{print $$NF}' uca/__version__.py |  tr -d "'") ; \
+	 curl --http1.1 -IN "https://pypi.python.org/pypi?:action=display&name=cloudzero-uca-tools&version=$${version}" | \
 		grep "200 OK" \
 		&& { printf "$(ERROR_COLOR)ERROR$(NO_COLOR): Version $(WARN_COLOR)$${version}$(NO_COLOR) already exists in pypi!\n" ; \
-				 printf "You probably forgot to update $(WARN_COLOR)pyfaaster/__version__.py$(NO_COLOR). Go do that now.\n" ; exit 1 ; } \
-		|| { printf "$(INFO_COLOR)OK$(NO_COLOR): Version $(INFO_COLOR)$${version}$(NO_COLOR) is available in pypi.\n" ; }
+				 printf "You probably forgot to update $(WARN_COLOR)cloudzero-uca-tools/__version__.py$(NO_COLOR). Go do that now.\n" ; exit 1 ; } \
+		|| { printf "$(INFO_COLOR)OK$(NO_COLOR): Version $(INFO_COLOR)$${version}$(NO_COLOR) does not exist in pypi.\n" ; }
 
 
-upload: build check-version              ## twine uploads dist/*
+build: test                             ## Builds the project as a wheel
+	rm -rf dist/
+	python ./setup.py sdist
+
+upload: build check-version             ## twine uploads dist/*
 	twine upload dist/*

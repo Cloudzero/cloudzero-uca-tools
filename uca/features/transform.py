@@ -11,7 +11,10 @@ def compile_transform(jq_script):
 
 
 def apply_transform(jq_program, input_data):
-    return jq_program.input(input_data).all()
+    if jq_program:
+        return jq_program.input(input_data).all()
+    else:
+        return input_data
 
 
 def transform_file(file, transform_script):
@@ -20,8 +23,7 @@ def transform_file(file, transform_script):
     bad_records = 0
     jq_program = transform_script and compile_transform(transform_script) or None
     for line in file:
-        data = json.loads(line)
-        # data = jq_program and apply_transform(jq_program, data)
+        data = apply_transform(jq_program, json.loads(line))
         if data:
             uca_data_to_send.append(data)
             good_records += 1
