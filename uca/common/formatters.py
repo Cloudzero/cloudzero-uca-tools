@@ -1,13 +1,14 @@
 # Copyright (c) 2021 CloudZero, Inc. All rights reserved.
 # Licensed under the MIT License. See LICENSE file in the project root for full license information.
 # Direct all questions to support@cloudzero.com
+import os
 from datetime import datetime
 from decimal import Decimal
 from enum import Enum
 from urllib.parse import urlparse
-import os
 
 import simplejson as json
+
 from uca.exceptions import MalformedUrl
 
 
@@ -83,5 +84,3 @@ def parse_url(url):
     else:
         raise MalformedUrl(f"{parsed_url.scheme} url '{url}' is malformed or unsupported")
     return root, file
-
-

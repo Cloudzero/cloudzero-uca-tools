@@ -6,19 +6,18 @@ import csv
 import os
 import random
 import sys
-from datetime import datetime, date, timedelta
-from random import randrange
+from datetime import datetime, timedelta
 
 import boto3
 import botocore
 import click
 import simplejson as json
+
 from uca.common.aws import list_s3_bucket_contents, read_file_from_s3
-from uca.common.cli import confirm
 from uca.common.cli import eprint
+from uca.common.custom_types import TimeRange
 from uca.common.formatters import parse_url
 from uca.common.standards import utc_datetime_from_anything
-from uca.common.custom_types import TimeRange
 from uca.features.generate import generate_uca
 from uca.features.transform import transform_file
 from uca.interfaces.uca_api import send_uca_events
@@ -87,7 +86,7 @@ def generate_uca_command(start, end, today, configuration, data, output, api_key
 
     api_key = api_key or uca_settings.get('api_key') or None
 
-    print(f"CloudZero UCA Data Generator")
+    print("CloudZero UCA Data Generator")
     print("-----------------------------------------------------------------------------------------")
     print(f"   Date Range : {range_requested}")
     print(f"  Granularity : {uca_template['granularity']}")

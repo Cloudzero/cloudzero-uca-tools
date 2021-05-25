@@ -1,7 +1,6 @@
 # Copyright (c) 2021 CloudZero, Inc. All rights reserved.
 # Licensed under the MIT License. See LICENSE file in the project root for full license information.
 # Direct all questions to support@cloudzero.com
-import numbers
 import sys
 from datetime import timedelta
 from decimal import Decimal
@@ -9,9 +8,10 @@ from random import randint
 from string import Template
 
 import simplejson as json
+
 from uca.common.cli import eprint
-from uca.common.standards import datetime_chunks
 from uca.common.custom_types import TimeRange
+from uca.common.standards import datetime_chunks
 
 PRECISION = 10000
 

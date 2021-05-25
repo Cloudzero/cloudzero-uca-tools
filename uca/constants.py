@@ -1,6 +1,6 @@
-# Copyright (c) 2020 CloudZero - ALL RIGHTS RESERVED - PROPRIETARY AND CONFIDENTIAL
-# Unauthorized copying of this file and/or project, via any medium is strictly prohibited.
-# Direct all questions to legal@cloudzero.com
+# Copyright (c) 2021 CloudZero, Inc. All rights reserved.
+# Licensed under the MIT License. See LICENSE file in the project root for full license information.
+# Direct all questions to support@cloudzero.com
 
 from botocore.config import Config
 

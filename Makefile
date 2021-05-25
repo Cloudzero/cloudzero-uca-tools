@@ -64,7 +64,7 @@ lint:                                    ## lints the code via adherence to PEP8
 
 
 lint-fix:								## fixes the code in place so that it will pass `make lint`
-	autopep8 --ignore E265,E266,E402 --in-place --recursive --max-line-length=120 --exclude vendored .
+	autopep8 --ignore E265,E266,E402 --in-place --recursive --max-line-length=140 --exclude vendored .
 
 
 clean:                                 ## Clean workspace, clean...

@@ -2,7 +2,7 @@
 # Licensed under the MIT License. See LICENSE file in the project root for full license information.
 # Direct all questions to support@cloudzero.com
 
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from typing import Optional, Any
 
 import dateutil.parser as parser
@@ -44,4 +44,3 @@ def datetime_chunks(start, end, delta):
     while datetime_chunk + delta <= end:
         yield datetime_chunk
         datetime_chunk += delta
-
