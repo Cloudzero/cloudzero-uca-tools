@@ -35,8 +35,8 @@ def generate_uca(time_range: TimeRange, uca_template, uca_settings, data_file):
                 unit_value = preserve_precision(row['unit_value'], PRECISION)
                 row['unit_value'] = str(restore_precision(randint(0, unit_value), PRECISION))
             if uca_settings['mode'] == 'jitter':
-                jitter = int(row['jitter'])
-                row['unit_value'] = str(round_decimal(Decimal(abs(row['unit_value'] + randint(-jitter, jitter))), PRECISION))
+                jitter = int(uca_settings['jitter'])
+                row['unit_value'] = str(round_decimal(Decimal(abs(Decimal(row['unit_value']) + randint(-jitter, jitter))), PRECISION))
             elif uca_settings['mode'] == 'allocation':
                 row['unit_value'] = round_decimal(Decimal(uca_settings['allocation'] * row['unit_allocation']), PRECISION)
             elif uca_settings['mode'] == 'exact':
@@ -44,7 +44,6 @@ def generate_uca(time_range: TimeRange, uca_template, uca_settings, data_file):
             else:
                 eprint(f"Unsupported UCA Mode '{uca_settings['mode']}', please choose either 'exact', 'random', 'jitter' or 'allocation'")
                 sys.exit(-1)
-
             rendered_template = template.substitute(**row, timestamp=timestamp)
             uca_events.append(json.loads(rendered_template.strip().replace("\n", "")))
 

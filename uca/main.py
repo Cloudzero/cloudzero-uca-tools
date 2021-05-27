@@ -79,7 +79,7 @@ def generate_uca_command(start, end, today, configuration, data, output, api_key
             uca_settings = configuration_file['settings']
             uca_template = configuration_file['template']
 
-        data_file = csv.DictReader(open(data, mode='r', newline=''))  # keep fp open
+        data_file = csv.DictReader(open(data, mode='r', newline='', encoding="utf-8-sig"))  # keep fp open
     except Exception as error:
         eprint(f"Unable to read configuration or data, error: {error}")
         sys.exit(-1)
