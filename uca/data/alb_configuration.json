@@ -1,0 +1,16 @@
+{
+  "template": {
+    "timestamp": "$timestamp",
+    "granularity": "HOURLY",
+    "cost-context": "Cost-Per-Feature",
+    "id": "$unit_id",
+    "target": {},
+    "telemetry-stream": "test-alb-data",
+    "value": "$unit_value"
+  },
+  "settings": {
+    "version": "v1.2",
+    "unit_id_translate_field": "http_request.path",
+    "unit_id_translate_field_regex": "[^/]([^/]*)"
+  }
+}

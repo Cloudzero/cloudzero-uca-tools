@@ -11,12 +11,32 @@ Visit our [UCA documentation](https://docs.cloudzero.com/docs/enhanced-unit-cost
 ## Installation
       $ pip install --user cloudzero-uca-tools
 
-## Usage
+## General Usage
 CloudZero UCA tools exist to produce UCA events that can then be transmitted to the CloudZero API
 for analysis and processing. To use the CloudZero API, you should first obtain an [API key](https://app.cloudzero.com/organization/api-keys)
 from https://app.cloudzero.com/organization/api-keys
 
-### Data Transmission
+    $ uca
+    Usage: uca [OPTIONS] COMMAND [ARGS]...
+    
+      CloudZero Unit Cost Analytics utility
+    
+    Options:
+      --version                 Show the version and exit.
+      -c, --configuration TEXT  UCA configuration file (JSON)
+      -o, --output TEXT         Instead of sending events to the API, append the
+                                events to an output file
+      -dry, --dry-run           Perform a dry run, read and transform the data but
+                                do not send it to the API
+      -k, --api-key TEXT        API Key to use
+      --help                    Show this message and exit.
+    
+    Commands:
+      generate
+      translate
+      transmit
+
+### Transmit
 UCA data transmission allows you easily send UCA data directly to the CloudZero API without having to write code.
 Prepare an input file with one or more correctly formatted JSON UCA records as quickly send it to the CloudZero API. 
 
@@ -25,20 +45,13 @@ Prepare an input file with one or more correctly formatted JSON UCA records as q
     Usage: uca transmit [OPTIONS]
     
     Options:
-      -s, --source TEXT         Source data, in text or gzip + text format,
-                                supports file:// or s3:// paths  [required]
-      -t, --transform TEXT      Optional transformation script using jq
-                                (https://stedolan.github.io/jq/). Used when the
-                                source data needs modification or cleanup. See
-                                README.md for supported formats and usage
-                                instructions
-      -k, --api-key TEXT        API Key to use
-      -o, --output TEXT         Instead of sending events to the API, append the
-                                events to an output file
-      -c, --configuration TEXT  UCA configuration file (JSON)
-      -dry, --dry-run           Perform a dry run, read and transform the data but
-                                do not send it to the API
-      --help                    Show this message and exit.
+      -d, --data TEXT       Source data, in text or gzip + text format, supports
+                            file:// or s3:// paths  [required]
+      -t, --transform TEXT  Optional transformation script using jq
+                            (https://stedolan.github.io/jq/). Used when the source
+                            data needs modification or cleanup. See README.md for
+                            usage instructions
+      --help                Show this message and exit.
 
 #### Examples
 
@@ -87,7 +100,7 @@ constant value and then deleting the metadata and uca fields
     }
 
 
-### Data Generation
+### Generate
 UCA data generation is useful when you need to account for static assets and cost allocations
 that need to be accounted for to fill gaps in your UCA data or for testing purposes.
 
@@ -96,17 +109,11 @@ that need to be accounted for to fill gaps in your UCA data or for testing purpo
     Usage: uca generate [OPTIONS]
     
     Options:
-      -s, --start TEXT          start datetime <YYYY-MM-DD HH:MM:SS>
-      -e, --end TEXT            End datetime <YYYY-MM-DD HH:MM:SS>
-      --today                   Generate events for the current day
-      -c, --configuration TEXT  UCA configuration file (JSON)  [required]
-      -d, --data TEXT           Input UCA data (CSV)  [required]
-      -o, --output TEXT         Instead of sending events to the API, append the
-                                events to an output file
-      -k, --api-key TEXT        API Key to use
-      -dry, --dry-run           Perform a dry run, read and transform the data but
-                                do not send it to the API
-      --help                    Show this message and exit.
+      -s, --start TEXT  start datetime <YYYY-MM-DD HH:MM:SS>
+      -e, --end TEXT    End datetime <YYYY-MM-DD HH:MM:SS>
+      --today           Generate events for the current day
+      -d, --data TEXT   Input UCA data (CSV)  [required]
+      --help            Show this message and exit.
 
 #### Examples
 Generate UCA data between 2021-03-13 and 2021-04-07 using data/configuration.json and data/data.csv as input. Perform only a dry run and do not send the results to the CloudZero API
@@ -165,3 +172,43 @@ Together this configuration and data will produce UCA events similar to the foll
     {'timestamp': '2021-04-01 00:00:00+00:00', 'granularity': 'DAILY', 'cost-context': 'Cost-Per-Fake-Customer', 'id': 'Sunbank', 'target': {}, 'telemetry-stream': 'test-data', 'value': '37.0000'}
     {'timestamp': '2021-04-06 00:00:00+00:00', 'granularity': 'DAILY', 'cost-context': 'Cost-Per-Fake-Customer', 'id': 'Transport Co.', 'target': {}, 'telemetry-stream': 'test-data', 'value': '25.0000'}
     {'timestamp': '2021-03-19 00:00:00+00:00', 'granularity': 'DAILY', 'cost-context': 'Cost-Per-Fake-Customer', 'id': 'StateEx', 'target': {}, 'telemetry-stream': 'test-data', 'value': '40.0000'}
+
+### Translate
+Translate ELB, ALB or CloudFront logs into UCA data format. 
+
+Supported formats are ELB, ALB or CloudFront
+
+#### Help
+    $ uca translate --help
+    Usage: uca translate [OPTIONS]
+    
+    Options:
+      -d, --data TEXT       Source data, in text or gzip + text format, supports
+                            file:// or s3:// paths  [required]
+      -f, --format TEXT     See README.md for supported formats and usage
+                            instructions  [required]
+      -t, --transform TEXT  Optional, post translation, transformation script
+                            using jq (https://stedolan.github.io/jq/). Used when
+                            the JSON data needs modification or cleanup. See
+                            README.md for usage instructions
+      --help                Show this message and exit.
+
+#### Configuration
+The following configuration will extract the first part of the URL path for use as the unit id
+
+    {
+      "template": {
+        "timestamp": "$timestamp",
+        "granularity": "HOURLY",
+        "cost-context": "Cost-Per-Feature",
+        "id": "$unit_id",
+        "target": {},
+        "telemetry-stream": "test-alb-data",
+        "value": "$unit_value"
+      },
+      "settings": {
+        "version": "v1.2",
+        "unit_id_translate_field": "http_request.path",
+        "unit_id_translate_field_regex": "[^/]([^/]*)"
+      }
+    }

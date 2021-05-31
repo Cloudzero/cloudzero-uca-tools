@@ -1,8 +1,13 @@
 # Copyright (c) 2021 CloudZero, Inc. All rights reserved.
 # Licensed under the BSD License. See LICENSE file in the project root for full license information.
 # Direct all questions to support@cloudzero.com
+import random
 import sys
+from textwrap import fill
 
+import simplejson as json
+
+from tabulate import tabulate
 from colored import fg, attr
 
 
@@ -66,3 +71,12 @@ def confirm(prompt=None, resp=False):
             return True
         if ans == 'n' or ans == 'N':
             return False
+
+
+def print_uca_sample(uca_to_send, record_count=5):
+    sample_count = min(record_count, len(uca_to_send))
+    sample_events = []
+    print(f"\nRandom sample of {sample_count} UCA events post-processing:")
+    for x in sorted(random.sample(range(len(uca_to_send)), sample_count)):
+        sample_events.append([x, fill(str(uca_to_send[x]), 140)])
+    print(tabulate(sample_events, headers=["#", "Event"], tablefmt="simple"))  # , maxcolwidths=[None, 140]))

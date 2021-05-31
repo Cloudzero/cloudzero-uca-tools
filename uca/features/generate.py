@@ -36,7 +36,7 @@ def generate_uca(time_range: TimeRange, uca_template, uca_settings, data_file):
                 row['unit_value'] = str(restore_precision(randint(0, unit_value), PRECISION))
             if uca_settings['mode'] == 'jitter':
                 jitter = int(uca_settings['jitter'])
-                row['unit_value'] = str(round_decimal(Decimal(abs(Decimal(row['unit_value']) + randint(-jitter, jitter))), PRECISION))
+                row['unit_value'] = str(round_decimal(max(Decimal(abs(Decimal(row['unit_value']) + randint(-jitter, jitter))), Decimal(1)), PRECISION))
             elif uca_settings['mode'] == 'allocation':
                 row['unit_value'] = round_decimal(Decimal(uca_settings['allocation'] * row['unit_allocation']), PRECISION)
             elif uca_settings['mode'] == 'exact':

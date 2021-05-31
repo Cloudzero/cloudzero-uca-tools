@@ -26,7 +26,6 @@ def send_uca_events(api_key, uca_events):
             response.raise_for_status()
             print(".", end="", flush=True)
         except HTTPError as error:
-            pprint(chunk)
             print(error)
             print(response.text)
             sys.exit(-1)

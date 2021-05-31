@@ -1,6 +1,8 @@
 # Copyright (c) 2021 CloudZero, Inc. All rights reserved.
 # Licensed under the BSD License. See LICENSE file in the project root for full license information.
 # Direct all questions to support@cloudzero.com
+
+import functools
 import os
 from datetime import datetime
 from decimal import Decimal
@@ -69,6 +71,9 @@ def parse_url(url):
     >>> parse_url("file://some_folder/with_a_path/some_file.json")
     ('some_folder/with_a_path', 'some_file.json')
 
+    >>> parse_url("file://some_folder/with_a_path_but_no_file/")
+    ('some_folder/with_a_path_but_no_file', '')
+
     >>> parse_url("sdfsdfsdfsf")
     Traceback (most recent call last):
     ...
@@ -84,3 +89,10 @@ def parse_url(url):
     else:
         raise MalformedUrl(f"{parsed_url.scheme} url '{url}' is malformed or unsupported")
     return root, file
+
+
+def rgetattr(obj, attr, *args):
+    def _getattr(obj, attr):
+        return getattr(obj, attr, *args)
+
+    return functools.reduce(_getattr, [obj] + attr.split('.'))
