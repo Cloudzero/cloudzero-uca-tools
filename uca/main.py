@@ -69,7 +69,7 @@ pass_root_configuration = click.make_pass_decorator(RootConfiguration)
               help="UCA configuration file (JSON)")
 @click.option("--output", "-o",
               required=False,
-                  help="Instead of sending events to the API, append the events to an output file")
+              help="Instead of sending events to the API, append the events to an output file")
 @click.option("--dry-run", "-dry",
               is_flag=True,
               required=False,

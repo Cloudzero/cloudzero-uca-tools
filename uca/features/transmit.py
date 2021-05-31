@@ -5,7 +5,6 @@
 import os
 import sys
 
-import simplejson as json
 from uca.interfaces.uca_api import send_uca_events
 
 

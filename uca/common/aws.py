@@ -8,6 +8,7 @@ from io import BytesIO, TextIOWrapper
 
 import boto3
 import botocore
+
 from uca.common.cli import eprint
 
 
@@ -32,8 +33,6 @@ def open_file_from_s3(client, bucket, key):
     else:
         raw_file = TextIOWrapper(BytesIO(response['Body'].read()), encoding='utf-8')
     return raw_file
-
-
 
 
 def get_s3_client():

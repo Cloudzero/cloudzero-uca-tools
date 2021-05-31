@@ -1,12 +1,12 @@
 # Copyright (c) 2021 CloudZero, Inc. All rights reserved.
 # Licensed under the BSD License. See LICENSE file in the project root for full license information.
 # Direct all questions to support@cloudzero.com
-import decimal
 import os
 import sys
 
 import jq
 import simplejson as json
+
 from uca.common.cli import eprint
 
 

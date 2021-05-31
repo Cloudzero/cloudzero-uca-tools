@@ -5,10 +5,8 @@ import random
 import sys
 from textwrap import fill
 
-import simplejson as json
-
-from tabulate import tabulate
 from colored import fg, attr
+from tabulate import tabulate
 
 
 def eprint(*args, **kwargs):

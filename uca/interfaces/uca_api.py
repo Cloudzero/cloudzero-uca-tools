@@ -2,7 +2,6 @@
 # Licensed under the BSD License. See LICENSE file in the project root for full license information.
 # Direct all questions to support@cloudzero.com
 import sys
-from pprint import pprint
 
 import requests
 from requests import HTTPError
