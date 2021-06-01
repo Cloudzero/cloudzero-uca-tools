@@ -16,7 +16,7 @@ from uca.common.standards import datetime_chunks
 PRECISION = 10000
 
 
-def generate_uca(time_range: TimeRange, uca_template, uca_settings, data_file):
+def generate_uca(time_range: TimeRange, uca_template, settings, data_file):
     template = Template(json.dumps(uca_template))
 
     if uca_template['granularity'] == "HOURLY":
@@ -31,18 +31,18 @@ def generate_uca(time_range: TimeRange, uca_template, uca_settings, data_file):
     uca_events = []
     for timestamp in datetime_chunks(time_range.start, time_range.end, delta):
         for row in uca_data:
-            if uca_settings['mode'] == 'random':
+            if settings['mode'] == 'random':
                 unit_value = preserve_precision(row['unit_value'], PRECISION)
                 row['unit_value'] = str(restore_precision(randint(0, unit_value), PRECISION))
-            if uca_settings['mode'] == 'jitter':
-                jitter = int(uca_settings['jitter'])
+            if settings['mode'] == 'jitter':
+                jitter = int(settings['jitter'])
                 row['unit_value'] = str(round_decimal(max(Decimal(abs(Decimal(row['unit_value']) + randint(-jitter, jitter))), Decimal(1)), PRECISION))
-            elif uca_settings['mode'] == 'allocation':
-                row['unit_value'] = round_decimal(Decimal(uca_settings['allocation'] * row['unit_allocation']), PRECISION)
-            elif uca_settings['mode'] == 'exact':
+            elif settings['mode'] == 'allocation':
+                row['unit_value'] = round_decimal(Decimal(settings['allocation'] * row['unit_allocation']), PRECISION)
+            elif settings['mode'] == 'exact':
                 row['unit_value'] = str(round_decimal(Decimal(row['unit_value']), PRECISION))
             else:
-                eprint(f"Unsupported UCA Mode '{uca_settings['mode']}', please choose either 'exact', 'random', 'jitter' or 'allocation'")
+                eprint(f"Unsupported UCA Mode '{settings['mode']}', please choose either 'exact', 'random', 'jitter' or 'allocation'")
                 sys.exit(-1)
             rendered_template = template.substitute(**row, timestamp=timestamp)
             uca_events.append(json.loads(rendered_template.strip().replace("\n", "")))

@@ -11,6 +11,7 @@ import botocore
 from uca.common.aws import list_s3_bucket_contents, open_file_from_s3, get_s3_client
 from uca.common.cli import eprint
 from uca.common.formatters import parse_url
+from uca.constants import SUPPORTED_FILE_EXTENSIONS
 
 
 def open_local_file(file_path: pathlib.PurePath):
@@ -35,7 +36,9 @@ def list_all_local_files_in_path(root_path: str) -> list:
     all_files = []
     for path, subdirs, files in os.walk(root_path):
         for name in files:
-            all_files.append(pathlib.PurePath(path, name))
+            full_path = pathlib.PurePath(path, name)
+            if full_path.suffix in SUPPORTED_FILE_EXTENSIONS:
+                all_files.append(full_path)
     return all_files
 
 
@@ -65,6 +68,7 @@ def load_files(source):
             print("   --------------------------------------------------------------------------------------")
             for file in files:
                 records = open_file_from_s3(client, bucket, file['Key']).readlines()
+                # yield records
                 loaded_records += records
                 print(f"   > {file['Key']} ({len(records)} lines | {sys.getsizeof(records):,} bytes)")
 
@@ -83,6 +87,7 @@ def load_files(source):
             try:
                 with open_local_file(file) as fp:
                     records = fp.readlines()
+                    # yield records
                     loaded_records += records
                     print(f"   > {file} ({len(records)} lines | {sys.getsizeof(records):,} bytes)")
             except Exception as error:

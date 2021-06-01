@@ -21,6 +21,8 @@ DEFAULT_UCA_GRANULARITY = 'HOURLY'
 
 UCA_API_BATCH_SIZE = 3000
 
+SUPPORTED_FILE_EXTENSIONS = ['.gz', '.json', '.log', '.txt']
+
 
 def common_boto3_client_config():
     """

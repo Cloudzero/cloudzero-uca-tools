@@ -54,7 +54,7 @@ class RootConfiguration(object):
                 uca_settings = configuration_file['settings']
                 uca_template = configuration_file['template']
         except Exception as error:
-            eprint(f"Unable to read configuration, error: {error}")
+            eprint(f"Unable to read configuration file {self.configuration_path}, error: {error}")
             sys.exit(-1)
         return uca_settings, uca_template
 
@@ -124,22 +124,23 @@ def generate_uca_command(configuration, start, end, today, data):
         eprint(f"Unable to read data, error: {error}")
         sys.exit(-1)
 
+    generate_settings = configuration.settings['generate']
     print("CloudZero UCA Data Generator")
     print("-" * 140)
     print(f"   Date Range : {range_requested}")
     print(f"  Granularity : {configuration.template['granularity']}")
-    print(f"         Mode : {configuration.settings['mode']}")
-    if configuration.settings['mode'] == "jitter":
-        print(f"       Jitter : {configuration.settings['jitter']}")
-    elif configuration.settings['mode'] == "allocation":
-        print(f"   Allocation : {configuration.settings['allocation']}")
+    print(f"         Mode : {generate_settings['mode']}")
+    if generate_settings['mode'] == "jitter":
+        print(f"       Jitter : {generate_settings['jitter']}")
+    elif generate_settings['mode'] == "allocation":
+        print(f"   Allocation : {generate_settings['allocation']}")
     print(f"Configuration : {configuration.configuration_path}")
     print(f"         Data : {data}")
     print(f"      API Key : {configuration.api_key and configuration.api_key[:5] + '...snip' or '(no key provided)'}")
     print(f"  Destination : {configuration.destination}")
     print("-" * 140)
 
-    uca_to_send = generate_uca(range_requested, configuration.template, configuration.settings, data_file)
+    uca_to_send = generate_uca(range_requested, configuration.template, generate_settings, data_file)
     print(f"Event Generation complete, {len(uca_to_send)} events created\n")
     print_uca_sample(uca_to_send)
     transmit(uca_to_send, configuration.output_path, configuration.api_key, configuration.dry_run)

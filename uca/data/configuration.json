@@ -1,4 +1,5 @@
 {
+  "version": "0.2.1",
   "template": {
     "timestamp": "$timestamp",
     "granularity": "DAILY",
@@ -9,9 +10,10 @@
     "value": "$unit_value"
   },
   "settings": {
-    "version": "v1.2",
-    "mode": "exact",
-    "jitter": 15,
-    "allocation": 100000
+    "generate": {
+      "mode": "exact",
+      "jitter": 15,
+      "allocation": 100000
+    }
   }
 }

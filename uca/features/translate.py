@@ -29,19 +29,21 @@ def translate(input_data, format, configuration):
 
     entries = log_parser(input_data, log_type)
     template = Template(json.dumps(configuration.template))
-    pattern = re.compile(configuration.settings['unit_id_translate_field_regex'], re.IGNORECASE)
+    settings = configuration.settings['translate']
+    unit_id_settings = settings['unit_id']
+    pattern = re.compile(unit_id_settings['regex'], re.IGNORECASE)
     for entry in entries:
-        unit_id_root_value = rgetattr(entry, configuration.settings['unit_id_translate_field'])
-        regex_match = pattern.search(unit_id_root_value)
-        if regex_match and regex_match.group():
-            unit_id_root_value = regex_match.group()
+        unit_id_attribute = rgetattr(entry, unit_id_settings['attribute'])
+        regex_match = pattern.match(unit_id_attribute)
+        if regex_match:
+            unit_id_value = unit_id_settings['delimiter'].join(regex_match.groups())
             raw_entry = vars(entry)
             raw_entry['timestamp'] = transform_timestamp(entry.timestamp, configuration)
-            value_index = f"{raw_entry['timestamp']}-{unit_id_root_value}"
+            value_index = f"{raw_entry['timestamp']}-{unit_id_value}"
             uca_values[value_index] += 1
             rendered_template = template.substitute(**raw_entry,
                                                     unit_value=uca_values[value_index],
-                                                    unit_id=unit_id_root_value)
+                                                    unit_id=unit_id_value)
             uca_data[value_index] = rendered_template
 
     return list(uca_data.values())

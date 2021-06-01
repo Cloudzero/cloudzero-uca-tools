@@ -16,7 +16,7 @@ def transmit(uca_to_send, output_file, api_key, dry_run):
         print('\nSending to API')
         send_uca_events(api_key, uca_to_send)
     elif output_file:
-        with open(os.path.expanduser(output_file), 'a') as fp:
+        with open(os.path.expanduser(output_file), 'w') as fp:
             for line in uca_to_send:
                 fp.write(line.strip() + '\n')
         print(f'\nWrote results to {output_file}')

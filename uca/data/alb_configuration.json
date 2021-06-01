@@ -1,16 +1,26 @@
 {
+  "version": "0.2.1",
   "template": {
     "timestamp": "$timestamp",
     "granularity": "HOURLY",
     "cost-context": "Cost-Per-Feature",
     "id": "$unit_id",
-    "target": {},
+    "target": {
+      "product": [
+        "prod"
+      ]
+    },
     "telemetry-stream": "test-alb-data",
     "value": "$unit_value"
   },
   "settings": {
-    "version": "v1.2",
-    "unit_id_translate_field": "http_request.path",
-    "unit_id_translate_field_regex": "[^/]([^/]*)"
+    "translate": {
+      "unit_id": {
+        "attribute": "http_request.path",
+        "regex": "^/api/([^/]*)/([^/]*)",
+        "delimiter": "/"
+      },
+      "mode": "count"
+    }
   }
 }

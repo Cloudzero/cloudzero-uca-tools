@@ -53,14 +53,23 @@ Prepare an input file with one or more correctly formatted JSON UCA records as q
                             usage instructions
       --help                Show this message and exit.
 
-#### Examples
+#### Configuration
+The following is an optional configuration file for transmitting data to the CloudZero API (if you don't want to specify the API on the command line, otherwise
+no configuration file is required for `transmit`). If you wish to use either `translate` or `generate` however additional configuration settings are necessary. 
 
-#### Using JQ Transforms
+    {
+      "version": "0.2.1",
+      "settings": {
+        "api_key": "<YOUR API KEY HERE>"            # Also can be provided at runtime via the CLI. Get an API key at https://app.cloudzero.com/organization/api-keys
+      }
+    }
+
+### Using JQ Transforms
 CloudZero UCA tools can use JQ scripts to transform the source data on the fly before transmission. This is helpful
 when you have minor or even major changes you want to make to the data quickly and it would be more complicated or
 impossible to alter the input data (for example an existing system is producing UCA data in an older format).
 
-##### Example JQ Script
+#### Example JQ Script
 The following script requires the `id` field to be present (records missing this field will be skipped), followed
 by setting the target field using a metadata and cost-context field, followed by setting the cost-context to a 
 constant value and then deleting the metadata and uca fields
@@ -70,7 +79,7 @@ constant value and then deleting the metadata and uca fields
     | .["cost-context"] = "cost-per-title"
     | del(.metadata, .uca)
 
-###### Example Input:
+##### Example Input:
     {
       "uca": "v1.3",
       "timestamp": "2021-05-25 13:00:00+0000",
@@ -85,7 +94,7 @@ constant value and then deleting the metadata and uca fields
       }
     }
 
-###### Example Transformed Output:
+##### Example Transformed Output:
     {
       "timestamp": "2021-05-25 13:00:00",
       "granularity": "HOURLY",
@@ -121,11 +130,11 @@ Generate UCA data between 2021-03-13 and 2021-04-07 using data/configuration.jso
     $ uca generate -s 2021-03-13 -e 2021-04-07 -c data/configuration.json -d data/data.csv --dry-run
 
 #### Configuration File
-The generate configuration file is a JSON formatted definition of the UCA template
-you wish to use and the settings that should be applied when injecting data. You 
-can learn more [here about the UCA format and our UCA Telemetry API](https://docs.cloudzero.com/reference#telemetry).
+The `generate` command requires a UCA template definition and specific settings that should be applied when generating data. You 
+can learn more [about the UCA format and our UCA Telemetry API here](https://docs.cloudzero.com/reference#telemetry).
 
     {
+      "version": "0.2.1",
       "template": {
         "timestamp": "$timestamp",                  # Timestamp will be replaced automatically
         "granularity": "DAILY",                     # Granularity can be HOURLY or DAILY
@@ -136,10 +145,11 @@ can learn more [here about the UCA format and our UCA Telemetry API](https://doc
         "value": "$unit_value"                      # Will be replaced using generated data or data from your data CSV
       },
       "settings": {
-        "version": "v1.2",                          # Currently only v1.2 is supported
-        "mode": "exact",                            # Can be exact, random, jitter or allocation
-        "jitter": 15,                               # if mode is jitter, this value defines the range
-        "allocation": 100000                        # if mode is allocation, this value defines the total amount to be allocated
+        "generate": {
+          "mode": "exact",                            # Can be exact, random, jitter or allocation
+          "jitter": 15,                               # if mode is jitter, this value defines the range
+          "allocation": 100000                        # if mode is allocation, this value defines the total amount to be allocated
+        },
         "api_key": "<YOUR API KEY HERE>"            # Also can be provided at runtime via the CLI. Get an API key at https://app.cloudzero.com/organization/api-keys
       }
     }
@@ -194,9 +204,10 @@ Supported formats are ELB, ALB or CloudFront
       --help                Show this message and exit.
 
 #### Configuration
-The following configuration will extract the first part of the URL path for use as the unit id
+The following configuration using the provided template will extract the first part of the URL path for use as the unit id
 
     {
+      "version": "0.2.1",
       "template": {
         "timestamp": "$timestamp",
         "granularity": "HOURLY",
@@ -207,8 +218,14 @@ The following configuration will extract the first part of the URL path for use 
         "value": "$unit_value"
       },
       "settings": {
-        "version": "v1.2",
-        "unit_id_translate_field": "http_request.path",
-        "unit_id_translate_field_regex": "[^/]([^/]*)"
+        "translate": {
+          "unit_id": {
+            "attribute": "http_request.path",
+            "regex": "^/api/([^/]*)/([^/]*)",
+            "delimiter": "/"
+          },
+          "mode": "count"
+        },
+        "api_key": "<YOUR API KEY HERE>"            # Also can be provided at runtime via the CLI. Get an API key at https://app.cloudzero.com/organization/api-keys
       }
     }
