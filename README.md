@@ -8,8 +8,13 @@ Visit our [UCA documentation](https://docs.cloudzero.com/docs/enhanced-unit-cost
 * Generate UCA v1.2 data
 * Transform ELB/ALB and CloudFront logs into UCA data (Coming Soon!)
 
+## prerequisites
+* Tested on MacOS, should also run on Linux
+* Python 3.8 or newer
+* `pip` or your favorite method of installing packages from PyPi. Have you considered [pipx](https://pypa.github.io/pipx/)?
+
 ## Installation
-      $ pip install --user cloudzero-uca-tools
+      $ pipx install cloudzero-uca-tools
 
 ## General Usage
 CloudZero UCA tools exist to produce UCA events that can then be transmitted to the CloudZero API
