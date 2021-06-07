@@ -1,0 +1,19 @@
+{
+  "version": "0.2.2",
+  "template": {
+    "timestamp": "$timestamp",
+    "granularity": "HOURLY",
+    "cost-context": "Cost-Per-Fake-Customer",
+    "id": "$unit_id",
+    "target": {"product": ["prod"]},
+    "telemetry-stream": "test-data",
+    "value": "$unit_value"
+  },
+  "settings": {
+    "generate": {
+      "mode": "exact",
+      "jitter": 35,
+      "allocation": 100000
+    }
+  }
+}
