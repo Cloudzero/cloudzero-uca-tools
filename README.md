@@ -29,8 +29,8 @@ from https://app.cloudzero.com/organization/api-keys
     Options:
       --version                 Show the version and exit.
       -c, --configuration TEXT  UCA configuration file (JSON)
-      -o, --output TEXT         Instead of sending events to the API, append the
-                                events to an output file
+      -o, --output TEXT         Instead of sending events to the API, write
+                                events to an output file (note: will overwrite file if it exists)
       -dry, --dry-run           Perform a dry run, read and transform the data but
                                 do not send it to the API
       -k, --api-key TEXT        API Key to use

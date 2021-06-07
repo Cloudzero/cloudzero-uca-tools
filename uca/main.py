@@ -30,16 +30,17 @@ class RootConfiguration(object):
             self.template = {}
         self.output_path = output and os.path.abspath(output) or None
         self.dry_run = dry_run
-        self.api_key = api_key
+        self.api_key = api_key or self.settings.get('api_key')
         self.granularity = self.template.get('granularity')
 
-        if self.output_path:
+        if self.dry_run:
+            print(self.dry_run)
+            self.dry_run = True
+            self.destination = "nowhere (dry run only)"
+        elif self.output_path:
             self.destination = os.path.abspath(self.output_path)
         elif self.api_key:
             self.destination = "CloudZero API"
-        else:
-            self.dry_run = True
-            self.destination = "nowhere (dry run only)"
 
     def print(self):
         print(f" Configuration: {self.configuration_path}\n"
