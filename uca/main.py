@@ -11,7 +11,7 @@ import click
 import simplejson as json
 from uca.common.cli import eprint, print_uca_sample
 from uca.common.custom_types import TimeRange
-from uca.common.files import load_files
+from uca.common.files import load_data_files
 from uca.common.standards import utc_datetime_from_anything
 from uca.features.generate import generate_uca
 from uca.features.transform import transform_data, load_transform_script
@@ -150,7 +150,7 @@ def generate_uca_command(configuration, start, end, today, data):
 @cli.command("transmit")
 @click.option("--data", "-d",
               required=True,
-              help="Source data, in text or gzip + text format, supports file:// or s3:// paths")
+              help="Source JSON data, in text or gzip + text format, supports file:// or s3:// paths")
 @click.option("--transform", "-t",
               required=False,
               help="Optional transformation script using jq (https://stedolan.github.io/jq/). Used when the source data needs modification or cleanup. See README.md for usage instructions")
@@ -159,8 +159,8 @@ def transmit_uca_command(configuration, data, transform):
     print(f"Transmitting UCA data from {data} to {configuration.destination}")
     print("-" * 140)
 
+    records = load_data_files(data, convert_from_json=True)
     transform_script = load_transform_script(transform)
-    records = load_files(data)
     uca_to_send, transformed_records, filtered_records = transform_data(records, transform_script)
     print(f" - Processed {len(records)} records "
           f"| {transformed_records} Transformed | {filtered_records} Filtered")
@@ -172,7 +172,7 @@ def transmit_uca_command(configuration, data, transform):
 @cli.command("translate")
 @click.option("--data", "-d",
               required=True,
-              help="Source data, in text or gzip + text format, supports file:// or s3:// paths")
+              help="Source log data, in text or gzip + text format, supports file:// or s3:// paths")
 @click.option("--format", "-f",
               required=True,
               help="See README.md for supported formats and usage instructions")
@@ -191,9 +191,10 @@ def translate_uca_command(configuration, data, format, transform):
     print(f"  Destination : {configuration.destination}")
     print("-" * 140)
 
-    transform_script = load_transform_script(transform)
-    records = load_files(data)
+    records = load_data_files(data)
     translated_data = translate(records, format, configuration)
+
+    transform_script = load_transform_script(transform)
     uca_to_send, transformed_records, filtered_records = transform_data(translated_data, transform_script)
     print(f" - Aggregated {len(records)} {format} records into {len(uca_to_send)} UCA records "
           f"| {transformed_records} Transformed | {filtered_records} Filtered")

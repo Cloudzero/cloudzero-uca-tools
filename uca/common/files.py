@@ -5,6 +5,7 @@ import gzip
 import os
 import pathlib
 import sys
+import simplejson as json
 
 import botocore
 
@@ -42,12 +43,13 @@ def list_all_local_files_in_path(root_path: str) -> list:
     return all_files
 
 
-def load_files(source):
+def load_data_files(source, convert_from_json=False):
     """
         Loads data from files located locally or in S3
 
     Args:
         source:
+        convert_from_json (bool):
 
     Returns:
 
@@ -97,4 +99,7 @@ def load_files(source):
         print("Source path should start with either file:// or s3://")
         sys.exit()
 
-    return loaded_records
+    if convert_from_json:
+        return [json.loads(x) for x in loaded_records]
+    else:
+        return loaded_records
