@@ -1,0 +1,16 @@
+{
+  "template": {
+    "timestamp": "$timestamp",
+    "granularity": "DAILY",
+    "cost-context": "Cost-Per-Feature",
+    "id": "$unit_id",
+    "target": {},
+    "telemetry-stream": "test-csv-data",
+    "value": "$unit_value"
+  },
+  "settings": {
+    "convert": {
+      "format": "CSV"
+    }
+  }
+}

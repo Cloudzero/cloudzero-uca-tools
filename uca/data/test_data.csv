@@ -1,8 +1,13 @@
-unit_id,unit_value
-ProdA,60000
-ProdB,90000
-ProdC,10000
-ProdD,10000
-ProdE,20000
-ProdF,90000
-
+timestamp,unit_id,unit_value
+2021-08-01,Sunbank,37
+2021-08-01,SoftwareCorp,17
+2021-08-01,"Parts, Inc.",140
+2021-08-01,Transport Co.,25
+2021-08-01,"WeShipit, Inc.",124
+2021-08-01,CapitalTwo,90
+2021-08-02,Sunbank,45
+2021-08-02,SoftwareCorp,234
+2021-08-02,"Parts, Inc.",12
+2021-08-02,Transport Co.,89
+2021-08-02,"WeShipit, Inc.",77
+2021-08-02,CapitalTwo,934

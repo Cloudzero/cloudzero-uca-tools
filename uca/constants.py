@@ -21,7 +21,10 @@ DEFAULT_UCA_GRANULARITY = 'HOURLY'
 
 UCA_API_BATCH_SIZE = 3000
 
-SUPPORTED_FILE_EXTENSIONS = ['.gz', '.json', '.log', '.txt']
+SUPPORTED_FILE_EXTENSIONS = ['.gz', '.json', '.log', '.txt', '.csv']
+
+FILE_FORMATS = {"ALB": "TEXT", "ELB": "TEXT", "CLOUDFRONT": "TEXT", "JSON": "JSON", "TEXT": "TEXT", "CSV": "CSV"}
+DEFAULT_FILE_FORMAT = "TEXT"
 
 
 def common_boto3_client_config():

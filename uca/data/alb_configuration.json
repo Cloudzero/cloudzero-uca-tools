@@ -14,7 +14,8 @@
     "value": "$unit_value"
   },
   "settings": {
-    "translate": {
+    "convert": {
+      "format": "ALB",
       "unit_id": {
         "attribute": "http_request.path",
         "regex": "^/api/([^/]*)/([^/]*)",

@@ -13,9 +13,10 @@ from uca.common.cli import eprint, print_uca_sample
 from uca.common.custom_types import TimeRange
 from uca.common.files import load_data_files
 from uca.common.standards import utc_datetime_from_anything
+from uca.constants import FILE_FORMATS, DEFAULT_FILE_FORMAT
 from uca.features.generate import generate_uca
 from uca.features.transform import transform_data, load_transform_script
-from uca.features.translate import translate
+from uca.features.convert import convert
 from uca.features.transmit import transmit
 from uca.__version__ import __version__
 
@@ -63,7 +64,7 @@ class RootConfiguration(object):
 pass_root_configuration = click.make_pass_decorator(RootConfiguration)
 
 
-@click.group()
+@click.group(name="cloudzero-uca-tools")
 @click.version_option(version=__version__)
 @click.option("--configuration", "-c",
               required=False,
@@ -159,7 +160,7 @@ def transmit_uca_command(configuration, data, transform):
     print(f"Transmitting UCA data from {data} to {configuration.destination}")
     print("-" * 140)
 
-    records = load_data_files(data, convert_from_json=True)
+    records = load_data_files(data, file_format='JSON')
     transform_script = load_transform_script(transform)
     uca_to_send, transformed_records, filtered_records = transform_data(records, transform_script)
     print(f" - Processed {len(records)} records "
@@ -169,34 +170,32 @@ def transmit_uca_command(configuration, data, transform):
     transmit(uca_to_send, configuration.output_path, configuration.api_key, configuration.dry_run)
 
 
-@cli.command("translate")
+@cli.command("convert")
 @click.option("--data", "-d",
               required=True,
               help="Source log data, in text or gzip + text format, supports file:// or s3:// paths")
-@click.option("--format", "-f",
-              required=True,
-              help="See README.md for supported formats and usage instructions")
 @click.option("--transform", "-t",
               required=False,
-              help="Optional, post translation, transformation script using jq (https://stedolan.github.io/jq/). Used when the JSON data needs modification or cleanup. See README.md for usage instructions")
+              help="Optional, post conversion, transformation script using jq (https://stedolan.github.io/jq/). Used when the data needs cleanup. See README.md for usage instructions")
 @pass_root_configuration
-def translate_uca_command(configuration, data, format, transform):
+def convert_uca_command(configuration, data, transform):
     if not configuration.settings:
         eprint("Please specify a --configuration file")
         sys.exit()
-
-    print(f"Translating {format} data into CloudZero UCA")
+    data_format = configuration.settings['convert']['format']
+    print(f"Converting {data_format} data into CloudZero UCA")
     print("-" * 140)
-    print(f"       Format : {format}")
+    print(f"       Format : {data_format}")
     print(f"  Destination : {configuration.destination}")
     print("-" * 140)
 
-    records = load_data_files(data)
-    translated_data = translate(records, format, configuration)
+    file_format = FILE_FORMATS.get(data_format, DEFAULT_FILE_FORMAT)
+    records = load_data_files(data, file_format)
+    translated_data = convert(records, configuration)
 
     transform_script = load_transform_script(transform)
     uca_to_send, transformed_records, filtered_records = transform_data(translated_data, transform_script)
-    print(f" - Aggregated {len(records)} {format} records into {len(uca_to_send)} UCA records "
+    print(f" - Aggregated {len(records)} {data_format} records into {len(uca_to_send)} UCA records "
           f"| {transformed_records} Transformed | {filtered_records} Filtered")
     print(f" - {len(uca_to_send) - filtered_records} UCA records ready for output")
     print_uca_sample(uca_to_send)

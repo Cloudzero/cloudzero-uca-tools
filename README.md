@@ -43,7 +43,7 @@ from https://app.cloudzero.com/organization/api-keys
 
 ### Transmit
 UCA data transmission allows you easily send UCA data directly to the CloudZero API without having to write code.
-Prepare an input file with one or more correctly formatted JSON UCA records as quickly send it to the CloudZero API. 
+Prepare an input file with one or more correctly formatted JSON UCA records and quickly send it to the CloudZero API. 
 
 #### Help
     $ uca transmit --help
@@ -188,27 +188,73 @@ Together this configuration and data will produce UCA events similar to the foll
     {'timestamp': '2021-04-06 00:00:00+00:00', 'granularity': 'DAILY', 'cost-context': 'Cost-Per-Fake-Customer', 'id': 'Transport Co.', 'target': {}, 'telemetry-stream': 'test-data', 'value': '25.0000'}
     {'timestamp': '2021-03-19 00:00:00+00:00', 'granularity': 'DAILY', 'cost-context': 'Cost-Per-Fake-Customer', 'id': 'StateEx', 'target': {}, 'telemetry-stream': 'test-data', 'value': '40.0000'}
 
-### Translate
-Translate ELB, ALB or CloudFront logs into UCA data format. 
+### Convert
+Convert CSV, ELB, ALB or CloudFront logs into UCA data format and transmit them directly to the CloudZero UCA API. 
 
-Supported formats are ELB, ALB or CloudFront
+Supported formats are CSV, ELB, ALB or CloudFront
+
 
 #### Help
-    $ uca translate --help
-    Usage: uca translate [OPTIONS]
+    $ uca convert --help
+    Usage: uca convert [OPTIONS]
     
     Options:
       -d, --data TEXT       Source data, in text or gzip + text format, supports
                             file:// or s3:// paths  [required]
-      -f, --format TEXT     See README.md for supported formats and usage
-                            instructions  [required]
       -t, --transform TEXT  Optional, post translation, transformation script
                             using jq (https://stedolan.github.io/jq/). Used when
                             the JSON data needs modification or cleanup. See
                             README.md for usage instructions
       --help                Show this message and exit.
 
-#### Configuration
+
+#### CSV Configuration
+Convert CSV data source into UCA data. The input file must have a column headers and include
+at a minimum data for the timestamp, unit id, and unit value fields. Each column name will be mapped as tokens
+to your configured UCA template.
+
+Example usage:
+
+    $ uca -c csv_configuration.json convert -d test_data.csv
+
+##### Example CSV Data
+
+    timestamp,unit_id,unit_value
+    2021-08-01,Sunbank,37
+    2021-08-01,SoftwareCorp,17
+    2021-08-01,"Parts, Inc.",140
+    2021-08-01,Transport Co.,25
+    2021-08-01,"WeShipit, Inc.",124
+    2021-08-01,CapitalTwo,90
+    2021-08-02,Sunbank,45
+    2021-08-02,SoftwareCorp,234
+    2021-08-02,"Parts, Inc.",12
+    2021-08-02,Transport Co.,89
+    2021-08-02,"WeShipit, Inc.",77
+    2021-08-02,CapitalTwo,934
+
+
+##### Example CSV Template
+
+    {
+      "template": {
+        "timestamp": "$timestamp",
+        "granularity": "HOURLY",
+        "cost-context": "Cost-Per-Feature",
+        "id": "$unit_id",
+        "target": {},
+        "telemetry-stream": "test-csv-data",
+        "value": "$unit_value"
+      },
+      "settings": {
+        "convert": {
+          "format": "CSV",
+        },
+        "api_key": "<YOUR API KEY HERE>"            # Also can be provided at runtime via the CLI. Get an API key at https://app.cloudzero.com/organization/api-keys
+      }
+    }
+
+#### ALB Configuration
 The following configuration using the provided template will extract the first part of the URL path for use as the unit id
 
     {
@@ -223,7 +269,8 @@ The following configuration using the provided template will extract the first p
         "value": "$unit_value"
       },
       "settings": {
-        "translate": {
+        "convert": {
+          "format": "ALB",
           "unit_id": {
             "attribute": "http_request.path",
             "regex": "^/api/([^/]*)/([^/]*)",

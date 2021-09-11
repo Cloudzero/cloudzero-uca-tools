@@ -1,6 +1,7 @@
 # Copyright (c) 2021 CloudZero, Inc. All rights reserved.
 # Licensed under the BSD License. See LICENSE file in the project root for full license information.
 # Direct all questions to support@cloudzero.com
+import csv
 import gzip
 import os
 import pathlib
@@ -17,9 +18,9 @@ from uca.constants import SUPPORTED_FILE_EXTENSIONS
 
 def open_local_file(file_path: pathlib.PurePath):
     if file_path.suffix == ".gz":  # poor man's GZip detection
-        raw_file = gzip.open(file_path, mode='rt', encoding='utf-8')
+        raw_file = gzip.open(file_path, mode='r', newline='', encoding="utf-8-sig")
     else:
-        raw_file = open(file_path, mode='rt', encoding='utf-8')
+        raw_file = open(file_path, mode='r', newline='', encoding="utf-8-sig")
     return raw_file
 
 
@@ -43,18 +44,26 @@ def list_all_local_files_in_path(root_path: str) -> list:
     return all_files
 
 
-def load_data_files(source, convert_from_json=False):
+def load_data_files(source: str, file_format: [str] = None) -> list:
     """
         Loads data from files located locally or in S3
 
     Args:
-        source:
-        convert_from_json (bool):
+        source (str):
+        file_format (str, None): CSV, JSON, None (None means just plain ASCII or UTF-8 text)
 
     Returns:
+        list:
 
     """
-    print(f" - Reading from {source}")
+    if not file_format:
+        file_format = "TEXT"
+
+    if file_format not in ["TEXT", "JSON", "CSV"]:
+        eprint(f"ERROR: {file_format} is unsupported, must be TEXT, JSON or CSV")
+        sys.exit(1)
+
+    print(f" - Reading {file_format} from {source}")
     loaded_records = []
     if source.lower().startswith('s3://'):
         bucket, key = parse_url(source)
@@ -69,9 +78,17 @@ def load_data_files(source, convert_from_json=False):
 
             print("   --------------------------------------------------------------------------------------")
             for file in files:
-                records = open_file_from_s3(client, bucket, file['Key']).readlines()
-                # yield records
-                loaded_records += records
+                fp = open_file_from_s3(client, bucket, file['Key'])
+                if file_format == 'JSON':
+                    records = fp.readlines()
+                    loaded_records += [json.loads(x) for x in records]
+                elif file_format.upper() == "CSV":
+                    csv_data = csv.DictReader(fp)
+                    records = list(csv_data)
+                    loaded_records += records
+                else:
+                    records = fp.readlines()
+                    loaded_records += records
                 print(f"   > {file['Key']} ({len(records)} lines | {sys.getsizeof(records):,} bytes)")
 
         except botocore.exceptions.ClientError:
@@ -88,10 +105,17 @@ def load_data_files(source, convert_from_json=False):
         for file in files:
             try:
                 with open_local_file(file) as fp:
-                    records = fp.readlines()
-                    # yield records
-                    loaded_records += records
-                    print(f"   > {file} ({len(records)} lines | {sys.getsizeof(records):,} bytes)")
+                    if file_format == 'JSON':
+                        records = fp.readlines()
+                        loaded_records += [json.loads(x) for x in records]
+                    elif file_format.upper() == "CSV":
+                        csv_data = csv.DictReader(open(file, mode='r', newline='', encoding="utf-8-sig"))
+                        records = list(csv_data)
+                        loaded_records += records
+                    else:
+                        records = fp.readlines()
+                        loaded_records += records
+                print(f"   > {file} ({len(records)} lines | {sys.getsizeof(records):,} bytes)")
             except Exception as error:
                 eprint(f"Unable to read file {file}, error: {error}")
                 sys.exit(-1)
@@ -99,7 +123,7 @@ def load_data_files(source, convert_from_json=False):
         print("Source path should start with either file:// or s3://")
         sys.exit()
 
-    if convert_from_json:
-        return [json.loads(x) for x in loaded_records]
-    else:
-        return loaded_records
+    return loaded_records
+
+
+
