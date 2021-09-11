@@ -124,6 +124,3 @@ def load_data_files(source: str, file_format: [str] = None) -> list:
         sys.exit()
 
     return loaded_records
-
-
-
