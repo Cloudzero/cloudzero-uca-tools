@@ -33,20 +33,6 @@ help:                                    ## Prints the names and descriptions of
 
 #################
 #
-# Docker Targets
-#
-#################
-check-docker:                            ## Exits if docker is not installed and available
-	@if which docker &>/dev/null ; then \
-		printf "$(INFO_COLOR)OK:$(NO_COLOR) docker found on path!\n" ; \
-	else \
-		printf "$(ERROR_COLOR)ERROR:$(NO_COLOR) docker not found on path. Please install and configure docker!\n" ; \
-		exit 1 ; \
-	fi
-
-
-#################
-#
 # Python Targets
 #
 #################
@@ -56,8 +42,8 @@ init:                                    ## ensures all dev dependencies into th
 	python ./setup.py develop
 
 
-test: check-docker                       ## runs the unit tests on all available python runtimes
-	pytest uca tests
+test: 				                      ## runs the unit tests on all available python runtimes
+	pytest
 
 
 lint:                                    ## lints the code via adherence to PEP8 standards
@@ -87,7 +73,7 @@ check-version:							## check that version is not in pypi
 
 build: test                             ## Builds the project as a wheel
 	rm -rf dist/
-	python ./setup.py sdist
+	python ./setup.py sdist bdist_wheel
 
 upload: build check-version             ## twine uploads dist/*
 	twine upload dist/*

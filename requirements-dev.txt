@@ -1,7 +1,6 @@
 # Copyright (c) 2016-present, CloudZero, Inc. All rights reserved.
 # Licensed under the BSD-style license. See LICENSE file in the project root for full license information.
 
-docker>=5.0.0
 flake8>=3.9.2
 flake8-copyright>=0.2.2
 autopep8>=1.5.7
@@ -9,7 +8,7 @@ pycodestyle>=2.6.0
 pytest>=6.2.4
 pytest-cov>=2.12.0
 pytest-mock>=3.6.1
-twine>=3.4.1
+twine>=3.4.2
 setuptools>=57.0.0
 wheel>=0.36.2
 -r requirements.txt

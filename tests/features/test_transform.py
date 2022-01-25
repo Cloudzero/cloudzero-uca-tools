@@ -5,7 +5,7 @@
 from uca.features.transform import apply_transform, compile_transform
 
 
-def test_process():
+def test_apply_transform():
     input = {
         "uca": "v1.3",
         "timestamp": "2021-05-16 21:00:00+0000",

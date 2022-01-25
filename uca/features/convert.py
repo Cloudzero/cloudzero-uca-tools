@@ -7,7 +7,7 @@ import re
 import simplejson as json
 from string import Template
 
-from aws_log_parser import log_parser, LogType
+from aws_log_parser import AwsLogParser, LogType
 
 from uca.common.cli import eprint
 from uca.common.formatters import rgetattr
@@ -42,7 +42,8 @@ def convert(input_data, configuration):
     settings = configuration.settings['convert']
 
     if format_type == AWS_FORMAT_TYPE:
-        entries = log_parser(input_data, log_type)
+        parser = AwsLogParser(log_type)
+        entries = parser.parse(content=input_data)  # TODO move this to read_url
         unit_id_settings = settings['unit_id']
         pattern = re.compile(unit_id_settings['regex'], re.IGNORECASE)
         for entry in entries:

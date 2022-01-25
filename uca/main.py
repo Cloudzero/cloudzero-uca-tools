@@ -9,16 +9,15 @@ from datetime import datetime, timedelta
 
 import click
 import simplejson as json
+
+from uca.__version__ import __version__
 from uca.common.cli import eprint, print_uca_sample
 from uca.common.custom_types import TimeRange
 from uca.common.files import load_data_files
 from uca.common.standards import utc_datetime_from_anything
-from uca.constants import FILE_FORMATS, DEFAULT_FILE_FORMAT
 from uca.features.generate import generate_uca
 from uca.features.transform import transform_data, load_transform_script
-from uca.features.convert import convert
 from uca.features.transmit import transmit
-from uca.__version__ import __version__
 
 
 class RootConfiguration(object):
@@ -75,7 +74,8 @@ pass_root_configuration = click.make_pass_decorator(RootConfiguration)
 @click.option("--dry-run", "-dry",
               is_flag=True,
               required=False,
-              help="Perform a dry run, read and transform the data but do not send it to the API")
+              help="Perform a dry run, read and transform the data but do not send it to the API. "
+                   "Sample events will be output to the screen")
 @click.option("--api-key", "-k",
               required=False,
               envvar='CZ_API_KEY',
@@ -108,6 +108,14 @@ def generate_uca_command(configuration, start, end, today, data):
         eprint("Please specify a --configuration file")
         sys.exit()
 
+    try:
+        data = os.path.abspath(data)
+        data_file = csv.DictReader(open(data, mode='r', newline='', encoding='utf-8-sig', errors='ignore'),
+                                   dialect='excel')
+    except Exception as error:
+        eprint(f"Unable to read data, error: {error}")
+        sys.exit(-1)
+
     if today:
         today = datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
         range_requested = TimeRange(start=today, end=today + timedelta(days=1))
@@ -116,20 +124,12 @@ def generate_uca_command(configuration, start, end, today, data):
         end_date = utc_datetime_from_anything(end)
         range_requested = TimeRange(start=start_date, end=end_date)
     else:
-        eprint("Please specify either a start and end range or use the --today option to generate events for today")
-        sys.exit()
-
-    try:
-        data = os.path.abspath(data)
-        data_file = csv.DictReader(open(data, mode='r', newline='', encoding="utf-8-sig"))  # keep fp open
-    except Exception as error:
-        eprint(f"Unable to read data, error: {error}")
-        sys.exit(-1)
+        range_requested = None
 
     generate_settings = configuration.settings['generate']
     print("CloudZero UCA Data Generator")
     print("-" * 140)
-    print(f"   Date Range : {range_requested}")
+    print(f"   Date Range : {range_requested or 'data driven'}")
     print(f"  Granularity : {configuration.template['granularity']}")
     print(f"         Mode : {generate_settings['mode']}")
     if generate_settings['mode'] == "jitter":
@@ -154,7 +154,8 @@ def generate_uca_command(configuration, start, end, today, data):
               help="Source JSON data, in text or gzip + text format, supports file:// or s3:// paths")
 @click.option("--transform", "-t",
               required=False,
-              help="Optional transformation script using jq (https://stedolan.github.io/jq/). Used when the source data needs modification or cleanup. See README.md for usage instructions")
+              help="Optional transformation script using jq (https://stedolan.github.io/jq/). "
+                   "Used when the source data needs modification or cleanup. See README.md for usage instructions")
 @pass_root_configuration
 def transmit_uca_command(configuration, data, transform):
     print(f"Transmitting UCA data from {data} to {configuration.destination}")
@@ -170,36 +171,33 @@ def transmit_uca_command(configuration, data, transform):
     transmit(uca_to_send, configuration.output_path, configuration.api_key, configuration.dry_run)
 
 
-@cli.command("convert")
-@click.option("--data", "-d",
-              required=True,
-              help="Source log data, in text or gzip + text format, supports file:// or s3:// paths")
-@click.option("--transform", "-t",
-              required=False,
-              help="Optional, post conversion, transformation script using jq (https://stedolan.github.io/jq/). Used when the data needs cleanup. See README.md for usage instructions")
-@pass_root_configuration
-def convert_uca_command(configuration, data, transform):
-    if not configuration.settings:
-        eprint("Please specify a --configuration file")
-        sys.exit()
-    data_format = configuration.settings['convert']['format']
-    print(f"Converting {data_format} data into CloudZero UCA")
-    print("-" * 140)
-    print(f"       Format : {data_format}")
-    print(f"  Destination : {configuration.destination}")
-    print("-" * 140)
-
-    file_format = FILE_FORMATS.get(data_format, DEFAULT_FILE_FORMAT)
-    records = load_data_files(data, file_format)
-    translated_data = convert(records, configuration)
-
-    transform_script = load_transform_script(transform)
-    uca_to_send, transformed_records, filtered_records = transform_data(translated_data, transform_script)
-    print(f" - Aggregated {len(records)} {data_format} records into {len(uca_to_send)} UCA records "
-          f"| {transformed_records} Transformed | {filtered_records} Filtered")
-    print(f" - {len(uca_to_send) - filtered_records} UCA records ready for output")
-    print_uca_sample(uca_to_send)
-    transmit(uca_to_send, configuration.output_path, configuration.api_key, configuration.dry_run)
+# @cli.command("convert")
+# @click.option("--data", "-d",
+#               required=True,
+#               help="Source log data, in text or gzip + text format, supports file:// or s3:// paths")
+# @pass_root_configuration
+# def convert_uca_command(configuration, data, transform):
+#     if not configuration.settings:
+#         eprint("Please specify a --configuration file")
+#         sys.exit()
+#     data_format = configuration.settings['convert']['format']
+#     print(f"Converting {data_format} data into CloudZero UCA")
+#     print("-" * 140)
+#     print(f"       Format : {data_format}")
+#     print(f"  Destination : {configuration.destination}")
+#     print("-" * 140)
+#
+#     file_format = FILE_FORMATS.get(data_format, DEFAULT_FILE_FORMAT)
+#     records = load_data_files(data, file_format)
+#     translated_data = convert(records, configuration)
+#
+#     transform_script = load_transform_script(transform)
+#     uca_to_send, transformed_records, filtered_records = transform_data(translated_data, transform_script)
+#     print(f" - Aggregated {len(records)} {data_format} records into {len(uca_to_send)} UCA records "
+#           f"| {transformed_records} Transformed | {filtered_records} Filtered")
+#     print(f" - {len(uca_to_send) - filtered_records} UCA records ready for output")
+#     print_uca_sample(uca_to_send)
+#     transmit(uca_to_send, configuration.output_path, configuration.api_key, configuration.dry_run)
 
 
 if __name__ == "__main__":

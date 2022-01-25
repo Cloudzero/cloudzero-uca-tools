@@ -1,15 +1,14 @@
-# CloudZero UCA Tools
+# CloudZero UCA Toolkit
 Utilities for generating, transforming and transmitting unit cost analytics (UCA) data to the CloudZero API.
 Visit our [UCA documentation](https://docs.cloudzero.com/docs/enhanced-unit-cost-analytics) to learn more about
 [CloudZero](https://www.cloudzero.com) and our enhanced unit cost analytics capabilities.
 
 ## Features
-* Transmit UCA v1.2 data to CloudZero (using the CloudZero UCA API)
-* Generate UCA v1.2 data
-* Transform ELB/ALB and CloudFront logs into UCA data (Coming Soon!)
+* Transmit UCA data to CloudZero (using the CloudZero UCA API)
+* Generate UCA data
 
 ## prerequisites
-* Tested on MacOS, should also run on Linux
+* Tested on MacOS, should probably run on Linux in general
 * Python 3.8 or newer
 * `pip` or your favorite method of installing packages from PyPi. Have you considered [pipx](https://pypa.github.io/pipx/)?
 
@@ -24,7 +23,7 @@ from https://app.cloudzero.com/organization/api-keys
     $ uca
     Usage: uca [OPTIONS] COMMAND [ARGS]...
     
-      CloudZero Unit Cost Analytics utility
+      CloudZero Unit Cost Analytics Toolkit
     
     Options:
       --version                 Show the version and exit.
@@ -32,20 +31,35 @@ from https://app.cloudzero.com/organization/api-keys
       -o, --output TEXT         Instead of sending events to the API, write
                                 events to an output file (note: will overwrite file if it exists)
       -dry, --dry-run           Perform a dry run, read and transform the data but
-                                do not send it to the API
+                                do not send it to the API. Sample events will be output to the screen
       -k, --api-key TEXT        API Key to use
       --help                    Show this message and exit.
     
     Commands:
-      generate
-      translate
       transmit
+      generate
 
-### Transmit
-UCA data transmission allows you easily send UCA data directly to the CloudZero API without having to write code.
-Prepare an input file with one or more correctly formatted JSON UCA records and quickly send it to the CloudZero API. 
+### Basic Configuration
+The following is a minimal configuration file for transmitting data to the CloudZero API 
+(if you don't want to specify the API on the command line, otherwise no configuration file 
+is required for `transmit`). If you wish to use `generate` however a configuration file
+is required. 
 
-#### Help
+    {
+      "version": "1",                               # anything you want
+      "settings": {
+        "api_key": "<YOUR API KEY HERE>"            # Also can be provided at runtime via the CLI. Get an API key at https://app.cloudzero.com/organization/api-keys
+      }
+    }
+
+Each command also has its own set of command line options that will need to be provided as well 
+
+## Transmit
+UCA data transmission allows you easily send UCA data directly to the CloudZero API without having to write
+code. Prepare an input file with one or more correctly formatted JSON UCA records and quickly send it to
+the CloudZero telemetry API. 
+
+### Help
     $ uca transmit --help
     Usage: uca transmit [OPTIONS]
     
@@ -58,23 +72,21 @@ Prepare an input file with one or more correctly formatted JSON UCA records and 
                             usage instructions
       --help                Show this message and exit.
 
-#### Configuration
-The following is an optional configuration file for transmitting data to the CloudZero API (if you don't want to specify the API on the command line, otherwise
-no configuration file is required for `transmit`). If you wish to use either `translate` or `generate` however additional configuration settings are necessary. 
+### input data
+Your input data can be either a text or gzip file, consisting of one JSON record per line. 
 
-    {
-      "version": "0.2.1",
-      "settings": {
-        "api_key": "<YOUR API KEY HERE>"            # Also can be provided at runtime via the CLI. Get an API key at https://app.cloudzero.com/organization/api-keys
-      }
-    }
+For example:
 
-### Using JQ Transforms
-CloudZero UCA tools can use JQ scripts to transform the source data on the fly before transmission. This is helpful
-when you have minor or even major changes you want to make to the data quickly and it would be more complicated or
-impossible to alter the input data (for example an existing system is producing UCA data in an older format).
+     {'timestamp': '2021-03-22 00:00:00+00:00', 'granularity': 'DAILY', 'cost-context': 'Cost-Per-Fake-Customer', 'id': 'StateEx', 'target': {}, 'telemetry-stream': 'test-data', 'value': '40.0000'} 
+     {'timestamp': '2021-04-01 00:00:00+00:00', 'granularity': 'DAILY', 'cost-context': 'Cost-Per-Fake-Customer', 'id': 'Hooli', 'target': {}, 'telemetry-stream': 'test-data', 'value': '23.0000'}
 
-#### Example JQ Script
+#### Using an optional JQ transform
+You can optionally provide a JQ script to transform the source data on the fly before transmission. 
+This is helpful when you have minor or even major changes you want to make to the data quickly, and
+it would be more complicated or impossible to alter the input data (for example an existing system
+is producing UCA data in an older format).
+
+##### Example JQ Script
 The following script requires the `id` field to be present (records missing this field will be skipped), followed
 by setting the target field using a metadata and cost-context field, followed by setting the cost-context to a 
 constant value and then deleting the metadata and uca fields
@@ -84,12 +96,12 @@ constant value and then deleting the metadata and uca fields
     | .["cost-context"] = "cost-per-title"
     | del(.metadata, .uca)
 
-##### Example Input:
+##### Example Input before JQ transform:
     {
       "uca": "v1.3",
       "timestamp": "2021-05-25 13:00:00+0000",
       "granularity": "HOURLY",
-      "cost-context": "rosebud",
+      "context": "rosebud",
       "id": "frank",
       "target": {},
       "telemetry-stream": "test-data",
@@ -99,11 +111,11 @@ constant value and then deleting the metadata and uca fields
       }
     }
 
-##### Example Transformed Output:
+##### Example Transformed Output after JQ transform:
     {
       "timestamp": "2021-05-25 13:00:00",
       "granularity": "HOURLY",
-      "cost-context": "Cost-Per-Customer",
+      "context": "Cost-Per-Customer",
       "id": "frank",
       "target": {
         "tag:environment": ["production"],
@@ -113,37 +125,43 @@ constant value and then deleting the metadata and uca fields
       "value": "1073641"
     }
 
+## Generate
+Generates UCA data from a source data set (in CSV format) or just based on rules you define. The time period
+for the data can be defined as part of the source data or generated based on a start and end range
 
-### Generate
-UCA data generation is useful when you need to account for static assets and cost allocations
-that need to be accounted for to fill gaps in your UCA data or for testing purposes.
-
-#### Help
+### Help
     $ uca generate --help
     Usage: uca generate [OPTIONS]
     
     Options:
-      -s, --start TEXT  start datetime <YYYY-MM-DD HH:MM:SS>
-      -e, --end TEXT    End datetime <YYYY-MM-DD HH:MM:SS>
-      --today           Generate events for the current day
+      -s, --start TEXT  start datetime <YYYY-MM-DD HH:MM:SS> (optional)
+      -e, --end TEXT    End datetime <YYYY-MM-DD HH:MM:SS> (optional)
+      --today           Generate events for the current day (optional)
       -d, --data TEXT   Input UCA data (CSV)  [required]
       --help            Show this message and exit.
 
 #### Examples
-Generate UCA data between 2021-03-13 and 2021-04-07 using data/configuration.json and data/data.csv as input. Perform only a dry run and do not send the results to the CloudZero API
+Generate UCA data between 2021-03-13 and 2021-04-07 using data/configuration.json and data/data.csv as input. 
+Performs only a dry run and do not send the results to the CloudZero API
 
     $ uca generate -s 2021-03-13 -e 2021-04-07 -c data/configuration.json -d data/data.csv --dry-run
+
+Generate UCA data using data/configuration.json and data/data.csv (which must contain a timestamp column) 
+as input. Performs only a dry run and do not send the results to the CloudZero API
+
+    $ uca generate -s 2021-03-13 -e 2021-04-07 -c data/configuration.json -d data/data.csv --dry-run
+
 
 #### Configuration File
 The `generate` command requires a UCA template definition and specific settings that should be applied when generating data. You 
 can learn more [about the UCA format and our UCA Telemetry API here](https://docs.cloudzero.com/reference#telemetry).
 
     {
-      "version": "0.2.1",
+      "version": "1",                               # can be anything you want that helps you keep track of things
       "template": {
-        "timestamp": "$timestamp",                  # Timestamp will be replaced automatically
-        "granularity": "DAILY",                     # Granularity can be HOURLY or DAILY
-        "cost-context": "Cost-Per-Fake-Customer",   # You can have up to 5 telemetry streams per context
+        "timestamp": "$timestamp",                  # Timestamp will be replaced automatically or from the input data source
+        "granularity": "DAILY",                     # Granularity can be HOURLY, DAILY or MONTHLY. See notes below for usage
+        "context": "Cost-Per-Fake-Customer",   # You can have up to 5 telemetry streams per context
         "id": "$unit_id",                           # Will be replaced using data from your data CSV
         "target": {},                               # Use {} to map to all spend or use a combination of tags and keywords to get more specific
         "telemetry-stream": "test-data",            # Unique name for this telemetry stream          
@@ -158,6 +176,16 @@ can learn more [about the UCA format and our UCA Telemetry API here](https://doc
         "api_key": "<YOUR API KEY HERE>"            # Also can be provided at runtime via the CLI. Get an API key at https://app.cloudzero.com/organization/api-keys
       }
     }
+
+##### A note on using MONTHLY granularity.
+MONTHLY is a special granularity that when used instructs the UCA toolkit to expand the provided year and month
+to all possible days in the current month. For example if you have this input data:
+
+> unit_id,granularity,timestamp,unit_value
+"SuperDogs, Inc",Monthly,2022-10-1,8
+"CoolCats, LLC",Monthly,2022-10-1,229
+
+This will expand to 61 events, 31 for "SuperDogs, Inc" and 31 for "CoolCats, LLC" (31 days in October) 
 
 #### Data CSV
 The data CSV defines the input data you wish to feed into the template. This tool will produce
@@ -182,102 +210,8 @@ example has 13 "customers" and can be used as input for all configuration modes.
 #### Example output
 Together this configuration and data will produce UCA events similar to the following:
 
-    {'timestamp': '2021-03-22 00:00:00+00:00', 'granularity': 'DAILY', 'cost-context': 'Cost-Per-Fake-Customer', 'id': 'StateEx', 'target': {}, 'telemetry-stream': 'test-data', 'value': '40.0000'}
-    {'timestamp': '2021-04-01 00:00:00+00:00', 'granularity': 'DAILY', 'cost-context': 'Cost-Per-Fake-Customer', 'id': 'Hooli', 'target': {}, 'telemetry-stream': 'test-data', 'value': '23.0000'}
-    {'timestamp': '2021-04-01 00:00:00+00:00', 'granularity': 'DAILY', 'cost-context': 'Cost-Per-Fake-Customer', 'id': 'Sunbank', 'target': {}, 'telemetry-stream': 'test-data', 'value': '37.0000'}
-    {'timestamp': '2021-04-06 00:00:00+00:00', 'granularity': 'DAILY', 'cost-context': 'Cost-Per-Fake-Customer', 'id': 'Transport Co.', 'target': {}, 'telemetry-stream': 'test-data', 'value': '25.0000'}
-    {'timestamp': '2021-03-19 00:00:00+00:00', 'granularity': 'DAILY', 'cost-context': 'Cost-Per-Fake-Customer', 'id': 'StateEx', 'target': {}, 'telemetry-stream': 'test-data', 'value': '40.0000'}
-
-### Convert
-Convert CSV, ELB, ALB or CloudFront logs into UCA data format and transmit them directly to the CloudZero UCA API. 
-
-Supported formats are CSV, ELB, ALB or CloudFront
-
-
-#### Help
-    $ uca convert --help
-    Usage: uca convert [OPTIONS]
-    
-    Options:
-      -d, --data TEXT       Source data, in text or gzip + text format, supports
-                            file:// or s3:// paths  [required]
-      -t, --transform TEXT  Optional, post translation, transformation script
-                            using jq (https://stedolan.github.io/jq/). Used when
-                            the JSON data needs modification or cleanup. See
-                            README.md for usage instructions
-      --help                Show this message and exit.
-
-
-#### CSV Configuration
-Convert CSV data source into UCA data. The input file must have a column headers and include
-at a minimum data for the timestamp, unit id, and unit value fields. Each column name will be mapped as tokens
-to your configured UCA template.
-
-Example usage:
-
-    $ uca -c csv_configuration.json convert -d test_data.csv
-
-##### Example CSV Data
-
-    timestamp,unit_id,unit_value
-    2021-08-01,Sunbank,37
-    2021-08-01,SoftwareCorp,17
-    2021-08-01,"Parts, Inc.",140
-    2021-08-01,Transport Co.,25
-    2021-08-01,"WeShipit, Inc.",124
-    2021-08-01,CapitalTwo,90
-    2021-08-02,Sunbank,45
-    2021-08-02,SoftwareCorp,234
-    2021-08-02,"Parts, Inc.",12
-    2021-08-02,Transport Co.,89
-    2021-08-02,"WeShipit, Inc.",77
-    2021-08-02,CapitalTwo,934
-
-
-##### Example CSV Template
-
-    {
-      "template": {
-        "timestamp": "$timestamp",
-        "granularity": "HOURLY",
-        "cost-context": "Cost-Per-Feature",
-        "id": "$unit_id",
-        "target": {},
-        "telemetry-stream": "test-csv-data",
-        "value": "$unit_value"
-      },
-      "settings": {
-        "convert": {
-          "format": "CSV",
-        },
-        "api_key": "<YOUR API KEY HERE>"            # Also can be provided at runtime via the CLI. Get an API key at https://app.cloudzero.com/organization/api-keys
-      }
-    }
-
-#### ALB Configuration
-The following configuration using the provided template will extract the first part of the URL path for use as the unit id
-
-    {
-      "version": "0.2.1",
-      "template": {
-        "timestamp": "$timestamp",
-        "granularity": "HOURLY",
-        "cost-context": "Cost-Per-Feature",
-        "id": "$unit_id",
-        "target": {},
-        "telemetry-stream": "test-alb-data",
-        "value": "$unit_value"
-      },
-      "settings": {
-        "convert": {
-          "format": "ALB",
-          "unit_id": {
-            "attribute": "http_request.path",
-            "regex": "^/api/([^/]*)/([^/]*)",
-            "delimiter": "/"
-          },
-          "mode": "count"
-        },
-        "api_key": "<YOUR API KEY HERE>"            # Also can be provided at runtime via the CLI. Get an API key at https://app.cloudzero.com/organization/api-keys
-      }
-    }
+    {'timestamp': '2021-03-22 00:00:00+00:00', 'granularity': 'DAILY', 'context': 'Cost-Per-Fake-Customer', 'id': 'StateEx', 'target': {}, 'telemetry-stream': 'test-data', 'value': '40.0000'}
+    {'timestamp': '2021-04-01 00:00:00+00:00', 'granularity': 'DAILY', 'context': 'Cost-Per-Fake-Customer', 'id': 'Hooli', 'target': {}, 'telemetry-stream': 'test-data', 'value': '23.0000'}
+    {'timestamp': '2021-04-01 00:00:00+00:00', 'granularity': 'DAILY', 'context': 'Cost-Per-Fake-Customer', 'id': 'Sunbank', 'target': {}, 'telemetry-stream': 'test-data', 'value': '37.0000'}
+    {'timestamp': '2021-04-06 00:00:00+00:00', 'granularity': 'DAILY', 'context': 'Cost-Per-Fake-Customer', 'id': 'Transport Co.', 'target': {}, 'telemetry-stream': 'test-data', 'value': '25.0000'}
+    {'timestamp': '2021-03-19 00:00:00+00:00', 'granularity': 'DAILY', 'context': 'Cost-Per-Fake-Customer', 'id': 'StateEx', 'target': {}, 'telemetry-stream': 'test-data', 'value': '40.0000'}
