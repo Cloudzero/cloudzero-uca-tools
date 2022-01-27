@@ -37,6 +37,7 @@ dist
 sdist
 *.egg-info
 .python-version
+build
 
 # PyCharm
 .idea

@@ -43,8 +43,7 @@ def generate_uca(time_range: TimeRange, uca_template, settings, data_file):
                 start_date = utc_datetime_from_anything(row['timestamp']).replace(day=1, hour=0, minute=0,
                                                                                   second=0, microsecond=0)
                 end_date = start_date.replace(day=calendar.monthrange(year=start_date.year, month=start_date.month)[1])
-                time_range = TimeRange(start=start_date, end=end_date)
-                for timestamp in datetime_chunks(time_range.start, time_range.end, delta):
+                for timestamp in datetime_chunks(start_date, end_date, delta):
                     uca_events += _render_uca_data([row], settings, template, timestamp)
         else:
             uca_events = _render_uca_data(uca_data, settings, template)
@@ -72,7 +71,7 @@ def _render_uca_data(uca_data, settings, template, timestamp=None):
                 f"Unsupported UCA Mode '{settings['mode']}', please choose either 'exact', 'random', 'jitter' or 'allocation'")
             sys.exit(-1)
         if timestamp:
-            rendered_template = template.substitute({**row, timestamp: timestamp})
+            rendered_template = template.substitute({**row, 'timestamp': timestamp})
         else:
             rendered_template = template.substitute(**row)
         uca_events.append(json.loads(rendered_template.strip().replace("\n", "")))

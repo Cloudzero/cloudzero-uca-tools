@@ -11,7 +11,6 @@ import dateutil.parser as parser
 def utc_datetime_from_anything(input_data: Any) -> Optional[datetime]:
     if input_data is None:
         return None
-
     if isinstance(input_data, datetime):
         parsed_datetime = input_data
     elif isinstance(input_data, str):
@@ -21,7 +20,6 @@ def utc_datetime_from_anything(input_data: Any) -> Optional[datetime]:
         if input_data > 2147483647:
             input_data /= 1000
         parsed_datetime = datetime.fromtimestamp(input_data, tz=timezone.utc)
-
     if parsed_datetime.tzinfo is None:
         return parsed_datetime.replace(tzinfo=timezone.utc)
     else:

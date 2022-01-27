@@ -181,9 +181,9 @@ can learn more [about the UCA format and our UCA Telemetry API here](https://doc
 MONTHLY is a special granularity that when used instructs the UCA toolkit to expand the provided year and month
 to all possible days in the current month. For example if you have this input data:
 
-> unit_id,granularity,timestamp,unit_value
-"SuperDogs, Inc",Monthly,2022-10-1,8
-"CoolCats, LLC",Monthly,2022-10-1,229
+     unit_id,granularity,timestamp,unit_value
+     "SuperDogs, Inc",Monthly,2022-10-1,8
+     "CoolCats, LLC",Monthly,2022-10-1,229
 
 This will expand to 61 events, 31 for "SuperDogs, Inc" and 31 for "CoolCats, LLC" (31 days in October) 
 
