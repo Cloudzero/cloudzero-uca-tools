@@ -17,7 +17,7 @@ from uca.common.standards import datetime_chunks, utc_datetime_from_anything
 PRECISION = 10000
 
 
-def generate_uca(time_range: TimeRange, uca_template, settings, data_file):
+def generate_uca(time_range: TimeRange, uca_template, settings, uca_data):
     expand_month = False
     if uca_template['granularity'] == "HOURLY":
         delta = timedelta(hours=1)
@@ -31,19 +31,22 @@ def generate_uca(time_range: TimeRange, uca_template, settings, data_file):
         eprint(f"Granularity {uca_template['granularity']} not supported")
         sys.exit(-1)
 
-    uca_data = data_file
     uca_events = []
     template = Template(json.dumps(uca_template))
     if time_range:
-        for timestamp in datetime_chunks(time_range.start, time_range.end, delta):
+        for timestamp in datetime_chunks(time_range.start, time_range.end + timedelta(days=1), delta):
             uca_events += _render_uca_data(uca_data, settings, template, timestamp)
     else:
+        if not uca_data[0].get('timestamp'):
+            print("Source data MUST include a 'timestamp' column if no start and end time is provided ")
+            sys.exit(-1)
+
         if expand_month:
             for row in uca_data:
                 start_date = utc_datetime_from_anything(row['timestamp']).replace(day=1, hour=0, minute=0,
                                                                                   second=0, microsecond=0)
                 end_date = start_date.replace(day=calendar.monthrange(year=start_date.year, month=start_date.month)[1])
-                for timestamp in datetime_chunks(start_date, end_date, delta):
+                for timestamp in datetime_chunks(start_date, end_date + timedelta(days=1), delta):
                     uca_events += _render_uca_data([row], settings, template, timestamp)
         else:
             uca_events = _render_uca_data(uca_data, settings, template)

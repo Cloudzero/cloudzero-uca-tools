@@ -7,23 +7,28 @@ from typing import Optional, Any
 
 import dateutil.parser as parser
 
+from uca.exceptions import InvalidDate
+
 
 def utc_datetime_from_anything(input_data: Any) -> Optional[datetime]:
     if input_data is None:
         return None
-    if isinstance(input_data, datetime):
-        parsed_datetime = input_data
-    elif isinstance(input_data, str):
-        parsed_datetime = parser.parse(input_data)
-    else:
-        # if it's larger than the max size for a 32 bit integer it's in ms
-        if input_data > 2147483647:
-            input_data /= 1000
-        parsed_datetime = datetime.fromtimestamp(input_data, tz=timezone.utc)
-    if parsed_datetime.tzinfo is None:
-        return parsed_datetime.replace(tzinfo=timezone.utc)
-    else:
-        return parsed_datetime.astimezone(tz=timezone.utc)
+    try:
+        if isinstance(input_data, datetime):
+            parsed_datetime = input_data
+        elif isinstance(input_data, str):
+            parsed_datetime = parser.parse(input_data)
+        else:
+            # if it's larger than the max size for a 32-bit integer it's in ms
+            if input_data > 2147483647:
+                input_data /= 1000
+            parsed_datetime = datetime.fromtimestamp(input_data, tz=timezone.utc)
+        if parsed_datetime.tzinfo is None:
+            return parsed_datetime.replace(tzinfo=timezone.utc)
+        else:
+            return parsed_datetime.astimezone(tz=timezone.utc)
+    except parser.ParserError as error:
+        raise InvalidDate(error)
 
 
 def datetime_chunks(start, end, delta):

@@ -15,6 +15,7 @@ from uca.common.cli import eprint, print_uca_sample
 from uca.common.custom_types import TimeRange
 from uca.common.files import load_data_files
 from uca.common.standards import utc_datetime_from_anything
+from uca.exceptions import InvalidDate
 from uca.features.generate import generate_uca
 from uca.features.transform import transform_data, load_transform_script
 from uca.features.transmit import transmit
@@ -112,6 +113,7 @@ def generate_uca_command(configuration, start, end, today, data):
         data = os.path.abspath(data)
         data_file = csv.DictReader(open(data, mode='r', newline='', encoding='utf-8-sig', errors='ignore'),
                                    dialect='excel')
+        uca_data = list(data_file)
     except Exception as error:
         eprint(f"Unable to read data, error: {error}")
         sys.exit(-1)
@@ -120,8 +122,18 @@ def generate_uca_command(configuration, start, end, today, data):
         today = datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
         range_requested = TimeRange(start=today, end=today + timedelta(days=1))
     elif all([start, end]):
-        start_date = utc_datetime_from_anything(start)
-        end_date = utc_datetime_from_anything(end)
+
+        try:
+            start_date = utc_datetime_from_anything(start)
+        except InvalidDate as error:
+            print(f"Invalid start date: {error}")
+            sys.exit(-1)
+        try:
+            end_date = utc_datetime_from_anything(end)
+        except InvalidDate as error:
+            print(f"Invalid end date: {error}")
+            sys.exit(-1)
+
         range_requested = TimeRange(start=start_date, end=end_date)
     else:
         range_requested = None
@@ -142,9 +154,9 @@ def generate_uca_command(configuration, start, end, today, data):
     print(f"  Destination : {configuration.destination}")
     print("-" * 140)
 
-    uca_to_send = generate_uca(range_requested, configuration.template, generate_settings, data_file)
+    uca_to_send = generate_uca(range_requested, configuration.template, generate_settings, uca_data)
     print(f"Event Generation complete, {len(uca_to_send)} events created\n")
-    print_uca_sample(uca_to_send)
+    print_uca_sample(uca_to_send, 10)
     transmit(uca_to_send, configuration.output_path, configuration.api_key, configuration.dry_run)
 
 
