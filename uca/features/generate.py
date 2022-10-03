@@ -59,7 +59,7 @@ def _render_uca_data(uca_data, settings, template, timestamp=None):
         if settings['mode'] == 'random':
             unit_value = preserve_precision(row['unit_value'], PRECISION)
             row['unit_value'] = str(restore_precision(randint(0, unit_value), PRECISION))
-        if settings['mode'] == 'jitter':
+        elif settings['mode'] == 'jitter':
             jitter = int(settings['jitter'])
             row['unit_value'] = str(
                 round_decimal(max(Decimal(abs(Decimal(row['unit_value']) + randint(-jitter, jitter))), Decimal(1)),
