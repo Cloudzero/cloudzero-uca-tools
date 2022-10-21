@@ -21,7 +21,7 @@ from https://app.cloudzero.com/organization/api-keys
 
 ### Data Transmission
 UCA data transmission allows you easily send UCA data directly to the CloudZero API without having to write code.
-Prepare an input file with one or more correctly formatted JSON UCA records as quickly send it to the CloudZero API. 
+Prepare an input file with one or more correctly formatted JSON UCA records and quickly send it to the CloudZero API. 
 
 #### Help
     $ uca transmit --help
@@ -112,7 +112,7 @@ that need to be accounted for to fill gaps in your UCA data or for testing purpo
       --help                    Show this message and exit.
 
 #### Examples
-Generate UCA data between 2021-03-13 and 2021-04-07 using data/configuration.json and data/data.csv as input. Perform only a dry run and do not send the results to the CloudZero API
+Generate UCA data between 2021-03-13 and 2021-04-07 using data/configuration.json and data/data.csv as input. Perform only a dry run and do not send the results to the CloudZero API. (Sample data is located in directory uca/data)
 
     $ uca generate -s 2021-03-13 -e 2021-04-07 -c data/configuration.json -d data/data.csv --dry-run
 
@@ -135,7 +135,7 @@ can learn more [here about the UCA format and our UCA Telemetry API](https://doc
         "version": "v1.2",                          # Currently only v1.2 is supported
         "mode": "exact",                            # Can be exact, random, jitter or allocation
         "jitter": 15,                               # if mode is jitter, this value defines the range
-        "allocation": 100000                        # if mode is allocation, this value defines the total amount to be allocated
+        "allocation": 100000,                       # if mode is allocation, this value defines the total amount to be allocated
         "api_key": "<YOUR API KEY HERE>"            # Also can be provided at runtime via the CLI. Get an API key at https://app.cloudzero.com/organization/api-keys
       }
     }
