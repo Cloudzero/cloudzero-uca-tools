@@ -32,61 +32,70 @@ def generate_uca(time_range: TimeRange, uca_template, settings, uca_data):
         sys.exit(-1)
 
     uca_events = []
-    template = Template(json.dumps(uca_template))
     if time_range:
         for timestamp in datetime_chunks(time_range.start, time_range.end + timedelta(days=1), delta):
-            uca_events += _render_uca_data(uca_data, settings, template, timestamp)
+            uca_events += _render_uca_data(uca_data, settings, uca_template, timestamp)
 
     else:
-        if not uca_data[0].get('timestamp'):
-            print("Source data MUST include a 'timestamp' column if no start and end time is provided ")
-            sys.exit(-1)
+        unit_value_header = uca_template['value'].replace('$', '')
+        timestamp_header = uca_template['timestamp'].replace('$', '')
 
         if expand_month:
             for row in uca_data:
-                start_date = utc_datetime_from_anything(row['timestamp']).replace(day=1, hour=0, minute=0,
-                                                                                  second=0, microsecond=0)
+                if Decimal(row[unit_value_header]) <= 0:
+                    continue
+
+                elif not row[timestamp_header]:
+                    print('Source data MUST include a timestamp value if no start and end time is provided')
+
+                start_date = utc_datetime_from_anything(row[timestamp_header]).replace(day=1, hour=0, minute=0,
+                                                                                       second=0, microsecond=0)
                 end_date = start_date.replace(day=calendar.monthrange(year=start_date.year, month=start_date.month)[1])
                 for timestamp in datetime_chunks(start_date, end_date + timedelta(days=1), delta):
-                    uca_events += _render_uca_data([row], settings, template, timestamp)
+                    uca_events += _render_uca_data([row], settings, uca_template, timestamp)
         else:
-            uca_events = _render_uca_data(uca_data, settings, template)
+            uca_events = _render_uca_data(uca_data, settings, uca_template)
 
     return uca_events
 
 
-def _render_uca_data(uca_data, settings, template, timestamp=None):
+def _render_uca_data(uca_data, settings, uca_template, timestamp=None):
+
+    unit_value_header = uca_template['value'].replace('$', '')
+    timestamp_header = uca_template['timestamp'].replace('$', '')
 
     uca_events = []
     for row in uca_data:
-        if Decimal(row['unit_value']) <= 0:
+        if Decimal(row[unit_value_header]) <= 0:
             continue
 
         if settings['mode'] == 'random':
-            unit_value = preserve_precision(row['unit_value'], PRECISION)
-            row['unit_value'] = str(restore_precision(randint(0, unit_value), PRECISION))
+            unit_value = preserve_precision(row[unit_value_header], PRECISION)
+            row[unit_value_header] = str(restore_precision(randint(0, unit_value), PRECISION))
         elif settings['mode'] == 'jitter':
             jitter = int(settings['jitter'])
-            row['unit_value'] = str(
-                round_decimal(max(Decimal(abs(Decimal(row['unit_value']) + randint(-jitter, jitter))), Decimal(1)),
+            row[unit_value_header] = str(
+                round_decimal(max(Decimal(abs(Decimal(row[unit_value_header]) + randint(-jitter, jitter))), Decimal(1)),
                               PRECISION))
         elif settings['mode'] == 'allocation':
             try:
-                row['unit_value'] = round_decimal(Decimal(settings['allocation']) * Decimal(row['unit_allocation']),
-                                                  PRECISION)
+                row[unit_value_header] = round_decimal(Decimal(settings['allocation']) * Decimal(row['unit_allocation']),
+                                                       PRECISION)
 
             except KeyError:
                 print('ERROR: Must add "unit_allocation" column to CSV')
                 sys.exit(-1)
 
         elif settings['mode'] == 'exact':
-            row['unit_value'] = str(round_decimal(Decimal(row['unit_value']), PRECISION))
+            row[unit_value_header] = str(round_decimal(Decimal(row[unit_value_header]), PRECISION))
         else:
             eprint(
                 f"Unsupported UCA Mode '{settings['mode']}', please choose either 'exact', 'random', 'jitter' or 'allocation'")
             sys.exit(-1)
+
+        template = Template(json.dumps(uca_template))
         if timestamp:
-            rendered_template = template.substitute({**row, 'timestamp': timestamp})
+            rendered_template = template.substitute({**row, timestamp_header: timestamp})
         else:
             rendered_template = template.substitute(**row)
 
