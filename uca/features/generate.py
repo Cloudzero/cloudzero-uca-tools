@@ -59,6 +59,9 @@ def _render_uca_data(uca_data, settings, template, timestamp=None):
 
     uca_events = []
     for row in uca_data:
+        if Decimal(row['unit_value']) <= 0:
+            continue
+
         if settings['mode'] == 'random':
             unit_value = preserve_precision(row['unit_value'], PRECISION)
             row['unit_value'] = str(restore_precision(randint(0, unit_value), PRECISION))
@@ -87,8 +90,7 @@ def _render_uca_data(uca_data, settings, template, timestamp=None):
         else:
             rendered_template = template.substitute(**row)
 
-        if Decimal(row['unit_value']) > 0:
-            uca_events.append(json.loads(rendered_template.strip().replace("\n", "")))
+        uca_events.append(json.loads(rendered_template.strip().replace("\n", "")))
 
     return uca_events
 
