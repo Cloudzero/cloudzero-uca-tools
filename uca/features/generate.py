@@ -36,6 +36,7 @@ def generate_uca(time_range: TimeRange, uca_template, settings, uca_data):
     if time_range:
         for timestamp in datetime_chunks(time_range.start, time_range.end + timedelta(days=1), delta):
             uca_events += _render_uca_data(uca_data, settings, template, timestamp)
+
     else:
         if not uca_data[0].get('timestamp'):
             print("Source data MUST include a 'timestamp' column if no start and end time is provided ")
@@ -50,10 +51,12 @@ def generate_uca(time_range: TimeRange, uca_template, settings, uca_data):
                     uca_events += _render_uca_data([row], settings, template, timestamp)
         else:
             uca_events = _render_uca_data(uca_data, settings, template)
+
     return uca_events
 
 
 def _render_uca_data(uca_data, settings, template, timestamp=None):
+
     uca_events = []
     for row in uca_data:
         if settings['mode'] == 'random':
@@ -65,8 +68,14 @@ def _render_uca_data(uca_data, settings, template, timestamp=None):
                 round_decimal(max(Decimal(abs(Decimal(row['unit_value']) + randint(-jitter, jitter))), Decimal(1)),
                               PRECISION))
         elif settings['mode'] == 'allocation':
-            row['unit_value'] = round_decimal(Decimal(settings['allocation']) * Decimal(row['unit_allocation']),
-                                              PRECISION)
+            try:
+                row['unit_value'] = round_decimal(Decimal(settings['allocation']) * Decimal(row['unit_allocation']),
+                                                  PRECISION)
+
+            except KeyError:
+                print('ERROR: Must add "unit_allocation" column to CSV')
+                sys.exit(-1)
+
         elif settings['mode'] == 'exact':
             row['unit_value'] = str(round_decimal(Decimal(row['unit_value']), PRECISION))
         else:
@@ -77,7 +86,10 @@ def _render_uca_data(uca_data, settings, template, timestamp=None):
             rendered_template = template.substitute({**row, 'timestamp': timestamp})
         else:
             rendered_template = template.substitute(**row)
-        uca_events.append(json.loads(rendered_template.strip().replace("\n", "")))
+
+        if Decimal(row['unit_value']) > 0:
+            uca_events.append(json.loads(rendered_template.strip().replace("\n", "")))
+
     return uca_events
 
 
