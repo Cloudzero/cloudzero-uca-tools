@@ -3,9 +3,6 @@
 # Direct all questions to support@cloudzero.com
 
 import datetime
-import simplejson as json
-
-from string import Template
 
 from uca.features.generate import _render_uca_data
 
