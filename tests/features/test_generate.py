@@ -27,13 +27,13 @@ def test_filter_nil_unit_values_exact_mode():
 
     input_settings = {'allocation': '', 'jitter': '', 'mode': 'exact'}
 
-    input_template = Template(json.dumps({'cost-context': 'Cost-Per-Fake-Customer',
-                                          'granularity': 'DAILY',
-                                          'id': '$unit_id',
-                                          'target': {},
-                                          'telemetry-stream': 'test-data',
+    input_template = {'cost-context': 'Cost-Per-Fake-Customer',
+                      'granularity': 'DAILY',
+                      'id': '$unit_id',
+                      'target': {},
+                      'telemetry-stream': 'test-data',
                                           'timestamp': '$timestamp',
-                                          'value': '$unit_value'}))
+                                          'value': '$unit_value'}
 
     input_timestamp = datetime.datetime(2022, 10, 30, 0, 0)
 
@@ -58,13 +58,13 @@ def test_filter_nil_unit_values_random_mode():
 
     input_settings = {'allocation': '', 'jitter': '', 'mode': 'random'}
 
-    input_template = Template(json.dumps({'cost-context': 'Cost-Per-Fake-Customer',
-                                          'granularity': 'DAILY',
-                                          'id': '$unit_id',
-                                          'target': {},
-                                          'telemetry-stream': 'test-data',
+    input_template = {'cost-context': 'Cost-Per-Fake-Customer',
+                      'granularity': 'DAILY',
+                      'id': '$unit_id',
+                      'target': {},
+                      'telemetry-stream': 'test-data',
                                           'timestamp': '$timestamp',
-                                          'value': '$unit_value'}))
+                                          'value': '$unit_value'}
 
     input_timestamp = datetime.datetime(2022, 10, 30, 0, 0)
 
