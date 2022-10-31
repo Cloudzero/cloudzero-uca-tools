@@ -14,7 +14,7 @@ from uca.common.cli import eprint
 from uca.common.custom_types import TimeRange
 from uca.common.standards import datetime_chunks, utc_datetime_from_anything
 
-PRECISION = 10000
+PRECISION = 1000000000000
 
 
 def generate_uca(time_range: TimeRange, uca_template, settings, uca_data):
@@ -59,7 +59,7 @@ def _render_uca_data(uca_data, settings, template, timestamp=None):
         if settings['mode'] == 'random':
             unit_value = preserve_precision(row['unit_value'], PRECISION)
             row['unit_value'] = str(restore_precision(randint(0, unit_value), PRECISION))
-        if settings['mode'] == 'jitter':
+        elif settings['mode'] == 'jitter':
             jitter = int(settings['jitter'])
             row['unit_value'] = str(
                 round_decimal(max(Decimal(abs(Decimal(row['unit_value']) + randint(-jitter, jitter))), Decimal(1)),
