@@ -69,9 +69,6 @@ pass_root_configuration = click.make_pass_decorator(RootConfiguration)
 @click.option("--configuration", "-c",
               required=False,
               help="UCA configuration file (JSON)")
-# @click.option("--output", "-o",
-#               required=False,
-#               help="Instead of sending events to the API, append the events to an output file")
 @click.option("--dry-run", "-dry",
               is_flag=True,
               required=False,
@@ -82,10 +79,10 @@ pass_root_configuration = click.make_pass_decorator(RootConfiguration)
               envvar='CZ_API_KEY',
               help="API Key to use")
 @click.pass_context
-def cli(ctx, configuration, output, dry_run, api_key):
+def cli(ctx, configuration, dry_run, api_key):
     """CloudZero Unit Cost Analytics utility
     """
-    ctx.obj = RootConfiguration(configuration=configuration, output=output,
+    ctx.obj = RootConfiguration(configuration=configuration,
                                 dry_run=dry_run, api_key=api_key)
 
 
