@@ -16,12 +16,16 @@ def transmit(uca_to_send, output_file, api_key, dry_run):
         print('\nDry run, exiting')
         sys.exit()
     elif output_file:
-        with open(os.path.expanduser(output_file), 'w') as fp:
-            for line in uca_to_send:
-                fp.write(json.dumps(line).strip() + '\n')
+        write_to_file(uca_to_send, output_file)
         print(f'\nWrote results to {output_file}')
     elif api_key:
         print('\nSending to API')
         send_uca_events(api_key, uca_to_send)
     else:
         print('\nFinished, nothing to do')
+
+
+def write_to_file(uca_to_send, output_file):
+    with open(os.path.expanduser(output_file), 'w') as fp:
+        for line in uca_to_send:
+            fp.write(line.strip() + '\n')

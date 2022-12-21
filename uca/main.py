@@ -15,21 +15,23 @@ from uca.common.cli import eprint, print_uca_sample
 from uca.common.custom_types import TimeRange
 from uca.common.files import load_data_files
 from uca.common.standards import utc_datetime_from_anything
+from uca.constants import FILE_FORMATS, DEFAULT_FILE_FORMAT
 from uca.exceptions import InvalidDate
+from uca.features.convert import convert
 from uca.features.generate import generate_uca
 from uca.features.transform import transform_data, load_transform_script
-from uca.features.transmit import transmit
+from uca.features.transmit import transmit, write_to_file
 
 
 class RootConfiguration(object):
-    def __init__(self, configuration=None, output=None, dry_run=False, api_key=False):
+    def __init__(self, configuration=None, dry_run=False, api_key=False):
         if configuration:
             self.configuration_path = os.path.abspath(configuration)
             self.settings, self.template = self.load_settings()
         else:
             self.settings = {}
             self.template = {}
-        self.output_path = output and os.path.abspath(output) or None
+        self.output_path = None
         self.dry_run = dry_run
         self.api_key = api_key or self.settings.get('api_key')
         self.granularity = self.template.get('granularity')
@@ -38,16 +40,14 @@ class RootConfiguration(object):
             print(self.dry_run)
             self.dry_run = True
             self.destination = "nowhere (dry run only)"
-        elif self.output_path:
-            self.destination = os.path.abspath(self.output_path)
         elif self.api_key:
             self.destination = "CloudZero API"
 
     def print(self):
         print(f" Configuration: {self.configuration_path}\n"
-              f"        Output: {self.output_path}\n"
               f"       Dry Run: {self.dry_run}\n"
-              f"       API Key: {self.api_key}")
+              f"       API Key: {self.api_key}\n"
+              f"   Destination: {self.destination}")
 
     def load_settings(self):
         try:
@@ -69,9 +69,9 @@ pass_root_configuration = click.make_pass_decorator(RootConfiguration)
 @click.option("--configuration", "-c",
               required=False,
               help="UCA configuration file (JSON)")
-@click.option("--output", "-o",
-              required=False,
-              help="Instead of sending events to the API, append the events to an output file")
+# @click.option("--output", "-o",
+#               required=False,
+#               help="Instead of sending events to the API, append the events to an output file")
 @click.option("--dry-run", "-dry",
               is_flag=True,
               required=False,
@@ -103,11 +103,18 @@ def cli(ctx, configuration, output, dry_run, api_key):
 @click.option("--data", "-d",
               required=True,
               help="Input UCA data (CSV)")
+@click.option("--output", "-o",
+              required=False,
+              help="Instead of transmitting the data to the CloudZero API, Save the output to a file.")
 @pass_root_configuration
-def generate_uca_command(configuration, start, end, today, data):
+def generate_uca_command(configuration, start, end, today, data, output):
     if not configuration.settings:
         eprint("Please specify a --configuration file")
         sys.exit()
+    else:
+        if output:
+            configuration.output_path = output
+            configuration.destination = "File"
 
     try:
         data = os.path.abspath(data)
@@ -147,7 +154,11 @@ def generate_uca_command(configuration, start, end, today, data):
     if generate_settings['mode'] == "jitter":
         print(f"       Jitter : {generate_settings['jitter']}")
     elif generate_settings['mode'] == "allocation":
-        print(f"   Allocation : {generate_settings['allocation']}")
+        if generate_settings.get('jitter'):
+            print(f"              : With Jitter {generate_settings['jitter']}")
+            print(f"   Allocation : {generate_settings['allocation']}")
+        else:
+            print(f"   Allocation : {generate_settings['allocation']}")
     print(f"Configuration : {configuration.configuration_path}")
     print(f"         Data : {data}")
     print(f"      API Key : {configuration.api_key and configuration.api_key[:5] + '...snip' or '(no key provided)'}")
@@ -164,12 +175,18 @@ def generate_uca_command(configuration, start, end, today, data):
 @click.option("--data", "-d",
               required=True,
               help="Source JSON data, in text or gzip + text format, supports file:// or s3:// paths")
+@click.option("--output", "-o",
+              required=False,
+              help="Instead of transmitting the data to the CloudZero API, Save the output to a file.")
 @click.option("--transform", "-t",
               required=False,
               help="Optional transformation script using jq (https://stedolan.github.io/jq/). "
                    "Used when the source data needs modification or cleanup. See README.md for usage instructions")
 @pass_root_configuration
-def transmit_uca_command(configuration, data, transform):
+def transmit_uca_command(configuration, data, output, transform):
+    if output:
+        configuration.output_path = output
+        configuration.destination = "File"
     print(f"Transmitting UCA data from {data} to {configuration.destination}")
     print("-" * 140)
 
@@ -183,33 +200,38 @@ def transmit_uca_command(configuration, data, transform):
     transmit(uca_to_send, configuration.output_path, configuration.api_key, configuration.dry_run)
 
 
-# @cli.command("convert")
-# @click.option("--data", "-d",
-#               required=True,
-#               help="Source log data, in text or gzip + text format, supports file:// or s3:// paths")
-# @pass_root_configuration
-# def convert_uca_command(configuration, data, transform):
-#     if not configuration.settings:
-#         eprint("Please specify a --configuration file")
-#         sys.exit()
-#     data_format = configuration.settings['convert']['format']
-#     print(f"Converting {data_format} data into CloudZero UCA")
-#     print("-" * 140)
-#     print(f"       Format : {data_format}")
-#     print(f"  Destination : {configuration.destination}")
-#     print("-" * 140)
-#
-#     file_format = FILE_FORMATS.get(data_format, DEFAULT_FILE_FORMAT)
-#     records = load_data_files(data, file_format)
-#     translated_data = convert(records, configuration)
-#
-#     transform_script = load_transform_script(transform)
-#     uca_to_send, transformed_records, filtered_records = transform_data(translated_data, transform_script)
-#     print(f" - Aggregated {len(records)} {data_format} records into {len(uca_to_send)} UCA records "
-#           f"| {transformed_records} Transformed | {filtered_records} Filtered")
-#     print(f" - {len(uca_to_send) - filtered_records} UCA records ready for output")
-#     print_uca_sample(uca_to_send)
-#     transmit(uca_to_send, configuration.output_path, configuration.api_key, configuration.dry_run)
+@cli.command("convert")
+@click.option("--data", "-d",
+              required=True,
+              help="Source data, in text or gzip + text format, supports file:// or s3:// paths")
+@click.option("--output", "-o",
+              required=True,
+              help="Destination file for converted data")
+@pass_root_configuration
+def convert_uca_command(configuration, data, output):
+    output = os.path.abspath(output)
+    if not configuration.settings:
+        eprint("Please specify a --configuration file")
+        sys.exit()
+    else:
+        configuration.output_path = output
+        configuration.destination = "File"
+
+    data_format = configuration.settings['convert']['format']
+    print(f"Converting {data_format} data into CloudZero UCA")
+    print("-" * 140)
+    print(f"       Format : {data_format}")
+    print("-" * 140)
+
+    file_format = FILE_FORMATS.get(data_format, DEFAULT_FILE_FORMAT)
+    records = load_data_files(data, file_format)
+    converted_data = convert(records, configuration)
+
+    print(f" - Aggregated {len(records)} {data_format} records into {len(converted_data)} UCA records")
+    print_uca_sample(converted_data)
+
+    print(f" - Writing UCA data to {output}")
+    write_to_file(converted_data, output)
 
 
 if __name__ == "__main__":

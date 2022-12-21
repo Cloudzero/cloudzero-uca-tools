@@ -10,6 +10,12 @@ import dateutil.parser as parser
 from uca.exceptions import InvalidDate
 
 
+def get_seconds_from_time(time_str):
+    """Get seconds from time."""
+    h, m, s = time_str.split(':')
+    return int(h) * 3600 + int(m) * 60 + int(s)
+
+
 def utc_datetime_from_anything(input_data: Any) -> Optional[datetime]:
     if input_data is None:
         return None

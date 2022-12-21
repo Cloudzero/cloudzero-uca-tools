@@ -4,6 +4,8 @@
 import sys
 from collections import defaultdict, Counter
 import re
+from decimal import Decimal
+
 import simplejson as json
 from string import Template
 
@@ -11,9 +13,33 @@ from aws_log_parser import AwsLogParser, LogType
 
 from uca.common.cli import eprint
 from uca.common.formatters import rgetattr
+from uca.common.standards import get_seconds_from_time, utc_datetime_from_anything
 
 AWS_FORMAT_TYPE = "AWS"
 CSV_FORMAT_TYPE = "CSV"
+
+
+def transform_csv_record(record, configuration):
+    schema = configuration.settings['convert']['schema']['columns']
+    for column_name, value in record.items():
+        if schema.get(column_name):
+            try:
+                if schema[column_name]['type'] == 'TIME':
+                    record[column_name] = get_seconds_from_time(value)
+                if schema[column_name]['type'] == 'DATETIME':
+                    record[column_name] = utc_datetime_from_anything(value).isoformat()
+                if schema[column_name]['type'] == 'NUMBER':
+                    record[column_name] = Decimal(value)
+            except Exception as error:
+                eprint(f"Error transforming {column_name} with value {value}: {error}")
+                sys.exit(1)
+    return record
+
+
+def zero_values_detected(record):
+    if Decimal(record['value']) == 0:
+        return True
+    return False
 
 
 def convert(input_data, configuration):
@@ -62,8 +88,16 @@ def convert(input_data, configuration):
         uca_records = list(uca_data.values())
     elif format_type == CSV_FORMAT_TYPE:
         for record in input_data:
-            rendered_template = template.substitute(**record)
+            transformed_record = transform_csv_record(record, configuration)
+            if not transformed_record:
+                print('B', end="", flush=True)
+                continue
+            rendered_template = template.substitute(**transformed_record)
+            if zero_values_detected(json.loads(rendered_template)):
+                print('0', end="", flush=True)
+                continue
             uca_records.append(rendered_template)
+            print('.', end="", flush=True)
 
     return uca_records
 

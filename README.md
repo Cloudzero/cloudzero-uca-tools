@@ -6,11 +6,12 @@ Visit our [UCA documentation](https://docs.cloudzero.com/docs/enhanced-unit-cost
 ## Features
 * Transmit UCA data to CloudZero (using the CloudZero UCA API)
 * Generate UCA data
+* Convert raw data in CSV form to UCA JSON format
 
 ## prerequisites
 * Tested on MacOS, should probably run on Linux in general
 * Python 3.8 or newer
-* `pip` or your favorite method of installing packages from PyPi. Have you considered [pipx](https://pypa.github.io/pipx/)?
+* `pipx` or your favorite method of installing packages from PyPi. Have you considered [pipx](https://pypa.github.io/pipx/)?
 
 ## Installation
       $ pipx install cloudzero-uca-tools
@@ -36,13 +37,15 @@ from https://app.cloudzero.com/organization/api-keys
       --help                    Show this message and exit.
     
     Commands:
+      convert
       transmit
       generate
 
 ### Basic Configuration
+A configuration file is typically required to define how UCA telemetry is to be created, converted or transmitted.
 The following is a minimal configuration file for transmitting data to the CloudZero API 
 (if you don't want to specify the API on the command line, otherwise no configuration file 
-is required for `transmit`). If you wish to use `generate` however a configuration file
+is required for `transmit`). If you wish to use `generate` or `convert` however a configuration file
 is required. 
 
     {
@@ -52,12 +55,12 @@ is required.
       }
     }
 
-Each command also has its own set of command line options that will need to be provided as well 
+Each command has its own set of command line options that will need to be provided as well 
 
 ## Transmit
-UCA data transmission allows you easily send UCA data directly to the CloudZero API without having to write
-code. Prepare an input file with one or more correctly formatted JSON UCA records and quickly send it to
-the CloudZero telemetry API. 
+`transmit` allows you send UCA data directly to the CloudZero API without having to write
+code. To use `transmit` you prepare in advance an [ND-JSON](http://ndjson.org/) formatted input file
+which contains one or more correctly formatted JSON UCA records as input. 
 
 ### Help
     $ uca transmit --help
@@ -73,12 +76,13 @@ the CloudZero telemetry API.
       --help                Show this message and exit.
 
 ### input data
-Your input data can be either a text or gzip file, consisting of one JSON record per line. 
+Your input data must be a valid [ND-JSON](http://ndjson.org/) document which can be either a text or gzip file,
+consisting of one JSON record per line. 
 
 For example:
 
-     {'timestamp': '2021-03-22 00:00:00+00:00', 'granularity': 'DAILY', 'cost-context': 'Cost-Per-Fake-Customer', 'id': 'StateEx', 'target': {}, 'telemetry-stream': 'test-data', 'value': '40.0000'} 
-     {'timestamp': '2021-04-01 00:00:00+00:00', 'granularity': 'DAILY', 'cost-context': 'Cost-Per-Fake-Customer', 'id': 'Hooli', 'target': {}, 'telemetry-stream': 'test-data', 'value': '23.0000'}
+     {'timestamp': '2021-03-22 00:00:00+00:00', 'granularity': 'DAILY', 'element-name': 'StateEx', 'filter': {"custom:Environment": ["Production"]}, 'telemetry-stream': 'test-data', 'value': '40.0000'} 
+     {'timestamp': '2021-04-01 00:00:00+00:00', 'granularity': 'DAILY', 'element-name': 'Hooli', 'filter': {"custom:Environment": ["Production"]}, 'telemetry-stream': 'test-data', 'value': '23.0000'}
 
 #### Using an optional JQ transform
 You can optionally provide a JQ script to transform the source data on the fly before transmission. 
@@ -92,22 +96,20 @@ by setting the target field using a metadata and cost-context field, followed by
 constant value and then deleting the metadata and uca fields
 
     select(.id != "")
-    | .target = {"tag:environment": [.metadata.environment], "feature": [.["cost-context"]] }
-    | .["cost-context"] = "cost-per-title"
+    | .filter = {"tag:environment": [.metadata.environment], "tag:feature": [".metadata.feature"] }
     | del(.metadata, .uca)
 
 ##### Example Input before JQ transform:
     {
-      "uca": "v1.3",
+      "uca": "v1.5",
       "timestamp": "2021-05-25 13:00:00+0000",
       "granularity": "HOURLY",
-      "context": "rosebud",
-      "id": "frank",
-      "target": {},
+      "element-name": "frank",
       "telemetry-stream": "test-data",
       "value": "1073641",
       "metadata": {
-        "environment": "production"
+        "environment": "production",
+        "feature": "rosebud"
       }
     }
 
@@ -115,19 +117,77 @@ constant value and then deleting the metadata and uca fields
     {
       "timestamp": "2021-05-25 13:00:00",
       "granularity": "HOURLY",
-      "context": "Cost-Per-Customer",
       "id": "frank",
-      "target": {
+      "filter": {
         "tag:environment": ["production"],
-        "feature": ["rosebud"]
+        "tag:feature": ["rosebud"]
       },
-      "telemetry-stream": "test-data",
+      "telemetry-stream": "Cost-Per-Customer",
       "value": "1073641"
     }
 
+## Convert
+`convert` allows you to convert raw data in CSV format to UCA JSON format. To use `convert` you prepare in advance a CSV file of the
+raw unit cost data you wish to convert and then define the mapping of the CSV columns to UCA fields in a configuration file.
+
+### Help
+    $ uca generate --help
+    Usage: uca convert [OPTIONS]
+    
+    Options:
+      -d, --data TEXT  Source data, in text or gzip + text format, supports
+                       file:// or s3:// paths  [required]
+      --help           Show this message and exit.
+
+### Configuration File
+    {
+      "version": "1",
+      "template": {
+        "timestamp": "$ACCESS_TIME",
+        "granularity": "HOURLY",
+        "element-name": "$CUST_ID",
+        "filter": {
+          "custom:Environment": [
+            "Prod"
+          ]
+        },
+        "telemetry-stream": "cost-per-customer",
+        "value": "$DURATION"
+      },
+      "settings": {
+        "api_key": "<YOUR API KEY HERE>"            # Also can be provided at runtime via the CLI. Get an API key at https://app.cloudzero.com/organization/api-keys
+        "convert": {
+          "stream_name": "cost-per-customer",
+          "format": "CSV",                          # currently only CSV is supported
+          "schema": {
+            "columns": {                            # Define one or more columns that will be used from the input CSV file
+              "CUST_ID": {                          # The name of the column in the CSV file
+                "type": "STRING"                    # Specify the type of the column to ensure proper conversion, can be STRING, NUMBER, DATETIME or TIME
+              },
+              "ACCESS_TIME": {
+                "type": "DATETIME"                  # DATETIME is a special type that will attempt to convert a wide range of datetime formats (including unix timestamp) to ISO 8601 UTC format 
+              },
+              "DURATION": {
+                "type": "TIME",                     # TIME is a special type that will convert a time duration expressed in HH:mm:ss to seconds
+                "format": "HH:mm:ss"
+              }
+            }
+          }
+        }
+      }
+    }
+
+#### Examples
+Convert raw data from `data-file.csv` into UCA JSON format using a `config-file.json` as configuration, and write to `output-file.json`
+
+    $ uca convert -d data-file.csv -c config-file.json -o output-file.json 
+
+
 ## Generate
-Generates UCA data from a source data set (in CSV format) or just based on rules you define. The time period
-for the data can be defined as part of the source data or generated based on a start and end range
+`generate` will create UCA data over a defined time period based on rules and source data (CSV) that you define.
+Rules enable you to define how the data is to be generated based on the provided source data and can be used to 
+create static allocations, dynamic allocations, or even random allocations that can be used to verify system operation
+or facilitate a demonstration.
 
 ### Help
     $ uca generate --help
@@ -161,38 +221,39 @@ can learn more [about the UCA format and our UCA Telemetry API here](https://doc
       "template": {
         "timestamp": "$timestamp",                  # Timestamp will be replaced automatically or from the input data source
         "granularity": "DAILY",                     # Granularity can be HOURLY, DAILY or MONTHLY. See notes below for usage
-        "context": "Cost-Per-Fake-Customer",   # You can have up to 5 telemetry streams per context
-        "id": "$unit_id",                           # Will be replaced using data from your data CSV
-        "target": {},                               # Use {} to map to all spend or use a combination of tags and keywords to get more specific
+        "element-name": "$element_name",            # Will be replaced using data from your data CSV
+        "filter": {},                               # Use a filter to map spend to a combination of tags, dimensions, accounts, etc...
         "telemetry-stream": "test-data",            # Unique name for this telemetry stream          
-        "value": "$unit_value"                      # Will be replaced using generated data or data from your data CSV
+        "value": "$value"                           # Will be replaced using generated data or data from your data CSV
       },
       "settings": {
         "generate": {
-          "mode": "exact",                            # Can be exact, random, jitter or allocation
-          "jitter": 15,                               # if mode is jitter, this value defines the range
-          "allocation": 100000                        # if mode is allocation, this value defines the total amount to be allocated
+          "mode": "exact",                          # Can be `exact`, `random`, `jitter` or `allocation`
+          "jitter": 15,                             # if mode is jitter, defines the +/- random range to applie to the $value
+          "allocation": 1000                        # if mode is allocation, defines the total amount to be allocated across elements in your data file
         },
         "api_key": "<YOUR API KEY HERE>"            # Also can be provided at runtime via the CLI. Get an API key at https://app.cloudzero.com/organization/api-keys
       }
     }
 
 ##### A note on using MONTHLY granularity.
-MONTHLY is a special granularity that when used instructs the UCA toolkit to expand the provided year and month
-to all possible days in the current month. For example if you have this input data:
+MONTHLY is a special (non-standard) granularity that can only be used with the UCA toolkit. MONTHLY will expand the input data 
+over the year and month provided to all possible days in a given month to create DAILY UCA telemetry.
 
-     unit_id,granularity,timestamp,unit_value
-     "SuperDogs, Inc",Monthly,2022-10-1,8
-     "CoolCats, LLC",Monthly,2022-10-1,229
+For example if you have this input data:
+
+     element_name,timestamp,value
+     "SuperDogs, Inc",2022-10-1,8
+     "CoolCats, LLC",2022-10-1,229
 
 This will expand to 61 events, 31 for "SuperDogs, Inc" and 31 for "CoolCats, LLC" (31 days in October) 
 
 #### Data CSV
-The data CSV defines the input data you wish to feed into the template. This tool will produce
+The data CSV defines the input data you wish to feed into the template to produce
 matching UCA records for all rows in your data CSV for each hour or day as defined. The following
-example has 13 "customers" and can be used as input for all configuration modes.
+example has 13 "customers" and can be used as input for all configuration modes (`exact`, `random`, `jitter`, or `allocation`).
 
-        unit_id,unit_value,unit_allocation
+        element_name,value,allocation
         Sunbank,37,8.5574
         SoftwareCorp,17,0.4091
         "Parts, Inc.",140,10.9955
@@ -208,10 +269,10 @@ example has 13 "customers" and can be used as input for all configuration modes.
         Massive Dynamic,42,10.1339
 
 #### Example output
-Together this configuration and data will produce UCA events similar to the following:
+Using the `exact` configuration above, this data will produce UCA events similar to the following:
 
-    {'timestamp': '2021-03-22 00:00:00+00:00', 'granularity': 'DAILY', 'context': 'Cost-Per-Fake-Customer', 'id': 'StateEx', 'target': {}, 'telemetry-stream': 'test-data', 'value': '40.0000'}
-    {'timestamp': '2021-04-01 00:00:00+00:00', 'granularity': 'DAILY', 'context': 'Cost-Per-Fake-Customer', 'id': 'Hooli', 'target': {}, 'telemetry-stream': 'test-data', 'value': '23.0000'}
-    {'timestamp': '2021-04-01 00:00:00+00:00', 'granularity': 'DAILY', 'context': 'Cost-Per-Fake-Customer', 'id': 'Sunbank', 'target': {}, 'telemetry-stream': 'test-data', 'value': '37.0000'}
-    {'timestamp': '2021-04-06 00:00:00+00:00', 'granularity': 'DAILY', 'context': 'Cost-Per-Fake-Customer', 'id': 'Transport Co.', 'target': {}, 'telemetry-stream': 'test-data', 'value': '25.0000'}
-    {'timestamp': '2021-03-19 00:00:00+00:00', 'granularity': 'DAILY', 'context': 'Cost-Per-Fake-Customer', 'id': 'StateEx', 'target': {}, 'telemetry-stream': 'test-data', 'value': '40.0000'}
+    {'timestamp': '2021-03-22 00:00:00+00:00', 'granularity': 'DAILY', 'element-name': 'StateEx', 'filter': {}, 'telemetry-stream': 'test-data', 'value': '40.0000'}
+    {'timestamp': '2021-04-01 00:00:00+00:00', 'granularity': 'DAILY', 'element-name': 'Hooli', 'filter': {}, 'telemetry-stream': 'test-data', 'value': '23.0000'}
+    {'timestamp': '2021-04-01 00:00:00+00:00', 'granularity': 'DAILY', 'element-name': 'Sunbank', 'filter': {}, 'telemetry-stream': 'test-data', 'value': '37.0000'}
+    {'timestamp': '2021-04-06 00:00:00+00:00', 'granularity': 'DAILY', 'element-name': 'Transport Co.', 'filter': {}, 'telemetry-stream': 'test-data', 'value': '25.0000'}
+    {'timestamp': '2021-03-19 00:00:00+00:00', 'granularity': 'DAILY', 'element-name': 'StateEx', 'filter': {}, 'telemetry-stream': 'test-data', 'value': '40.0000'}

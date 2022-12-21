@@ -95,7 +95,10 @@ def load_data_files(source: str, file_format: [str] = None) -> list:
             eprint(f"\nERROR: Access denied, please ensure your AWS session has access to {source}")
             sys.exit(1)
 
-    elif source.lower().startswith('file://'):
+    else:  # source.lower().startswith('file://'):
+        if "file://" not in source:
+            source = f"file://{os.path.expanduser(source)}"
+
         folder, file_name = parse_url(source)
         if not file_name:  # read all files in path
             files = list_all_local_files_in_path(folder)
@@ -119,8 +122,8 @@ def load_data_files(source: str, file_format: [str] = None) -> list:
             except Exception as error:
                 eprint(f"Unable to read file {file}, error: {error}")
                 sys.exit(-1)
-    else:
-        print("Source path should start with either file:// or s3://")
-        sys.exit()
+    # else:
+    #     print("Source path should start with either file:// or s3://")
+    #     sys.exit()
 
     return loaded_records

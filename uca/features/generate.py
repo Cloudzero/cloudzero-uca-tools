@@ -14,7 +14,7 @@ from uca.common.cli import eprint
 from uca.common.custom_types import TimeRange
 from uca.common.standards import datetime_chunks, utc_datetime_from_anything
 
-PRECISION = 1000000000000
+PRECISION = 100
 
 
 def generate_uca(time_range: TimeRange, uca_template, settings, uca_data):
@@ -60,7 +60,6 @@ def generate_uca(time_range: TimeRange, uca_template, settings, uca_data):
 
 
 def _render_uca_data(uca_data, settings, uca_template, timestamp=None):
-
     unit_value_header = uca_template['value'].replace('$', '')
     timestamp_header = uca_template['timestamp'].replace('$', '')
 
@@ -78,8 +77,10 @@ def _render_uca_data(uca_data, settings, uca_template, timestamp=None):
                 round_decimal(max(Decimal(abs(Decimal(row[unit_value_header]) + randint(-jitter, jitter))), Decimal(1)),
                               PRECISION))
         elif settings['mode'] == 'allocation':
+            jitter = int(settings.get('jitter')) or 0
             try:
-                row[unit_value_header] = round_decimal(Decimal(settings['allocation']) * Decimal(row['unit_allocation']),
+                row[unit_value_header] = round_decimal((Decimal(settings['allocation']) *
+                                                        Decimal(row['unit_allocation'])) + randint(0, jitter),
                                                        PRECISION)
 
             except KeyError:
