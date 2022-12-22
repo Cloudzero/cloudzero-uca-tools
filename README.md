@@ -46,14 +46,16 @@ A configuration file is typically required to define how UCA telemetry is to be 
 The following is a minimal configuration file for transmitting data to the CloudZero API 
 (if you don't want to specify the API on the command line, otherwise no configuration file 
 is required for `transmit`). If you wish to use `generate` or `convert` however a configuration file
-is required. 
+is required.
 
     {
-      "version": "1",                               # anything you want
+      "version": "1",                               
       "settings": {
-        "api_key": "<YOUR API KEY HERE>"            # Also can be provided at runtime via the CLI. Get an API key at https://app.cloudzero.com/organization/api-keys
+        "api_key": "<YOUR API KEY HERE>"
       }
     }
+
+    # API Key can also be provided at runtime via the CLI. Get an API key at https://app.cloudzero.com/organization/api-keys
 
 Each command has its own set of command line options that will need to be provided as well 
 

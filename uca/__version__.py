@@ -2,4 +2,4 @@
 # Licensed under the BSD License. See LICENSE file in the project root for full license information.
 # Direct all questions to support@cloudzero.com
 
-__version__ = '0.7.0'
+__version__ = '0.7.1'

@@ -2,6 +2,7 @@
 # Licensed under the BSD License. See LICENSE file in the project root for full license information.
 # Direct all questions to support@cloudzero.com
 import calendar
+import copy
 import sys
 from datetime import timedelta
 from decimal import Decimal
@@ -52,7 +53,8 @@ def generate_uca(time_range: TimeRange, uca_template, settings, uca_data):
                                                                                        second=0, microsecond=0)
                 end_date = start_date.replace(day=calendar.monthrange(year=start_date.year, month=start_date.month)[1])
                 for timestamp in datetime_chunks(start_date, end_date + timedelta(days=1), delta):
-                    uca_events += _render_uca_data([row], settings, uca_template, timestamp)
+                    single_row = copy.deepcopy(row)
+                    uca_events += _render_uca_data([single_row], settings, uca_template, timestamp)
         else:
             uca_events = _render_uca_data(uca_data, settings, uca_template)
 
@@ -77,14 +79,19 @@ def _render_uca_data(uca_data, settings, uca_template, timestamp=None):
                 round_decimal(max(Decimal(abs(Decimal(row[unit_value_header]) + randint(-jitter, jitter))), Decimal(1)),
                               PRECISION))
         elif settings['mode'] == 'allocation':
-            jitter = int(settings.get('jitter')) or 0
+            jitter = int(settings.get('jitter'))
             try:
-                row[unit_value_header] = round_decimal((Decimal(settings['allocation']) *
-                                                        Decimal(row['unit_allocation'])) + randint(0, jitter),
-                                                       PRECISION)
+                if jitter:
+                    row[unit_value_header] = round_decimal((Decimal(settings['allocation']) *
+                                                            Decimal(row['unit_allocation'])) + randint(0, jitter), PRECISION)
+                else:
+                    row[unit_value_header] = round_decimal(Decimal(settings['allocation']) * Decimal(row[unit_value_header]), PRECISION)
 
             except KeyError:
                 print('ERROR: Must add "unit_allocation" column to CSV')
+                sys.exit(-1)
+            except Exception as error:
+                print(f'ERROR: {error}')
                 sys.exit(-1)
 
         elif settings['mode'] == 'exact':
@@ -106,6 +113,19 @@ def _render_uca_data(uca_data, settings, uca_template, timestamp=None):
 
 
 def round_decimal(input_number: Decimal, precision):
+    """
+    >>> round_decimal(Decimal('1.23456789'), 100)
+    Decimal('1.23')
+    >>> round_decimal(Decimal(1.23456789), 100)
+    Decimal('1.23')
+
+    Args:
+        input_number:
+        precision:
+
+    Returns:
+
+    """
     return input_number.quantize(Decimal(f"1.{(len(str(precision)) - 1) * '0'}"))
 
 
