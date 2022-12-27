@@ -6,9 +6,9 @@ import gzip
 import os
 import pathlib
 import sys
-import simplejson as json
 
 import botocore
+import simplejson as json
 
 from uca.common.aws import list_s3_bucket_contents, open_file_from_s3, get_s3_client
 from uca.common.cli import eprint
@@ -63,9 +63,10 @@ def load_data_files(source: str, file_format: [str] = None) -> list:
         eprint(f"ERROR: {file_format} is unsupported, must be TEXT, JSON or CSV")
         sys.exit(1)
 
-    print(f" - Reading {file_format} from {source}")
     loaded_records = []
     if source.lower().startswith('s3://'):
+        print(f" - Reading {file_format} from S3")
+
         bucket, key = parse_url(source)
         client = get_s3_client()
 
@@ -95,12 +96,13 @@ def load_data_files(source: str, file_format: [str] = None) -> list:
             eprint(f"\nERROR: Access denied, please ensure your AWS session has access to {source}")
             sys.exit(1)
 
-    else:  # source.lower().startswith('file://'):
+    else:  # input is a local file or directory
+        print(f" - Reading {file_format} from local files")
         if "file://" not in source:
             source = f"file://{os.path.expanduser(source)}"
 
         folder, file_name = parse_url(source)
-        if not file_name:  # read all files in path
+        if not file_name:  # we have a folder
             files = list_all_local_files_in_path(folder)
         else:
             files = [pathlib.PurePath(folder, file_name)]
@@ -122,8 +124,16 @@ def load_data_files(source: str, file_format: [str] = None) -> list:
             except Exception as error:
                 eprint(f"Unable to read file {file}, error: {error}")
                 sys.exit(-1)
-    # else:
-    #     print("Source path should start with either file:// or s3://")
-    #     sys.exit()
 
     return loaded_records
+
+
+def write_to_file(uca_to_send: list[dict], output_file: str):
+    with open(os.path.expanduser(output_file), 'w') as fp:
+        for line in uca_to_send:
+            try:
+                fp.write(json.dumps(line) + '\n')
+            except Exception as error:
+                eprint(f"Unable to write data to file {output_file}, error: {error}")
+                eprint(f"Data: {line}")
+                sys.exit(-1)

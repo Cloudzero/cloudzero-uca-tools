@@ -29,8 +29,6 @@ from https://app.cloudzero.com/organization/api-keys
     Options:
       --version                 Show the version and exit.
       -c, --configuration TEXT  UCA configuration file (JSON)
-      -o, --output TEXT         Instead of sending events to the API, write
-                                events to an output file (note: will overwrite file if it exists)
       -dry, --dry-run           Perform a dry run, read and transform the data but
                                 do not send it to the API. Sample events will be output to the screen
       -k, --api-key TEXT        API Key to use
@@ -71,6 +69,8 @@ which contains one or more correctly formatted JSON UCA records as input.
     Options:
       -d, --data TEXT       Source data, in text or gzip + text format, supports
                             file:// or s3:// paths  [required]
+      -o, --output TEXT     Instead of sending events to the API, write
+                            events to an output file (note: will overwrite file if it exists)
       -t, --transform TEXT  Optional transformation script using jq
                             (https://stedolan.github.io/jq/). Used when the source
                             data needs modification or cleanup. See README.md for
@@ -196,11 +196,13 @@ or facilitate a demonstration.
     Usage: uca generate [OPTIONS]
     
     Options:
-      -s, --start TEXT  start datetime <YYYY-MM-DD HH:MM:SS> (optional)
-      -e, --end TEXT    End datetime <YYYY-MM-DD HH:MM:SS> (optional)
-      --today           Generate events for the current day (optional)
-      -d, --data TEXT   Input UCA data (CSV)  [required]
-      --help            Show this message and exit.
+      -s, --start TEXT   start datetime <YYYY-MM-DD HH:MM:SS>                      [optional]
+      -e, --end TEXT     End datetime <YYYY-MM-DD HH:MM:SS>                        [optional]
+      --today            Generate events for the current day                       [optional]
+      -d, --data TEXT    Input UCA data (CSV)                                      [required]
+      -o, --output TEXT  Instead of transmitting the data to the CloudZero API,    [optional]
+                         Save the output to a file.
+      --help             Show this message and exit.                               [optional]
 
 #### Examples
 Generate UCA data between 2021-03-13 and 2021-04-07 using data/configuration.json and data/data.csv as input. 

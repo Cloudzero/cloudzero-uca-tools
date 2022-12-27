@@ -13,14 +13,14 @@ import simplejson as json
 from uca.__version__ import __version__
 from uca.common.cli import eprint, print_uca_sample
 from uca.common.custom_types import TimeRange
-from uca.common.files import load_data_files
+from uca.common.files import load_data_files, write_to_file
 from uca.common.standards import utc_datetime_from_anything
 from uca.constants import FILE_FORMATS, DEFAULT_FILE_FORMAT
 from uca.exceptions import InvalidDate
 from uca.features.convert import convert
 from uca.features.generate import generate_uca
 from uca.features.transform import transform_data, load_transform_script
-from uca.features.transmit import transmit, write_to_file
+from uca.features.transmit import transmit
 
 
 class RootConfiguration(object):
@@ -97,36 +97,26 @@ def cli(ctx, configuration, dry_run, api_key):
               is_flag=True,
               required=False,
               help="Generate events for the current day")
-@click.option("--data", "-d",
+@click.option("--input", "-i",
               required=True,
               help="Input UCA data (CSV)")
 @click.option("--output", "-o",
-              required=False,
-              help="Instead of transmitting the data to the CloudZero API, Save the output to a file.")
+              required=True,
+              help="Output file")
 @pass_root_configuration
-def generate_uca_command(configuration, start, end, today, data, output):
+def generate_uca_command(configuration, start, end, today, input, output):
     if not configuration.settings:
         eprint("Please specify a --configuration file")
         sys.exit()
-    else:
-        if output:
-            configuration.output_path = output
-            configuration.destination = "File"
 
-    try:
-        data = os.path.abspath(data)
-        data_file = csv.DictReader(open(data, mode='r', newline='', encoding='utf-8-sig', errors='ignore'),
-                                   dialect='excel')
-        uca_data = list(data_file)
-    except Exception as error:
-        eprint(f"Unable to read data, error: {error}")
-        sys.exit(-1)
+    output = os.path.abspath(output)
+    configuration.output_path = output
+    configuration.destination = "File"
 
     if today:
         today = datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
         range_requested = TimeRange(start=today, end=today + timedelta(days=1))
     elif all([start, end]):
-
         try:
             start_date = utc_datetime_from_anything(start)
         except InvalidDate as error:
@@ -137,7 +127,6 @@ def generate_uca_command(configuration, start, end, today, data, output):
         except InvalidDate as error:
             print(f"Invalid end date: {error}")
             sys.exit(-1)
-
         range_requested = TimeRange(start=start_date, end=end_date)
     else:
         range_requested = None
@@ -151,21 +140,26 @@ def generate_uca_command(configuration, start, end, today, data, output):
     if generate_settings['mode'] == "jitter":
         print(f"       Jitter : {generate_settings['jitter']}")
     elif generate_settings['mode'] == "allocation":
+        print(f"   Allocation : {generate_settings['allocation']}")
         if generate_settings.get('jitter'):
-            print(f"              : With Jitter {generate_settings['jitter']}")
-            print(f"   Allocation : {generate_settings['allocation']}")
-        else:
-            print(f"   Allocation : {generate_settings['allocation']}")
+            print(f"              : with Jitter {generate_settings['jitter']}")
     print(f"Configuration : {configuration.configuration_path}")
-    print(f"         Data : {data}")
-    print(f"      API Key : {configuration.api_key and configuration.api_key[:5] + '...snip' or '(no key provided)'}")
-    print(f"  Destination : {configuration.destination}")
+    print(f"   Input Data : {input}")
+    print(f"  Output File : {configuration.output_path}")
     print("-" * 140)
 
+    try:
+        uca_data = load_data_files(input, 'CSV')
+    except Exception as error:
+        eprint(f"Unable to read input file {input}, error: {error}")
+        sys.exit(-1)
+
     uca_to_send = generate_uca(range_requested, configuration.template, generate_settings, uca_data)
-    print(f"Event Generation complete, {len(uca_to_send)} events created\n")
-    print_uca_sample(uca_to_send, 10)
-    transmit(uca_to_send, configuration.output_path, configuration.api_key, configuration.dry_run)
+    print(f" - Event Generation complete, {len(uca_to_send)} events created")
+    print_uca_sample(uca_to_send)
+
+    print(f"\n - Writing UCA data to {output}")
+    write_to_file(uca_to_send, output)
 
 
 @cli.command("transmit")
@@ -227,7 +221,7 @@ def convert_uca_command(configuration, data, output):
     print(f" - Aggregated {len(records)} {data_format} records into {len(converted_data)} UCA records")
     print_uca_sample(converted_data)
 
-    print(f" - Writing UCA data to {output}")
+    print(f"\n - Writing UCA data to {output}")
     write_to_file(converted_data, output)
 
 
