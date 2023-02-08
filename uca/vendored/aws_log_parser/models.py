@@ -1,12 +1,10 @@
 import datetime
 import typing
-
+from dataclasses import dataclass
 from enum import (
     Enum,
     auto,
 )
-
-from dataclasses import dataclass, field
 from http import cookies
 
 

@@ -1,7 +1,6 @@
-FROM python:3
+FROM python:3.11.1-slim
 WORKDIR /usr/src/app
 COPY uca/ uca/
-COPY requirements.txt setup.py README.md ./
-RUN python3 setup.py install
-CMD ["uca/main.py"]
-ENTRYPOINT ["python3"]
+COPY pyproject.toml README.md LICENSE ./
+RUN pip3 install -e .
+ENTRYPOINT ["uca"]

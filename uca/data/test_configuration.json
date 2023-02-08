@@ -5,7 +5,11 @@
     "granularity": "HOURLY",
     "cost-context": "Cost-Per-Fake-Customer",
     "id": "$unit_id",
-    "target": {"product": ["prod"]},
+    "target": {
+      "product": [
+        "prod"
+      ]
+    },
     "telemetry-stream": "test-data",
     "value": "$unit_value"
   },

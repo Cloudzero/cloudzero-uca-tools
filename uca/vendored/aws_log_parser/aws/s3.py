@@ -1,5 +1,4 @@
 import gzip
-
 from dataclasses import dataclass
 
 from .client import (
@@ -10,7 +9,6 @@ from .client import (
 
 @dataclass
 class S3Service(AwsService):
-
     aws_client: AwsClient
 
     @property
@@ -37,7 +35,6 @@ class S3Service(AwsService):
                 yield from [line for line in _gz.read().decode("utf-8").splitlines()]
         else:
             yield from [line.decode("utf-8") for line in contents["Body"].iter_lines()]
-        
 
     def read_keys(self, bucket, prefix, endswith=None):
 
