@@ -2,19 +2,18 @@
 #  SPDX-License-Identifier: Apache-2.0
 #  Direct all questions to support@cloudzero.com
 
+import re
 import sys
 from collections import defaultdict, Counter
-import re
 from decimal import Decimal
-
-import simplejson as json
 from string import Template
 
-from uca.vendored.aws_log_parser import AwsLogParser, LogType
+import simplejson as json
 
 from uca.common.cli import eprint
 from uca.common.formatters import rgetattr
 from uca.common.standards import get_seconds_from_time, utc_datetime_from_anything
+from uca.vendored.aws_log_parser import AwsLogParser, LogType
 
 AWS_FORMAT_TYPE = "AWS"
 CSV_FORMAT_TYPE = "CSV"

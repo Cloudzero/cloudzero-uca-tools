@@ -1,15 +1,13 @@
+import importlib
+import typing
+from dataclasses import dataclass
+
 import boto3
 import boto3.session
-import typing
-
-import importlib
-
-from dataclasses import dataclass
 
 
 @dataclass
 class AwsClient:
-
     region: typing.Optional[str] = None
     profile: typing.Optional[str] = None
     verbose: bool = False
@@ -56,7 +54,6 @@ class AwsClient:
 
 @dataclass
 class AwsService:
-
     aws_client: AwsClient
 
     def get_tag(self, tags, name):

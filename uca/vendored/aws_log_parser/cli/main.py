@@ -1,12 +1,10 @@
 import argparse
 import logging
-
 from collections import Counter
 from pathlib import Path
 
 from rich.console import Console
 from rich.table import Table
-
 
 from ..interface import AwsLogParser
 from ..models import LogType
@@ -37,7 +35,7 @@ def count_hosts(entries):
             str(i),
             instance_name,
             f"{count:,}",
-            f"({(count/total) * 100:.2f}%)",
+            f"({(count / total) * 100:.2f}%)",
             end_section=i == len(counter),
         )
 
@@ -47,7 +45,6 @@ def count_hosts(entries):
 
 
 def main():
-
     parser = argparse.ArgumentParser(description="Parse AWS log data.")
     parser.add_argument(
         "url",

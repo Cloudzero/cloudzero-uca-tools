@@ -2,7 +2,6 @@ import datetime
 import logging
 import typing
 import urllib.parse
-
 from http import cookies
 
 from .exceptions import UnknownHttpType

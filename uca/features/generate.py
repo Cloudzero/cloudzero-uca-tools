@@ -84,9 +84,11 @@ def _render_uca_data(uca_data, settings, uca_template, timestamp=None):
             try:
                 if jitter:
                     row[unit_value_header] = round_decimal((Decimal(settings['allocation']) *
-                                                            Decimal(row['unit_allocation'])) + randint(0, jitter), PRECISION)
+                                                            Decimal(row['unit_allocation'])) + randint(0, jitter),
+                                                           PRECISION)
                 else:
-                    row[unit_value_header] = round_decimal(Decimal(settings['allocation']) * Decimal(row[unit_value_header]), PRECISION)
+                    row[unit_value_header] = round_decimal(
+                        Decimal(settings['allocation']) * Decimal(row[unit_value_header]), PRECISION)
 
             except KeyError:
                 print('ERROR: Must add "unit_allocation" column to CSV')

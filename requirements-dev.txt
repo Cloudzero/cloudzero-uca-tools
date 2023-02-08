@@ -2,13 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 # Direct all questions to support@cloudzero.com
 
-flake8>=6.0.0
 pytest>=7.2.1
 pytest-cov>=4.0.0
 pytest-mock>=3.10.0
 pytest-env>=0.8.1
-twine>=4.0.2
 setuptools==67.2.0
 wheel>=0.38.4
+hatch>=1.6.3
+ruff>=0.0.243
 
 -r requirements.txt

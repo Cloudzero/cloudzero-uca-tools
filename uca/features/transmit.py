@@ -21,5 +21,3 @@ def transmit(uca_to_send, output_file, api_key, dry_run):
         send_uca_events(api_key, uca_to_send)
     else:
         print('\nFinished, nothing to do')
-
-

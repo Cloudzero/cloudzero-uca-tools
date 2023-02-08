@@ -75,7 +75,7 @@ def confirm(prompt=None, resp=False):
 def print_uca_sample(uca_to_send, record_count=5):
     sample_count = min(record_count, len(uca_to_send))
     sample_events = []
-    print(f" - Sample of UCA records post-processing:")
+    print(" - Sample of UCA records post-processing:")
     # refactor
     for x in sorted({*range(0, sample_count),
                      *[random.randint(sample_count, len(uca_to_send) - sample_count) for x in range(0, sample_count)],

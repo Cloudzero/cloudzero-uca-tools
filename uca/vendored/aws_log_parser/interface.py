@@ -1,9 +1,8 @@
 import csv
-import typing
 import importlib
 import importlib.util
 import sys
-
+import typing
 from dataclasses import dataclass, fields, field
 from pathlib import Path
 from urllib.parse import urlparse
@@ -12,14 +11,12 @@ from .aws import AwsClient
 from .models import (
     LogFormat,
 )
-from .util import batcher
-
 from .parser import to_python
+from .util import batcher
 
 
 @dataclass
 class AwsLogParser:
-
     log_type: LogFormat
 
     # Optional

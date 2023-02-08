@@ -1,7 +1,7 @@
 import typing
 from dataclasses import dataclass, field
 
-from aws_log_parser.aws import AwsClient
+from uca.vendored.aws_log_parser.aws import AwsClient
 
 
 @dataclass
@@ -20,7 +20,6 @@ class AwsPluginBase:
         return self.aws_client.ec2_client
 
     def lookup(self, ips):
-
         unknown = ips - self._cache.keys()
 
         if unknown:

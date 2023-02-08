@@ -2,7 +2,6 @@
 #  SPDX-License-Identifier: Apache-2.0
 #  Direct all questions to support@cloudzero.com
 
-import csv
 import os
 import sys
 from datetime import datetime, timedelta
