@@ -1,7 +1,7 @@
-#!/usr/bin/env python3
-# Copyright (c) 2021 CloudZero, Inc. All rights reserved.
-# Licensed under the BSD License. See LICENSE file in the project root for full license information.
-# Direct all questions to support@cloudzero.com
+#  Copyright (c) 2021-2023 CloudZero, Inc. or its affiliates. All Rights Reserved.
+#  SPDX-License-Identifier: Apache-2.0
+#  Direct all questions to support@cloudzero.com
+
 import csv
 import os
 import sys
@@ -64,6 +64,14 @@ class RootConfiguration(object):
 pass_root_configuration = click.make_pass_decorator(RootConfiguration)
 
 
+def add_version(f):
+    """
+    Add the version of the tool to the help heading.
+    """
+    f.__doc__ += f" (v{__version__})"
+    return f
+
+
 @click.group(name="cloudzero-uca-tools")
 @click.version_option(version=__version__)
 @click.option("--configuration", "-c",
@@ -79,8 +87,9 @@ pass_root_configuration = click.make_pass_decorator(RootConfiguration)
               envvar='CZ_API_KEY',
               help="API Key to use")
 @click.pass_context
+@add_version
 def cli(ctx, configuration, dry_run, api_key):
-    """CloudZero Unit Cost Analytics utility
+    """CloudZero Unit Cost Analytics toolkit
     """
     ctx.obj = RootConfiguration(configuration=configuration,
                                 dry_run=dry_run, api_key=api_key)

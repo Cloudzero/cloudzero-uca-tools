@@ -16,20 +16,6 @@ coverage.xml
 test-results
 .hypothesis
 
-# JS tests
-coverage
-coverage-watch
-mb.pid
-
-# JS dependencies
-node_modules
-frontend/dist
-
-# SAM/Lambda artifacts
-app.zip
-vendored
-packaged-template.yaml
-
 # Python artifacts
 __pycache__
 *.pyc
@@ -39,8 +25,14 @@ sdist
 .python-version
 build
 
-# PyCharm
+# Editor Artifacts
 .idea
+.vscode
+
+# editor files
+*.swp
+*.swo
+*.swn
 
 # Makefile temp stuff
 .cz_*_verified
@@ -49,22 +41,5 @@ build
 # Log files
 *.log
 
-# editor files
-*.swp
-*.swo
-*.swn
-.python-version
-
-# auth0 config
-.jwt.js
-.jwt.cjs.js
-.auth0-credentials.json
-.mypy_cache
-
-# testing
-response.json
-email_output.html
-email_output.txt
-notifications_repl_output.json
-.vscode/
-.aws-sam/
+# Pypi
+.pypirc

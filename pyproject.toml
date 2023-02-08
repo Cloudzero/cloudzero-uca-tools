@@ -1,0 +1,61 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "cloudzero-uca-tools"
+dynamic = ["version"]
+description = "CloudZero UCA Toolkit"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {file = "LICENSE"}
+authors = [
+    { name = "CloudZero", email = "support@cloudzero.com" },
+]
+keywords = [
+    "CloudZero",
+    "Toolkit",
+    "UCA",
+    "analysis",
+    "cost",
+    "economics",
+    "unit",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Natural Language :: English",
+    "Operating System :: MacOS",
+    "Operating System :: Unix",
+    "Programming Language :: Python :: 3.9",
+]
+dependencies = [
+    "beautifulsoup4>=4.11.2",
+    "boto3==1.26.66",
+    "click>=8.1.3",
+    "colored>=1.4.4",
+    "jq>=1.4.0",
+    "progressbar>=2.5",
+    "requests>=2.28.2",
+    "simplejson>=3.18.3",
+    "stringcase>=1.2.0",
+    "tabulate>=0.9.0"
+]
+
+[project.scripts]
+uca = "uca.main:cli"
+
+[project.urls]
+Homepage = "https://github.com/Cloudzero/cloudzero-uca-tools"
+
+[tool.hatch.version]
+path = "uca/__version__.py"
+
+[tool.hatch.build.targets.wheel]
+[tool.hatch.build.targets.sdist]
+include = [
+    "/uca",
+    "/uca/data/*",
+    "/README.md",
+]

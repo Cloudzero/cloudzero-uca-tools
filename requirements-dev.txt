@@ -1,14 +1,14 @@
-# Copyright (c) 2016-present, CloudZero, Inc. All rights reserved.
-# Licensed under the BSD-style license. See LICENSE file in the project root for full license information.
+# Copyright (c) 2016-2023, CloudZero, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+# Direct all questions to support@cloudzero.com
 
-flake8>=3.9.2
-flake8-copyright>=0.2.2
-autopep8>=1.5.7
-pycodestyle>=2.6.0
-pytest>=6.2.4
-pytest-cov>=2.12.0
-pytest-mock>=3.6.1
-twine>=3.4.2
-setuptools>=57.0.0
-wheel>=0.36.2
+flake8>=6.0.0
+pytest>=7.2.1
+pytest-cov>=4.0.0
+pytest-mock>=3.10.0
+pytest-env>=0.8.1
+twine>=4.0.2
+setuptools==67.2.0
+wheel>=0.38.4
+
 -r requirements.txt

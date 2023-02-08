@@ -1,6 +1,7 @@
-# Copyright (c) 2021 CloudZero, Inc. All rights reserved.
-# Licensed under the BSD License. See LICENSE file in the project root for full license information.
-# Direct all questions to support@cloudzero.com
+#  Copyright (c) 2021-2023 CloudZero, Inc. or its affiliates. All Rights Reserved.
+#  SPDX-License-Identifier: Apache-2.0
+#  Direct all questions to support@cloudzero.com
+
 import io
 import os
 
@@ -18,9 +19,9 @@ with io.open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = '\n' + f.read()
 
 setup(
-    name='cloudzero-uca-tools',
+    name='cloudzero-uca-toolkit',
     version=__version__,
-    description='CloudZero UCA Tools',
+    description='CloudZero UCA Toolkit',
     long_description=long_description,
     long_description_content_type='text/markdown',
     author='CloudZero',
@@ -33,9 +34,9 @@ setup(
     package_data={'uca': ['data/*']},
     include_package_data=True,
     install_requires=REQUIRED,
-    license="Proprietary",
+    license="Apache-2.0",
     zip_safe=False,
-    keywords='CloudZero UCA Tools',
+    keywords='CloudZero UCA Toolkit unit cost analysis economics',
     platforms=['MacOS', 'Unix'],
     classifiers=[
         'Development Status :: 4 - Beta',

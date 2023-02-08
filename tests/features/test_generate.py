@@ -1,6 +1,6 @@
-# Copyright (c) 2021 CloudZero, Inc. All rights reserved.
-# Licensed under the BSD License. See LICENSE file in the project root for full license information.
-# Direct all questions to support@cloudzero.com
+#  Copyright (c) 2021-2023 CloudZero, Inc. or its affiliates. All Rights Reserved.
+#  SPDX-License-Identifier: Apache-2.0
+#  Direct all questions to support@cloudzero.com
 
 import datetime
 
@@ -29,8 +29,8 @@ def test_filter_nil_unit_values_exact_mode():
                       'id': '$unit_id',
                       'target': {},
                       'telemetry-stream': 'test-data',
-                                          'timestamp': '$timestamp',
-                                          'value': '$unit_value'}
+                      'timestamp': '$timestamp',
+                      'value': '$unit_value'}
 
     input_timestamp = datetime.datetime(2022, 10, 30, 0, 0)
 
@@ -60,8 +60,8 @@ def test_filter_nil_unit_values_random_mode():
                       'id': '$unit_id',
                       'target': {},
                       'telemetry-stream': 'test-data',
-                                          'timestamp': '$timestamp',
-                                          'value': '$unit_value'}
+                      'timestamp': '$timestamp',
+                      'value': '$unit_value'}
 
     input_timestamp = datetime.datetime(2022, 10, 30, 0, 0)
 

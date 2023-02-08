@@ -1,6 +1,7 @@
-# Copyright (c) 2021 CloudZero, Inc. All rights reserved.
-# Licensed under the BSD License. See LICENSE file in the project root for full license information.
-# Direct all questions to support@cloudzero.com
+#  Copyright (c) 2021-2023 CloudZero, Inc. or its affiliates. All Rights Reserved.
+#  SPDX-License-Identifier: Apache-2.0
+#  Direct all questions to support@cloudzero.com
+
 import sys
 from collections import defaultdict, Counter
 import re
@@ -9,7 +10,7 @@ from decimal import Decimal
 import simplejson as json
 from string import Template
 
-from aws_log_parser import AwsLogParser, LogType
+from uca.vendored.aws_log_parser import AwsLogParser, LogType
 
 from uca.common.cli import eprint
 from uca.common.formatters import rgetattr

@@ -10,7 +10,7 @@ Visit our [UCA documentation](https://docs.cloudzero.com/docs/enhanced-unit-cost
 
 ## prerequisites
 * Tested on MacOS, should probably run on Linux in general
-* Python 3.8 or newer
+* Python 3.9 or newer
 * `pipx` or your favorite method of installing packages from PyPi. Have you considered [pipx](https://pypa.github.io/pipx/)?
 
 ## Installation
