@@ -15,7 +15,7 @@ jobs:
           review-message: "Auto approved automated PR"
       - name: Dependabot metadata
         id: metadata
-        uses: dependabot/fetch-metadata@v1.3.1
+        uses: dependabot/fetch-metadata@v1.3.6
         with:
           github-token: '${{ secrets.CLOUDZERO_BOT_TOKEN }}'
       - name: Enable auto-merge for Dependabot PRs
