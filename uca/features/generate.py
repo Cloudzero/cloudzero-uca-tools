@@ -67,9 +67,15 @@ def _render_uca_data(uca_data, settings, uca_template, timestamp=None):
     timestamp_header = uca_template['timestamp'].replace('$', '')
 
     uca_events = []
+    # skipped = 0
     for row in uca_data:
-        if Decimal(row[unit_value_header]) <= 0:
-            continue
+        try:
+            if not row[unit_value_header] or Decimal(row[unit_value_header]) <= 0:
+                continue
+        except Exception as err:
+            print(f"Error: {err}")
+            print(f"{row[unit_value_header]}")
+            sys.exit(-1)
 
         if settings['mode'] == 'random':
             unit_value = preserve_precision(row[unit_value_header], PRECISION)
@@ -80,7 +86,9 @@ def _render_uca_data(uca_data, settings, uca_template, timestamp=None):
                 round_decimal(max(Decimal(abs(Decimal(row[unit_value_header]) + randint(-jitter, jitter))), Decimal(1)),
                               PRECISION))
         elif settings['mode'] == 'allocation':
-            jitter = int(settings.get('jitter'))
+            jitter = None
+            if settings.get('jitter'):
+                jitter = int(settings.get('jitter'))
             try:
                 if jitter:
                     row[unit_value_header] = round_decimal((Decimal(settings['allocation']) *
@@ -110,7 +118,13 @@ def _render_uca_data(uca_data, settings, uca_template, timestamp=None):
         else:
             rendered_template = template.substitute(**row)
 
-        uca_events.append(json.loads(rendered_template.strip().replace("\n", "")))
+        try:
+            uca_events.append(json.loads(rendered_template.strip().replace("\n", "")))
+
+        except Exception as err:
+            print(f"Error: {err}")
+            print(f"{rendered_template}")
+            sys.exit(-1)
 
     return uca_events
 
