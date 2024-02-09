@@ -1,6 +1,6 @@
 # CloudZero UCA Toolkit
 Utilities for generating, transforming and transmitting unit cost analytics (UCA) data to the CloudZero API.
-Visit our [UCA documentation](https://docs.cloudzero.com/docs/enhanced-unit-cost-analytics) to learn more about
+Visit our [UCA documentation](https://docs.cloudzero.com/docs/unit-cost-analytics) to learn more about
 [CloudZero](https://www.cloudzero.com) and our enhanced unit cost analytics capabilities.
 
 ## Features
@@ -16,7 +16,13 @@ Visit our [UCA documentation](https://docs.cloudzero.com/docs/enhanced-unit-cost
 ## Installation
       $ pipx install cloudzero-uca-tools
 
+## Quick Starts
+
+[Allocation Telemetry Quick Start](docs/quick_starts/quick_start_allocation_telemetry.md)
+[Unit Metric Telemetry Quick Start](docs/quick_starts/quick_start_unit_metric_telemetry.md)
+
 ## General Usage
+
 CloudZero UCA tools exist to produce UCA events that can then be transmitted to the CloudZero API
 for analysis and processing. To use the CloudZero API, you should first obtain an [API key](https://app.cloudzero.com/organization/api-keys)
 from https://app.cloudzero.com/organization/api-keys
