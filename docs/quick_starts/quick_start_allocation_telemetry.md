@@ -2,9 +2,9 @@
 
 - [Allocation Telemetry Quick Start ](#allocation-telemetry-quick-start-)
   - [Explanation of Allocation Data](#explanation-of-allocation-data)
-  - [Quick Start Scenario 1: Provide ALL Allocation Telemetry Data](#quick-start-scenario-1-provide-all-allocation-telemetry-data)
-  - [Quick Start Scenario 2: Replicate Allocation Telemetry Data Over a Given Time Period](#quick-start-scenario-2-replicate-allocation-telemetry-data-over-a-given-time-period)
-  - [Quick Start Scenario 3: Randomize Measurements in Allocation Telemetry Data](#quick-start-scenario-3-randomize-measurements-in-allocation-telemetry-data)
+  - [Quick Start Scenario 1: User Provides ALL Allocation Telemetry Data](#quick-start-scenario-1-user-provides-all-allocation-telemetry-data)
+  - [Quick Start Scenario 2: UCA Toolkit Replicates Allocation Telemetry Data Over a Given Time Period](#quick-start-scenario-2-uca-toolkit-replicates-allocation-telemetry-data-over-a-given-time-period)
+  - [Quick Start Scenario 3: UCA Toolkit Randomizes Measurements in Allocation Telemetry Data](#quick-start-scenario-3-uca-toolkit-randomizes-measurements-in-allocation-telemetry-data)
   - [Transmit Allocation Telemetry Records](#transmit-allocation-telemetry-records)
 
 ## Explanation of Allocation Data 
@@ -48,7 +48,7 @@ If a `DAILY` allocation is desired, CloudZero will:
 
 For example, in the day `2024-02-08`, customer usage of `product A` totaled `100` units. `customer 3`'s usage is `30` units or `30%` of total usage. Therefore, `customer 3` receives 30% of `product A`'s cost in the day.
 
-## Quick Start Scenario 1: Provide ALL Allocation Telemetry Data
+## Quick Start Scenario 1: User Provides ALL Allocation Telemetry Data
 [Return to Top](#top)
 
 `allocation-telemetry-data.csv`
@@ -118,7 +118,7 @@ allocation-telemetry-records.json
 {"timestamp": "2024-02-08 01:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 5", "filter": {"custom:product": ["product B"]}, "telemetry-stream": "product-cost-per-customer-v1", "value": "30.00"}
 ```
 
-## Quick Start Scenario 2: Replicate Allocation Telemetry Data Over a Given Time Period
+## Quick Start Scenario 2: UCA Toolkit Replicates Allocation Telemetry Data Over a Given Time Period
 [Return to Top](#top)
 
 Daily Replication
@@ -209,7 +209,7 @@ allocation-telemetry-records.json
 {"timestamp": "2024-02-10 00:00:00+00:00", "granularity": "DAILY", "element-name": "customer 5", "filter": {"custom:product": ["product B"]}, "telemetry-stream": "product-cost-per-customer-v1", "value": "30.00"}
 ```
 
-## Quick Start Scenario 3: Randomize Measurements in Allocation Telemetry Data
+## Quick Start Scenario 3: UCA Toolkit Randomizes Measurements in Allocation Telemetry Data
 [Return to Top](#top)
 
 `allocation-telemetry-data.csv`
