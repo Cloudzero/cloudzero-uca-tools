@@ -11,9 +11,7 @@
 5. [Transmit Allocation Telemetry Records](#transmit-allocation-telemetry-records)
 
 ## Transmit Allocation Telemetry Records
-[Return to Top](#top)
 
-Transmit Allocation Telemetry Records
 ```bash
 uca -c allocation-config.json transmit -d file://allocation-telemetry-records.json
 ```
