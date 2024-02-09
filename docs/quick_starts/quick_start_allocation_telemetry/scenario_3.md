@@ -1,6 +1,8 @@
 # Quick Start Scenario 3: UCA Toolkit Randomizes Measurements in Allocation Telemetry Data
 [Return Home](./quick_start_allocation_telemetry.md#allocation-telemetry-quick-start)
 
+## Allocation Telemetry Data
+
 `allocation-telemetry-data.csv`
 
 | timestamp                 | unit_value | filter_dimension | filter_dimension_group | element_id |
@@ -22,6 +24,14 @@
   * `filter_dimension`: category of cloud infrastructure used
   * `filter_dimension_group`: cloud infrastructure used
   * `element_id`: ID of customer
+
+## Allocation Telemetry Config
+
+If `mode` is jitter, defines the +/- random range to apply to the `$unit_value`
+
+For example, if `jitter` is set to `10`, then a random number between `1` and `10` will be added or substracted from each value in the `unit_value` column.
+
+Each value will have its own random `jitter`.
 
 `allocation-config.json`
 ```json
@@ -53,14 +63,14 @@
 
 The values starting with `$` are placeholders that will be replaced by data in `allocation-telemetry-data.csv`.
 
-If `mode` is jitter, defines the +/- random range to apply to the `$unit_value`
-
-Generate Allocation Telemetry Records
+## Generate Allocation Telemetry Records
 ```bash
 uca -c allocation-config.json generate -o allocation-telemetry-records.json -i allocation-telemetry-data.csv
 ```
 
-allocation-telemetry-records.json
+[Transmit Allocation Telemetry Records](./quick_start_allocation_telemetry.md#transmit-allocation-telemetry-records)
+
+`allocation-telemetry-records.json`
 ```json
 {"timestamp": "2024-02-08 00:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 1", "filter": {"custom:product": ["product A"]}, "telemetry-stream": "product-cost-per-customer-v1", "value": "5.00"}
 {"timestamp": "2024-02-08 00:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 2", "filter": {"custom:product": ["product A"]}, "telemetry-stream": "product-cost-per-customer-v1", "value": "18.00"}
@@ -73,3 +83,5 @@ allocation-telemetry-records.json
 {"timestamp": "2024-02-08 01:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 4", "filter": {"custom:product": ["product B"]}, "telemetry-stream": "product-cost-per-customer-v1", "value": "20.00"}
 {"timestamp": "2024-02-08 01:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 5", "filter": {"custom:product": ["product B"]}, "telemetry-stream": "product-cost-per-customer-v1", "value": "40.00"}
 ```
+
+[Previous Page: Quick Start Scenario 2](./scenario_2.md#quick-start-scenario-2-uca-toolkit-replicates-allocation-telemetry-data-over-a-given-time-period) | [Next Page: Home](./quick_start_allocation_telemetry.md#allocation-telemetry-quick-start)
