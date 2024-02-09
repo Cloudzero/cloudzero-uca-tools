@@ -12,6 +12,7 @@
 
 ## Transmit Allocation Telemetry Records
 
+After you use the UCA Toolkit to generate Allocation Telemetry Records, you can use it to send them to the [CloudZero Telemetry API](https://docs.cloudzero.com/reference/telemetry-api-1)
 ```bash
 uca -c allocation-config.json transmit -d file://allocation-telemetry-records.json
 ```
