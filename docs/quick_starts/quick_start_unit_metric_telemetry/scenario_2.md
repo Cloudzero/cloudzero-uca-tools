@@ -31,9 +31,9 @@ For example, if the time period is `2024-02-09 - 2024-02-10`, then every hour in
 | 30000      | product            | product A                |
 
 `unit-metric-telemetry-data.csv` represents unit counts processed by a product. In this scenario, the unit is ad impressions:
-    * `unit_value`: the number of ad impressions processed
-    * `filter_dimension_1`: catagory of cloud infrastructure used to process ad impressions
-    * `filter_dimension_1_filter_group`: cloud infrastructure used to process ad impressions
+  * `unit_value`: the number of ad impressions processed
+  * `filter_dimension_1`: catagory of cloud infrastructure used to process ad impressions
+  * `filter_dimension_1_filter_group`: cloud infrastructure used to process ad impressions
 
 ## Unit Metric Telemetry Config
 
