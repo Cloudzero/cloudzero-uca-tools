@@ -18,6 +18,9 @@ def transmit(uca_to_send, output_file, api_key, dry_run):
         print(f'\nWrote results to {output_file}')
     elif api_key:
         print('\nSending to API')
+        if "metric-name" in uca_to_send[0]:
+            send_uca_events(api_key, uca_to_send, telemetry_type="unit-metric")
+
         send_uca_events(api_key, uca_to_send)
     else:
         print('\nFinished, nothing to do')

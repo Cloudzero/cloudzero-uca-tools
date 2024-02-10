@@ -33,6 +33,9 @@ def generate_uca(time_range: TimeRange, uca_template, settings, uca_data):
         eprint(f"Granularity {uca_template['granularity']} not supported")
         sys.exit(-1)
 
+    if "metric-name" in uca_template:
+        del uca_template["granularity"]
+
     uca_events = []
     if time_range:
         for timestamp in datetime_chunks(time_range.start, time_range.end + timedelta(days=1), delta):
@@ -112,18 +115,21 @@ def _render_uca_data(uca_data, settings, uca_template, timestamp=None):
                 f"Unsupported UCA Mode '{settings['mode']}', please choose either 'exact', 'random', 'jitter' or 'allocation'")
             sys.exit(-1)
 
-        template = Template(json.dumps(uca_template))
-        if timestamp:
-            rendered_template = template.substitute({**row, timestamp_header: timestamp})
-        else:
-            rendered_template = template.substitute(**row)
-
         try:
+            template = Template(json.dumps(uca_template))
+            if timestamp:
+                rendered_template = template.substitute({**row, timestamp_header: timestamp})
+
+            else:
+                rendered_template = template.substitute(**row)
+
             uca_events.append(json.loads(rendered_template.strip().replace("\n", "")))
 
+        except KeyError as err:
+            print(f"Missing key in CSV data: {err}")
+            sys.exit(-1)
         except Exception as err:
             print(f"Error: {err}")
-            print(f"{rendered_template}")
             sys.exit(-1)
 
     return uca_events
