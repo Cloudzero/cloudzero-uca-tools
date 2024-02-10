@@ -1,5 +1,7 @@
 # Explanation of Allocation Data 
-[Return Home](./quick_start_allocation_telemetry.md#allocation-telemetry-quick-start)
+[Return Home](./quick_start_allocation_telemetry.md)
+
+## Allocation Telemetry Data
 
 `allocation-telemetry-data.csv`
 
@@ -44,4 +46,4 @@ If a `DAILY` allocation is desired, CloudZero will:
 
 For example, in the day `2024-02-08`, customer usage of `product A` totaled `100` units. `customer 3`'s usage is `30` units or `30%` of total usage. Therefore, `customer 3` receives 30% of `product A`'s cost in the day.
 
-[Previous Page: Home](./quick_start_allocation_telemetry.md) | [Next Page: Quick Start Scenario 1](./scenario_1.md#quick-start-scenario-1-user-provides-all-allocation-telemetry-data)
+[Previous Page: Home](./quick_start_allocation_telemetry.md) | [Next Page: Quick Start Scenario 1](./scenario_1.md)

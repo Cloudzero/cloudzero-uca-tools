@@ -1,5 +1,5 @@
 # Quick Start Scenario 1: User Provides ALL Allocation Telemetry Data
-[Return Home](./quick_start_allocation_telemetry.md#allocation-telemetry-quick-start)
+[Return Home](./quick_start_allocation_telemetry.md)
 
 ## Allocation Telemetry Data
 
@@ -73,4 +73,4 @@ uca -c allocation-config.json generate -o allocation-telemetry-records.json -i a
 {"timestamp": "2024-02-08 01:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 5", "filter": {"custom:product": ["product B"]}, "telemetry-stream": "product-cost-per-customer-v1", "value": "30.00"}
 ```
 
-[Previous Page: Explanation of Allocation Data](./explanation_of_allocation_data.md#explanation-of-allocation-data) | [Next Page: Quick Start Scenario 2](./scenario_2.md#quick-start-scenario-2-uca-toolkit-replicates-allocation-telemetry-data-over-a-given-time-period)
+[Previous Page: Explanation of Allocation Data](./explanation_of_allocation_data.md) | [Next Page: Quick Start Scenario 2](./scenario_2.md)

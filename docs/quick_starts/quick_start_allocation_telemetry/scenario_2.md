@@ -1,5 +1,5 @@
 # Quick Start Scenario 2: UCA Toolkit Replicates Allocation Telemetry Data Over a Given Time Period
-[Return Home](./quick_start_allocation_telemetry.md#allocation-telemetry-quick-start)
+[Return Home](./quick_start_allocation_telemetry.md)
 
 ## Daily Replication
 
@@ -95,4 +95,4 @@ uca -c allocation-config.json generate -o allocation-telemetry-records.json -i a
 {"timestamp": "2024-02-10 00:00:00+00:00", "granularity": "DAILY", "element-name": "customer 5", "filter": {"custom:product": ["product B"]}, "telemetry-stream": "product-cost-per-customer-v1", "value": "30.00"}
 ```
 
-[Previous Page: Quick Start Scenario 1](./scenario_1.md#quick-start-scenario-1-user-provides-all-allocation-telemetry-data) | [Next Page: Quick Start Scenario 3](./scenario_3.md#quick-start-scenario-3-uca-toolkit-randomizes-measurements-in-allocation-telemetry-data)
+[Previous Page: Quick Start Scenario 1](./scenario_1.md) | [Next Page: Quick Start Scenario 3](./scenario_3.md)
