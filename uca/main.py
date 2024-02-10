@@ -188,7 +188,12 @@ def generate_uca_command(configuration, start, end, today, input, output):
     uca_to_send = generate_uca(
         range_requested, configuration.template, generate_settings, uca_data
     )
+    if not uca_to_send:
+        print(f" - Event Generation failed, {len(uca_to_send)} events created")
+        sys.exit(-1)
+
     print(f" - Event Generation complete, {len(uca_to_send)} events created")
+
     print_uca_sample(uca_to_send)
 
     print(f"\n - Writing UCA data to {output}")
