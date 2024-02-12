@@ -18,8 +18,8 @@ Visit our [UCA documentation](https://docs.cloudzero.com/docs/unit-cost-analytic
 
 ## Quick Starts
 
-[Allocation Telemetry Quick Start](docs/quick_starts/quick_start_allocation_telemetry.md)
-[Unit Metric Telemetry Quick Start](docs/quick_starts/quick_start_unit_metric_telemetry.md)
+* [Allocation Telemetry Quick Start](docs/quick_starts/quick_start_allocation_telemetry.md)
+* [Unit Metric Telemetry Quick Start](docs/quick_starts/quick_start_unit_metric_telemetry.md)
 
 ## General Usage
 
