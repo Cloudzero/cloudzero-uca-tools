@@ -8,7 +8,7 @@ Visit our [UCA documentation](https://docs.cloudzero.com/docs/unit-cost-analytic
 * Generate UCA data
 * Convert raw data in CSV form to UCA JSON format
 
-## prerequisites
+## Prerequisites
 * Tested on MacOS, should probably run on Linux in general
 * Python 3.9 or newer
 * `pipx` or your favorite method of installing packages from PyPi. Have you considered [pipx](https://pypa.github.io/pipx/)?
