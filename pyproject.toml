@@ -57,6 +57,7 @@ Homepage = "https://github.com/Cloudzero/cloudzero-uca-tools"
 path = "uca/__version__.py"
 
 [tool.hatch.build.targets.wheel]
+packages = ["uca"]
 [tool.hatch.build.targets.sdist]
 include = [
     "/uca",

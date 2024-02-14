@@ -32,8 +32,8 @@ class RootConfiguration(object):
             self.template = {}
         self.output_path = None
         self.dry_run = dry_run
-        self.api_key = api_key or self.settings.get('api_key')
-        self.granularity = self.template.get('granularity')
+        self.api_key = api_key or self.settings.get("api_key")
+        self.granularity = self.template.get("granularity")
 
         if self.dry_run:
             print(self.dry_run)
@@ -43,19 +43,23 @@ class RootConfiguration(object):
             self.destination = "CloudZero API"
 
     def print(self):
-        print(f" Configuration: {self.configuration_path}\n"
-              f"       Dry Run: {self.dry_run}\n"
-              f"       API Key: {self.api_key}\n"
-              f"   Destination: {self.destination}")
+        print(
+            f" Configuration: {self.configuration_path}\n"
+            f"       Dry Run: {self.dry_run}\n"
+            f"       API Key: {self.api_key}\n"
+            f"   Destination: {self.destination}"
+        )
 
     def load_settings(self):
         try:
-            with open(self.configuration_path, mode='r') as fp:
+            with open(self.configuration_path, mode="r") as fp:
                 configuration_file = json.load(fp)
-                uca_settings = configuration_file['settings']
-                uca_template = configuration_file['template']
+                uca_settings = configuration_file["settings"]
+                uca_template = configuration_file["template"]
         except Exception as error:
-            eprint(f"Unable to read configuration file {self.configuration_path}, error: {error}")
+            eprint(
+                f"Unable to read configuration file {self.configuration_path}, error: {error}"
+            )
             sys.exit(-1)
         return uca_settings, uca_template
 
@@ -73,44 +77,39 @@ def add_version(f):
 
 @click.group(name="cloudzero-uca-tools")
 @click.version_option(version=__version__)
-@click.option("--configuration", "-c",
-              required=False,
-              help="UCA configuration file (JSON)")
-@click.option("--dry-run", "-dry",
-              is_flag=True,
-              required=False,
-              help="Perform a dry run, read and transform the data but do not send it to the API. "
-                   "Sample events will be output to the screen")
-@click.option("--api-key", "-k",
-              required=False,
-              envvar='CZ_API_KEY',
-              help="API Key to use")
+@click.option(
+    "--configuration", "-c", required=False, help="UCA configuration file (JSON)"
+)
+@click.option(
+    "--dry-run",
+    "-dry",
+    is_flag=True,
+    required=False,
+    help="Perform a dry run, read and transform the data but do not send it to the API. "
+    "Sample events will be output to the screen",
+)
+@click.option(
+    "--api-key", "-k", required=False, envvar="CZ_API_KEY", help="API Key to use"
+)
 @click.pass_context
 @add_version
 def cli(ctx, configuration, dry_run, api_key):
-    """CloudZero Unit Cost Analytics toolkit
-    """
-    ctx.obj = RootConfiguration(configuration=configuration,
-                                dry_run=dry_run, api_key=api_key)
+    """CloudZero Unit Cost Analytics toolkit"""
+    ctx.obj = RootConfiguration(
+        configuration=configuration, dry_run=dry_run, api_key=api_key
+    )
 
 
 @cli.command("generate")
-@click.option("--start", "-s",
-              required=False,
-              help="start datetime <YYYY-MM-DD HH:MM:SS>")
-@click.option("--end", "-e",
-              required=False,
-              help="End datetime <YYYY-MM-DD HH:MM:SS>")
-@click.option("--today",
-              is_flag=True,
-              required=False,
-              help="Generate events for the current day")
-@click.option("--input", "-i",
-              required=True,
-              help="Input UCA data (CSV)")
-@click.option("--output", "-o",
-              required=True,
-              help="Output file")
+@click.option(
+    "--start", "-s", required=False, help="start datetime <YYYY-MM-DD HH:MM:SS>"
+)
+@click.option("--end", "-e", required=False, help="End datetime <YYYY-MM-DD HH:MM:SS>")
+@click.option(
+    "--today", is_flag=True, required=False, help="Generate events for the current day"
+)
+@click.option("--input", "-i", required=True, help="Input UCA data (CSV)")
+@click.option("--output", "-o", required=True, help="Output file")
 @pass_root_configuration
 def generate_uca_command(configuration, start, end, today, input, output):
     if not configuration.settings:
@@ -139,31 +138,62 @@ def generate_uca_command(configuration, start, end, today, input, output):
     else:
         range_requested = None
 
-    generate_settings = configuration.settings['generate']
-    print("CloudZero UCA Data Generator")
-    print("-" * 140)
-    print(f"   Date Range : {range_requested or 'data driven'}")
-    print(f"  Granularity : {configuration.template['granularity']}")
-    print(f"         Mode : {generate_settings['mode']}")
-    if generate_settings['mode'] == "jitter":
-        print(f"       Jitter : {generate_settings['jitter']}")
-    elif generate_settings['mode'] == "allocation":
-        print(f"   Allocation : {generate_settings['allocation']}")
-        if generate_settings.get('jitter'):
-            print(f"              : with Jitter {generate_settings['jitter']}")
-    print(f"Configuration : {configuration.configuration_path}")
-    print(f"   Input Data : {input}")
-    print(f"  Output File : {configuration.output_path}")
-    print("-" * 140)
+    try:
+        generate_settings = configuration.settings["generate"]
+
+        if not isinstance(generate_settings, dict):
+            raise TypeError("generate_settings must be a dictionary")
+
+        required_generate_keys = ["mode"]
+        missing_keys = [
+            key for key in required_generate_keys if key not in generate_settings
+        ]
+        if missing_keys:
+            raise ValueError(
+                f"Missing required key(s) in 'generate' config: {', '.join(missing_keys)}"
+            )
+
+        print("CloudZero UCA Data Generator")
+        print("-" * 140)
+        print(f"   Date Range : {range_requested or 'data driven'}")
+        print(f"  Granularity : {configuration.template['granularity']}")
+        print(f"         Mode : {generate_settings['mode']}")
+        if generate_settings["mode"] == "jitter":
+            print(f"       Jitter : {generate_settings['jitter']}")
+        elif generate_settings["mode"] == "allocation":
+            print(f"   Allocation : {generate_settings['allocation']}")
+            if generate_settings.get("jitter"):
+                print(f"              : with Jitter {generate_settings['jitter']}")
+        print(f"Configuration : {configuration.configuration_path}")
+        print(f"   Input Data : {input}")
+        print(f"  Output File : {configuration.output_path}")
+        print("-" * 140)
+
+    except KeyError as error:
+        eprint(f"Missing configurations: {error}")
+        sys.exit(-1)
+    except TypeError:
+        eprint("'Generate' configuration must be a dictionary.")
+        sys.exit(-1)
+    except ValueError as error:
+        eprint(error)
+        sys.exit(-1)
 
     try:
-        uca_data = load_data_files(input, 'CSV')
+        uca_data = load_data_files(input, "CSV")
     except Exception as error:
         eprint(f"Unable to read input file {input}, error: {error}")
         sys.exit(-1)
 
-    uca_to_send = generate_uca(range_requested, configuration.template, generate_settings, uca_data)
+    uca_to_send = generate_uca(
+        range_requested, configuration.template, generate_settings, uca_data
+    )
+    if not uca_to_send:
+        print(f" - Event Generation failed, {len(uca_to_send)} events created")
+        sys.exit(-1)
+
     print(f" - Event Generation complete, {len(uca_to_send)} events created")
+
     print_uca_sample(uca_to_send)
 
     print(f"\n - Writing UCA data to {output}")
@@ -171,16 +201,25 @@ def generate_uca_command(configuration, start, end, today, input, output):
 
 
 @cli.command("transmit")
-@click.option("--data", "-d",
-              required=True,
-              help="Source JSON data, in text or gzip + text format, supports file:// or s3:// paths")
-@click.option("--output", "-o",
-              required=False,
-              help="Instead of transmitting the data to the CloudZero API, Save the output to a file.")
-@click.option("--transform", "-t",
-              required=False,
-              help="Optional transformation script using jq (https://stedolan.github.io/jq/). "
-                   "Used when the source data needs modification or cleanup. See README.md for usage instructions")
+@click.option(
+    "--data",
+    "-d",
+    required=True,
+    help="Source JSON data, in text or gzip + text format, supports file:// or s3:// paths",
+)
+@click.option(
+    "--output",
+    "-o",
+    required=False,
+    help="Instead of transmitting the data to the CloudZero API, Save the output to a file.",
+)
+@click.option(
+    "--transform",
+    "-t",
+    required=False,
+    help="Optional transformation script using jq (https://stedolan.github.io/jq/). "
+    "Used when the source data needs modification or cleanup. See README.md for usage instructions",
+)
 @pass_root_configuration
 def transmit_uca_command(configuration, data, output, transform):
     if output:
@@ -189,23 +228,35 @@ def transmit_uca_command(configuration, data, output, transform):
     print(f"Transmitting UCA data from {data} to {configuration.destination}")
     print("-" * 140)
 
-    records = load_data_files(data, file_format='JSON')
+    records = load_data_files(data, file_format="JSON")
     transform_script = load_transform_script(transform)
-    uca_to_send, transformed_records, filtered_records = transform_data(records, transform_script)
-    print(f" - Processed {len(records)} records "
-          f"| {transformed_records} Transformed | {filtered_records} Filtered")
+    uca_to_send, transformed_records, filtered_records = transform_data(
+        records, transform_script
+    )
+    print(
+        f" - Processed {len(records)} records "
+        f"| {transformed_records} Transformed | {filtered_records} Filtered"
+    )
     print(f" - {len(records) - filtered_records} records ready for transmission")
     print_uca_sample(uca_to_send)
-    transmit(uca_to_send, configuration.output_path, configuration.api_key, configuration.dry_run)
+    transmit(
+        uca_to_send,
+        configuration.output_path,
+        configuration.api_key,
+        configuration.dry_run,
+    )
 
 
 @cli.command("convert")
-@click.option("--data", "-d",
-              required=True,
-              help="Source data, in text or gzip + text format, supports file:// or s3:// paths")
-@click.option("--output", "-o",
-              required=True,
-              help="Destination file for converted data")
+@click.option(
+    "--data",
+    "-d",
+    required=True,
+    help="Source data, in text or gzip + text format, supports file:// or s3:// paths",
+)
+@click.option(
+    "--output", "-o", required=True, help="Destination file for converted data"
+)
 @pass_root_configuration
 def convert_uca_command(configuration, data, output):
     output = os.path.abspath(output)
@@ -216,7 +267,7 @@ def convert_uca_command(configuration, data, output):
         configuration.output_path = output
         configuration.destination = "File"
 
-    data_format = configuration.settings['convert']['format']
+    data_format = configuration.settings["convert"]["format"]
     print(f"Converting {data_format} data into CloudZero UCA")
     print("-" * 140)
     print(f"       Format : {data_format}")
@@ -226,7 +277,9 @@ def convert_uca_command(configuration, data, output):
     records = load_data_files(data, file_format)
     converted_data = convert(records, configuration)
 
-    print(f" - Aggregated {len(records)} {data_format} records into {len(converted_data)} UCA records")
+    print(
+        f" - Aggregated {len(records)} {data_format} records into {len(converted_data)} UCA records"
+    )
     print_uca_sample(converted_data)
 
     print(f"\n - Writing UCA data to {output}")

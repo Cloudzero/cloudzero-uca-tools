@@ -1,6 +1,6 @@
 # CloudZero UCA Toolkit
 Utilities for generating, transforming and transmitting unit cost analytics (UCA) data to the CloudZero API.
-Visit our [UCA documentation](https://docs.cloudzero.com/docs/enhanced-unit-cost-analytics) to learn more about
+Visit our [UCA documentation](https://docs.cloudzero.com/docs/unit-cost-analytics) to learn more about
 [CloudZero](https://www.cloudzero.com) and our enhanced unit cost analytics capabilities.
 
 ## Features
@@ -8,7 +8,7 @@ Visit our [UCA documentation](https://docs.cloudzero.com/docs/enhanced-unit-cost
 * Generate UCA data
 * Convert raw data in CSV form to UCA JSON format
 
-## prerequisites
+## Prerequisites
 * Tested on MacOS, should probably run on Linux in general
 * Python 3.9 or newer
 * `pipx` or your favorite method of installing packages from PyPi. Have you considered [pipx](https://pypa.github.io/pipx/)?
@@ -16,7 +16,13 @@ Visit our [UCA documentation](https://docs.cloudzero.com/docs/enhanced-unit-cost
 ## Installation
       $ pipx install cloudzero-uca-tools
 
+## Quick Starts
+
+* [Allocation Telemetry Quick Start](docs/quick_starts/quick_start_allocation_telemetry/quick_start_allocation_telemetry.md)
+* [Unit Metric Telemetry Quick Start](docs/quick_starts/quick_start_unit_metric_telemetry/quick_start_unit_metric_telemetry.md)
+
 ## General Usage
+
 CloudZero UCA tools exist to produce UCA events that can then be transmitted to the CloudZero API
 for analysis and processing. To use the CloudZero API, you should first obtain an [API key](https://app.cloudzero.com/organization/api-keys)
 from https://app.cloudzero.com/organization/api-keys
@@ -280,3 +286,16 @@ Using the `exact` configuration above, this data will produce UCA events similar
     {'timestamp': '2021-04-01 00:00:00+00:00', 'granularity': 'DAILY', 'element-name': 'Sunbank', 'filter': {}, 'telemetry-stream': 'test-data', 'value': '37.0000'}
     {'timestamp': '2021-04-06 00:00:00+00:00', 'granularity': 'DAILY', 'element-name': 'Transport Co.', 'filter': {}, 'telemetry-stream': 'test-data', 'value': '25.0000'}
     {'timestamp': '2021-03-19 00:00:00+00:00', 'granularity': 'DAILY', 'element-name': 'StateEx', 'filter': {}, 'telemetry-stream': 'test-data', 'value': '40.0000'}
+
+## Testing/Developing
+First create a virtual environment of your choice, and activate it. Then, install UCA Toolkit for local development:
+```bash
+python -m pip install --editable .
+```
+Run the following commands if you had previously installed it using pip or pipx:
+
+1. Uninstall `uca` (e.g. pipx uninstall cloudzero-uca-tools)
+2. Create a Virtualenv for your `uca` development
+3. Enter your virtualenv and install all of the necessary dependencies by running make init
+4. Finally, configure `uca` for use in your environment using pip install -e .
+5. Once that is done, the `uca` cli will be available in your shell (you may or may not need to restart your shell).

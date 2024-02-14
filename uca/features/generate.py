@@ -33,6 +33,9 @@ def generate_uca(time_range: TimeRange, uca_template, settings, uca_data):
         eprint(f"Granularity {uca_template['granularity']} not supported")
         sys.exit(-1)
 
+    if "metric-name" in uca_template:
+        del uca_template["granularity"]
+
     uca_events = []
     if time_range:
         for timestamp in datetime_chunks(time_range.start, time_range.end + timedelta(days=1), delta):
@@ -67,9 +70,15 @@ def _render_uca_data(uca_data, settings, uca_template, timestamp=None):
     timestamp_header = uca_template['timestamp'].replace('$', '')
 
     uca_events = []
+    # skipped = 0
     for row in uca_data:
-        if Decimal(row[unit_value_header]) <= 0:
-            continue
+        try:
+            if not row[unit_value_header] or Decimal(row[unit_value_header]) <= 0:
+                continue
+        except Exception as err:
+            print(f"Error: {err}")
+            print(f"{row[unit_value_header]}")
+            sys.exit(-1)
 
         if settings['mode'] == 'random':
             unit_value = preserve_precision(row[unit_value_header], PRECISION)
@@ -80,7 +89,9 @@ def _render_uca_data(uca_data, settings, uca_template, timestamp=None):
                 round_decimal(max(Decimal(abs(Decimal(row[unit_value_header]) + randint(-jitter, jitter))), Decimal(1)),
                               PRECISION))
         elif settings['mode'] == 'allocation':
-            jitter = int(settings.get('jitter'))
+            jitter = None
+            if settings.get('jitter'):
+                jitter = int(settings.get('jitter'))
             try:
                 if jitter:
                     row[unit_value_header] = round_decimal((Decimal(settings['allocation']) *
@@ -104,13 +115,22 @@ def _render_uca_data(uca_data, settings, uca_template, timestamp=None):
                 f"Unsupported UCA Mode '{settings['mode']}', please choose either 'exact', 'random', 'jitter' or 'allocation'")
             sys.exit(-1)
 
-        template = Template(json.dumps(uca_template))
-        if timestamp:
-            rendered_template = template.substitute({**row, timestamp_header: timestamp})
-        else:
-            rendered_template = template.substitute(**row)
+        try:
+            template = Template(json.dumps(uca_template))
+            if timestamp:
+                rendered_template = template.substitute({**row, timestamp_header: timestamp})
 
-        uca_events.append(json.loads(rendered_template.strip().replace("\n", "")))
+            else:
+                rendered_template = template.substitute(**row)
+
+            uca_events.append(json.loads(rendered_template.strip().replace("\n", "")))
+
+        except KeyError as err:
+            print(f"Missing key in CSV data: {err}")
+            sys.exit(-1)
+        except Exception as err:
+            print(f"Error: {err}")
+            sys.exit(-1)
 
     return uca_events
 
