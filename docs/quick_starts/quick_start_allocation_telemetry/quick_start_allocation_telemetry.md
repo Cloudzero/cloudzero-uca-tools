@@ -8,9 +8,7 @@
 
 4. [Quick Start Scenario 3: UCA Toolkit Randomizes Measurements in Allocation Telemetry Data](./scenario_3.md)
 
-5. [Quick Start Scenario 4: User Providers Multi-Part Element Names in Allocation Telemetry Data](./scenario_4.md)
-
-6. [Transmit Allocation Telemetry Records](#transmit-allocation-telemetry-records)
+5. [Transmit Allocation Telemetry Records](#transmit-allocation-telemetry-records)
 
 ## Transmit Allocation Telemetry Records
 
