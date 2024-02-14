@@ -286,3 +286,16 @@ Using the `exact` configuration above, this data will produce UCA events similar
     {'timestamp': '2021-04-01 00:00:00+00:00', 'granularity': 'DAILY', 'element-name': 'Sunbank', 'filter': {}, 'telemetry-stream': 'test-data', 'value': '37.0000'}
     {'timestamp': '2021-04-06 00:00:00+00:00', 'granularity': 'DAILY', 'element-name': 'Transport Co.', 'filter': {}, 'telemetry-stream': 'test-data', 'value': '25.0000'}
     {'timestamp': '2021-03-19 00:00:00+00:00', 'granularity': 'DAILY', 'element-name': 'StateEx', 'filter': {}, 'telemetry-stream': 'test-data', 'value': '40.0000'}
+
+## Testing/Developing
+First create a virtual environment of your choice, and activate it. Then, install UCA Toolkit for local development:
+```bash
+python -m pip install --editable .
+```
+Run the following commands if you had previously installed it using pip or pipx:
+
+1. Uninstall `uca` (e.g. pipx uninstall cloudzero-uca-tools)
+2. Create a Virtualenv for your `uca` development
+3. Enter your virtualenv and install all of the necessary dependencies by running make init
+4. Finally, configure `uca` for use in your environment using pip install -e .
+5. Once that is done, the `uca` cli will be available in your shell (you may or may not need to restart your shell).
