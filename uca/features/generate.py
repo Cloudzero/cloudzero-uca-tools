@@ -16,7 +16,7 @@ from uca.common.cli import eprint
 from uca.common.custom_types import TimeRange
 from uca.common.standards import datetime_chunks, utc_datetime_from_anything
 
-PRECISION = 100
+PRECISION = 10000
 
 
 def generate_uca(time_range: TimeRange, uca_template, settings, uca_data):
