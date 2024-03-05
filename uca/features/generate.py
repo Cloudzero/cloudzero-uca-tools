@@ -16,7 +16,7 @@ from uca.common.cli import eprint
 from uca.common.custom_types import TimeRange
 from uca.common.standards import datetime_chunks, utc_datetime_from_anything
 
-PRECISION = 100
+PRECISION = 10000
 
 
 def generate_uca(time_range: TimeRange, uca_template, settings, uca_data):
@@ -69,6 +69,12 @@ def _render_uca_data(uca_data, settings, uca_template, timestamp=None):
     unit_value_header = uca_template['value'].replace('$', '')
     timestamp_header = uca_template['timestamp'].replace('$', '')
 
+    if settings.get("precision"):
+        precision = int("1" + "0" * settings.get("precision"))
+
+    else:
+        precision = PRECISION
+
     uca_events = []
     # skipped = 0
     for row in uca_data:
@@ -81,13 +87,13 @@ def _render_uca_data(uca_data, settings, uca_template, timestamp=None):
             sys.exit(-1)
 
         if settings['mode'] == 'random':
-            unit_value = preserve_precision(row[unit_value_header], PRECISION)
-            row[unit_value_header] = str(restore_precision(randint(0, unit_value), PRECISION))
+            unit_value = preserve_precision(row[unit_value_header], precision)
+            row[unit_value_header] = str(restore_precision(randint(0, unit_value), precision))
         elif settings['mode'] == 'jitter':
             jitter = int(settings['jitter'])
             row[unit_value_header] = str(
                 round_decimal(max(Decimal(abs(Decimal(row[unit_value_header]) + randint(-jitter, jitter))), Decimal(1)),
-                              PRECISION))
+                              precision))
         elif settings['mode'] == 'allocation':
             jitter = None
             if settings.get('jitter'):
@@ -96,10 +102,10 @@ def _render_uca_data(uca_data, settings, uca_template, timestamp=None):
                 if jitter:
                     row[unit_value_header] = round_decimal((Decimal(settings['allocation']) *
                                                             Decimal(row['unit_allocation'])) + randint(0, jitter),
-                                                           PRECISION)
+                                                           precision)
                 else:
                     row[unit_value_header] = round_decimal(
-                        Decimal(settings['allocation']) * Decimal(row[unit_value_header]), PRECISION)
+                        Decimal(settings['allocation']) * Decimal(row[unit_value_header]), precision)
 
             except KeyError:
                 print('ERROR: Must add "unit_allocation" column to CSV')
@@ -109,7 +115,7 @@ def _render_uca_data(uca_data, settings, uca_template, timestamp=None):
                 sys.exit(-1)
 
         elif settings['mode'] == 'exact':
-            row[unit_value_header] = str(round_decimal(Decimal(row[unit_value_header]), PRECISION))
+            row[unit_value_header] = str(round_decimal(Decimal(row[unit_value_header]), precision))
         else:
             eprint(
                 f"Unsupported UCA Mode '{settings['mode']}', please choose either 'exact', 'random', 'jitter' or 'allocation'")

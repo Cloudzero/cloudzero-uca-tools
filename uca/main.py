@@ -164,6 +164,8 @@ def generate_uca_command(configuration, start, end, today, input, output):
             print(f"   Allocation : {generate_settings['allocation']}")
             if generate_settings.get("jitter"):
                 print(f"              : with Jitter {generate_settings['jitter']}")
+        if generate_settings.get("precision"):
+            print(f"    Precision : {generate_settings['precision']}")
         print(f"Configuration : {configuration.configuration_path}")
         print(f"   Input Data : {input}")
         print(f"  Output File : {configuration.output_path}")
