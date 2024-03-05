@@ -241,6 +241,7 @@ can learn more [about the UCA format and our UCA Telemetry API here](https://doc
           "mode": "exact",                          # Can be `exact`, `random`, `jitter` or `allocation`
           "jitter": 15,                             # if mode is jitter, defines the +/- random range to applie to the $value
           "allocation": 1000                        # if mode is allocation, defines the total amount to be allocated across elements in your data file
+          "precision": 4                            # The number of desired decimal places. If not provided, the default is 4
         },
         "api_key": "<YOUR API KEY HERE>"            # Also can be provided at runtime via the CLI. Get an API key at https://app.cloudzero.com/organization/api-keys
       }
