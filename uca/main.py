@@ -227,6 +227,19 @@ def transmit_uca_command(configuration, data, output, transform):
     if output:
         configuration.output_path = output
         configuration.destination = "File"
+
+    if 'telemetry-stream' in configuration.template:
+        stream_name = configuration.template['telemetry-stream']
+        stream_type = 'telemetry-stream'
+
+    elif 'metric-name' in configuration.template:
+        stream_name = configuration.template['metric-name']
+        stream_type = 'metric-name'
+
+    else:
+        print("Missing 'telemetry-stream' or 'metric-name' key in 'template' config:")
+        sys.exit(-1)
+
     print(f"Transmitting UCA data from {data} to {configuration.destination}")
     print("-" * 140)
 
@@ -242,6 +255,8 @@ def transmit_uca_command(configuration, data, output, transform):
     print(f" - {len(records) - filtered_records} records ready for transmission")
     print_uca_sample(uca_to_send)
     transmit(
+        stream_name,
+        stream_type,
         uca_to_send,
         configuration.output_path,
         configuration.api_key,

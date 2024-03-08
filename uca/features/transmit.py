@@ -8,7 +8,7 @@ from uca.common.files import write_to_file
 from uca.interfaces.uca_api import send_uca_events
 
 
-def transmit(uca_to_send, output_file, api_key, dry_run):
+def transmit(stream_name, stream_type, uca_to_send, output_file, api_key, dry_run):
     # order maters here, we want dry run to come first, if not that, output to file, if not that api key
     if dry_run:
         print('\nDry run, exiting')
@@ -18,9 +18,10 @@ def transmit(uca_to_send, output_file, api_key, dry_run):
         print(f'\nWrote results to {output_file}')
     elif api_key:
         print('\nSending to API')
-        if "metric-name" in uca_to_send[0]:
-            send_uca_events(api_key, uca_to_send, telemetry_type="unit-metric")
+        if "metric-name" == stream_type:
+            send_uca_events(stream_name, api_key, uca_to_send, telemetry_type="unit-metric")
 
-        send_uca_events(api_key, uca_to_send)
+        elif "telemetry-stream" == stream_type:
+            send_uca_events(stream_name, api_key, uca_to_send)
     else:
         print('\nFinished, nothing to do')
