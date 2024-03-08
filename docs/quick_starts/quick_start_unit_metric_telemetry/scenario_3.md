@@ -39,7 +39,7 @@ Each value will have its own random `jitter`.
   "template": {
     "timestamp": "$timestamp",
     "granularity": "HOURLY",
-    "associated-cost": {
+    "associated_cost": {
       "custom:$filter_dimension_1": "$filter_dimension_1_group"
     },
     "metric-name": "cost-per-hourly-ad-impressions-v1",
@@ -66,16 +66,16 @@ uca -c unit-metric-config.json generate -o unit-metric-telemetry-records.json -i
 
 `unit-metric-telemetry-records.json`
 ```json
-{"timestamp": "2024-02-08 00:00:00+00:00", "associated-cost": {"custom:product": "product A"}, "metric-name": "hourly-cost-per-ad-impression-v1", "value": "10151.00"}
-{"timestamp": "2024-02-08 01:00:00+00:00", "associated-cost": {"custom:product": "product A"}, "metric-name": "hourly-cost-per-ad-impression-v1", "value": "9165.00"}
-{"timestamp": "2024-02-08 02:00:00+00:00", "associated-cost": {"custom:product": "product A"}, "metric-name": "hourly-cost-per-ad-impression-v1", "value": "20789.00"}
-{"timestamp": "2024-02-08 03:00:00+00:00", "associated-cost": {"custom:product": "product A"}, "metric-name": "hourly-cost-per-ad-impression-v1", "value": "29937.00"}
-{"timestamp": "2024-02-08 04:00:00+00:00", "associated-cost": {"custom:product": "product A"}, "metric-name": "hourly-cost-per-ad-impression-v1", "value": "30221.00"}
-{"timestamp": "2024-02-08 05:00:00+00:00", "associated-cost": {"custom:product": "product A"}, "metric-name": "hourly-cost-per-ad-impression-v1", "value": "10132.00"}
-{"timestamp": "2024-02-08 06:00:00+00:00", "associated-cost": {"custom:product": "product A"}, "metric-name": "hourly-cost-per-ad-impression-v1", "value": "9624.00"}
-{"timestamp": "2024-02-08 07:00:00+00:00", "associated-cost": {"custom:product": "product A"}, "metric-name": "hourly-cost-per-ad-impression-v1", "value": "20063.00"}
-{"timestamp": "2024-02-08 08:00:00+00:00", "associated-cost": {"custom:product": "product A"}, "metric-name": "hourly-cost-per-ad-impression-v1", "value": "30876.00"}
-{"timestamp": "2024-02-08 09:00:00+00:00", "associated-cost": {"custom:product": "product A"}, "metric-name": "hourly-cost-per-ad-impression-v1", "value": "29353.00"}
+{"timestamp": "2024-02-08 00:00:00+00:00", "associated_cost": {"custom:product": "product A"}, "metric-name": "hourly-cost-per-ad-impression-v1", "value": "10151.00"}
+{"timestamp": "2024-02-08 01:00:00+00:00", "associated_cost": {"custom:product": "product A"}, "metric-name": "hourly-cost-per-ad-impression-v1", "value": "9165.00"}
+{"timestamp": "2024-02-08 02:00:00+00:00", "associated_cost": {"custom:product": "product A"}, "metric-name": "hourly-cost-per-ad-impression-v1", "value": "20789.00"}
+{"timestamp": "2024-02-08 03:00:00+00:00", "associated_cost": {"custom:product": "product A"}, "metric-name": "hourly-cost-per-ad-impression-v1", "value": "29937.00"}
+{"timestamp": "2024-02-08 04:00:00+00:00", "associated_cost": {"custom:product": "product A"}, "metric-name": "hourly-cost-per-ad-impression-v1", "value": "30221.00"}
+{"timestamp": "2024-02-08 05:00:00+00:00", "associated_cost": {"custom:product": "product A"}, "metric-name": "hourly-cost-per-ad-impression-v1", "value": "10132.00"}
+{"timestamp": "2024-02-08 06:00:00+00:00", "associated_cost": {"custom:product": "product A"}, "metric-name": "hourly-cost-per-ad-impression-v1", "value": "9624.00"}
+{"timestamp": "2024-02-08 07:00:00+00:00", "associated_cost": {"custom:product": "product A"}, "metric-name": "hourly-cost-per-ad-impression-v1", "value": "20063.00"}
+{"timestamp": "2024-02-08 08:00:00+00:00", "associated_cost": {"custom:product": "product A"}, "metric-name": "hourly-cost-per-ad-impression-v1", "value": "30876.00"}
+{"timestamp": "2024-02-08 09:00:00+00:00", "associated_cost": {"custom:product": "product A"}, "metric-name": "hourly-cost-per-ad-impression-v1", "value": "29353.00"}
 
 ```
 
