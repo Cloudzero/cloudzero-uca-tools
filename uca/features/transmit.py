@@ -18,10 +18,7 @@ def transmit(stream_name, stream_type, uca_to_send, output_file, api_key, dry_ru
         print(f'\nWrote results to {output_file}')
     elif api_key:
         print('\nSending to API')
-        if "metric-name" == stream_type:
-            send_uca_events(stream_name, api_key, uca_to_send, telemetry_type="unit-metric")
+        send_uca_events(stream_name, stream_type, api_key, uca_to_send)
 
-        elif "telemetry-stream" == stream_type:
-            send_uca_events(stream_name, api_key, uca_to_send)
     else:
         print('\nFinished, nothing to do')

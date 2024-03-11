@@ -230,11 +230,11 @@ def transmit_uca_command(configuration, data, output, transform):
 
     if 'telemetry-stream' in configuration.template:
         stream_name = configuration.template['telemetry-stream']
-        stream_type = 'telemetry-stream'
+        stream_type = 'allocation'
 
     elif 'metric-name' in configuration.template:
         stream_name = configuration.template['metric-name']
-        stream_type = 'metric-name'
+        stream_type = 'metric'
 
     else:
         print("Missing 'telemetry-stream' or 'metric-name' key in 'template' config:")
