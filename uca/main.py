@@ -256,7 +256,11 @@ def transmit_uca_command(configuration, data, output, transform):
 
         if configuration.settings["transmit_type"] == "delete":
             for record in uca_to_send:
-                del record["value"]
+                try:
+                    del record["value"]
+
+                except KeyError:
+                    pass
 
     print(
         f" - Processed {len(records)} records "
@@ -265,9 +269,9 @@ def transmit_uca_command(configuration, data, output, transform):
     print(f" - {len(records) - filtered_records} records ready for transmission")
     print_uca_sample(uca_to_send)
     transmit(
-        stream_name,
-        stream_type,
-        transmit_type,
+        stream_name.lower(),
+        stream_type.lower(),
+        transmit_type.lower(),
         uca_to_send,
         configuration.output_path,
         configuration.api_key,
@@ -312,6 +316,17 @@ def convert_uca_command(configuration, data, output):
 
     print(f"\n - Writing UCA data to {output}")
     write_to_file(converted_data, output)
+
+
+@cli.command("delete-stream")
+@click.option(
+    "--stream",
+    "-s",
+    required=True,
+    help="Name of a CloudZero telemetry stream",
+)
+def delete_telemetry_stream(stream):
+    print(stream)
 
 
 if __name__ == "__main__":
