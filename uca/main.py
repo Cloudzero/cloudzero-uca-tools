@@ -156,7 +156,8 @@ def generate_uca_command(configuration, start, end, today, input, output):
         print("CloudZero UCA Data Generator")
         print("-" * 140)
         print(f"   Date Range : {range_requested or 'data driven'}")
-        print(f"  Granularity : {configuration.template['granularity']}")
+        if "metric-name" not in configuration.template:
+            print(f"  Granularity : {configuration.template['granularity']}")
         print(f"         Mode : {generate_settings['mode']}")
         if generate_settings["mode"] == "jitter":
             print(f"       Jitter : {generate_settings['jitter']}")
