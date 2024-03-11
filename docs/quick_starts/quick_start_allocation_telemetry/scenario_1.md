@@ -32,15 +32,15 @@
 {
     "version": "1",
     "template": {
-      "timestamp": "$timestamp",
+      "telemetry-stream": "product-cost-per-customer-v1",
       "granularity": "HOURLY",
-      "element-name": "$element_id",
       "filter": {
         "custom:$filter_dimension": [
           "$filter_dimension_group"
         ]
       },
-      "telemetry-stream": "product-cost-per-customer-v1",
+      "timestamp": "$timestamp",
+      "element-name": "$element_id",
       "value": "$unit_value"
     },
     "settings": {

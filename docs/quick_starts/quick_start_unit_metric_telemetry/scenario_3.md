@@ -37,12 +37,11 @@ Each value will have its own random `jitter`.
 {
   "version": "1",
   "template": {
-    "timestamp": "$timestamp",
-    "granularity": "HOURLY",
+    "metric-name": "cost-per-hourly-ad-impressions-v1",
     "associated_cost": {
       "custom:$filter_dimension_1": "$filter_dimension_1_group"
     },
-    "metric-name": "cost-per-hourly-ad-impressions-v1",
+    "timestamp": "$timestamp",
     "value": "$unit_value"
   },
   "settings": {

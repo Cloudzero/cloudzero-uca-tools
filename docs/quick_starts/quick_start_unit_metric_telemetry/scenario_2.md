@@ -42,12 +42,11 @@ For example, if the time period is `2024-02-09 - 2024-02-10`, then every hour in
 {
   "version": "1",
   "template": {
-    "timestamp": "$timestamp",
-    "granularity": "DAILY",
+    "metric-name": "cost-per-hourly-ad-impressions-v1",
     "associated_cost": {
       "custom:$filter_dimension_1": "$filter_dimension_1_group"
     },
-    "metric-name": "cost-per-daily-ad-impressions-v1",
+    "timestamp": "$timestamp",
     "value": "$unit_value"
   },
   "settings": {
