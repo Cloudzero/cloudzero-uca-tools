@@ -241,6 +241,10 @@ def transmit_uca_command(configuration, data, output, transform):
         print("Missing 'telemetry-stream' or 'metric-name' key in 'template' config:")
         sys.exit(-1)
 
+    transmit_type = "sum"
+    if "transmit_type" in configuration.settings:
+        transmit_type = configuration.settings["transmit_type"]
+        
     print(f"Transmitting UCA data from {data} to {configuration.destination}")
     print("-" * 140)
 
@@ -258,6 +262,7 @@ def transmit_uca_command(configuration, data, output, transform):
     transmit(
         stream_name,
         stream_type,
+        transmit_type,
         uca_to_send,
         configuration.output_path,
         configuration.api_key,

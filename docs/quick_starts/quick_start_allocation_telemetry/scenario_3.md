@@ -51,6 +51,7 @@ Each value will have its own random `jitter`.
   },
   "settings": {
     "api_key": "",
+    "transmit_type": "sum",
     "generate": {
       "mode": "jitter",
       "jitter": 10

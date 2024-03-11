@@ -56,6 +56,7 @@ For example, if the time period is `2024-02-09 - 2024-02-10`, then every hour in
     },
     "settings": {
       "api_key": "<CLOUDZERO API KEY>",
+      "transmit_type": "sum",
       "generate": {"mode": "exact"}
     }
   }

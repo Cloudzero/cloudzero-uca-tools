@@ -40,6 +40,7 @@
   },
   "settings": {
     "api_key": "<CLOUDZERO API KEY>",
+    "transmit_type": "sum",
     "generate": {
       "mode": "exact"
     }
