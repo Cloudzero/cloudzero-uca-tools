@@ -251,7 +251,7 @@ def transmit_uca_command(configuration, data, output, transform):
     )
 
     transmit_type = "sum"
-    if "transmit_type" in configuration.settings:
+    if "transmit_type" in configuration.settings and configuration.settings["transmit_type"].lower() in ["sum", "update", "delete"]:
         transmit_type = configuration.settings["transmit_type"]
 
         if configuration.settings["transmit_type"] == "delete":
