@@ -156,7 +156,8 @@ def generate_uca_command(configuration, start, end, today, input, output):
         print("CloudZero UCA Data Generator")
         print("-" * 140)
         print(f"   Date Range : {range_requested or 'data driven'}")
-        print(f"  Granularity : {configuration.template['granularity']}")
+        if "metric-name" not in configuration.template:
+            print(f"  Granularity : {configuration.template['granularity']}")
         print(f"         Mode : {generate_settings['mode']}")
         if generate_settings["mode"] == "jitter":
             print(f"       Jitter : {generate_settings['jitter']}")
@@ -227,6 +228,19 @@ def transmit_uca_command(configuration, data, output, transform):
     if output:
         configuration.output_path = output
         configuration.destination = "File"
+
+    if 'telemetry-stream' in configuration.template:
+        stream_name = configuration.template['telemetry-stream']
+        stream_type = 'allocation'
+
+    elif 'metric-name' in configuration.template:
+        stream_name = configuration.template['metric-name']
+        stream_type = 'metric'
+
+    else:
+        print("Missing 'telemetry-stream' or 'metric-name' key in 'template' config:")
+        sys.exit(-1)
+
     print(f"Transmitting UCA data from {data} to {configuration.destination}")
     print("-" * 140)
 
@@ -235,6 +249,19 @@ def transmit_uca_command(configuration, data, output, transform):
     uca_to_send, transformed_records, filtered_records = transform_data(
         records, transform_script
     )
+
+    transmit_type = "sum"
+    if "transmit_type" in configuration.settings and configuration.settings["transmit_type"].lower() in ["sum", "update", "delete"]:
+        transmit_type = configuration.settings["transmit_type"]
+
+        if configuration.settings["transmit_type"] == "delete":
+            for record in uca_to_send:
+                try:
+                    del record["value"]
+
+                except KeyError:
+                    pass
+
     print(
         f" - Processed {len(records)} records "
         f"| {transformed_records} Transformed | {filtered_records} Filtered"
@@ -242,6 +269,9 @@ def transmit_uca_command(configuration, data, output, transform):
     print(f" - {len(records) - filtered_records} records ready for transmission")
     print_uca_sample(uca_to_send)
     transmit(
+        stream_name.lower(),
+        stream_type.lower(),
+        transmit_type.lower(),
         uca_to_send,
         configuration.output_path,
         configuration.api_key,
@@ -286,6 +316,17 @@ def convert_uca_command(configuration, data, output):
 
     print(f"\n - Writing UCA data to {output}")
     write_to_file(converted_data, output)
+
+
+@cli.command("delete-stream")
+@click.option(
+    "--stream",
+    "-s",
+    required=True,
+    help="Name of a CloudZero telemetry stream",
+)
+def delete_telemetry_stream(stream):
+    print(stream)
 
 
 if __name__ == "__main__":

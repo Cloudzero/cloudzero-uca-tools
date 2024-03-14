@@ -12,15 +12,12 @@ from uca.common.formatters import chunks
 from uca.constants import UCA_API_BATCH_SIZE
 
 
-def send_uca_events(api_key, uca_events, telemetry_type="allocation"):
+def send_uca_events(stream_name, stream_type, transmit_type, api_key, uca_events):
     print(
-        f"Sending {len(uca_events)} {telemetry_type} events to UCA API in {max(ceil(len(uca_events) / UCA_API_BATCH_SIZE), 1)} transaction(s)"
+        f"Sending {len(uca_events)} {stream_type} events to {transmit_type.upper()} UCA API in {max(ceil(len(uca_events) / UCA_API_BATCH_SIZE), 1)} transaction(s)"
     )
 
-    if telemetry_type == "allocation":
-        url = f"https://api.cloudzero.com/unit-cost/v1/telemetry/allocation/{uca_events[0]['telemetry-stream']}"
-    else:
-        url = f"https://api.cloudzero.com/unit-cost/v1/telemetry/metric/{uca_events[0]['metric-name']}"
+    url = f"https://api.cloudzero.com/unit-cost/v1/telemetry/{stream_type}/{stream_name}/{transmit_type}"
 
     for chunk in chunks(uca_events, UCA_API_BATCH_SIZE):
         payload = {"records": chunk}

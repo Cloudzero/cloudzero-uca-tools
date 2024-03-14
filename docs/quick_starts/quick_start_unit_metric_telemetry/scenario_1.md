@@ -31,16 +31,16 @@
 {
   "version": "1",
   "template": {
-    "timestamp": "$timestamp",
-    "granularity": "HOURLY",
-    "associated-cost": {
+    "metric-name": "cost-per-hourly-ad-impressions-v1",
+    "associated_cost": {
       "custom:$filter_dimension_1": "$filter_dimension_1_group"
     },
-    "metric-name": "cost-per-hourly-ad-impressions-v1",
+    "timestamp": "$timestamp",
     "value": "$unit_value"
   },
   "settings": {
     "api_key": "<CLOUDZERO API KEY>",
+    "transmit_type": "sum",
     "generate": {
       "mode": "exact"
     }
@@ -59,16 +59,16 @@ uca -c unit-metric-config.json generate -o unit-metric-telemetry-records.json -i
 
 `unit-metric-telemetry-records.json`
 ```json
-{"timestamp": "2024-02-08 00:00:00+00:00", "associated-cost": {"custom:product": "product A"}, "metric-name": "cost-per-hourly-ad-impressions-v1", "value": "10000.00"}
-{"timestamp": "2024-02-08 01:00:00+00:00", "associated-cost": {"custom:product": "product A"}, "metric-name": "cost-per-hourly-ad-impressions-v1", "value": "10000.00"}
-{"timestamp": "2024-02-08 02:00:00+00:00", "associated-cost": {"custom:product": "product A"}, "metric-name": "cost-per-hourly-ad-impressions-v1", "value": "20000.00"}
-{"timestamp": "2024-02-08 03:00:00+00:00", "associated-cost": {"custom:product": "product A"}, "metric-name": "cost-per-hourly-ad-impressions-v1", "value": "30000.00"}
-{"timestamp": "2024-02-08 04:00:00+00:00", "associated-cost": {"custom:product": "product A"}, "metric-name": "cost-per-hourly-ad-impressions-v1", "value": "30000.00"}
-{"timestamp": "2024-02-08 05:00:00+00:00", "associated-cost": {"custom:product": "product A"}, "metric-name": "cost-per-hourly-ad-impressions-v1", "value": "10000.00"}
-{"timestamp": "2024-02-08 06:00:00+00:00", "associated-cost": {"custom:product": "product A"}, "metric-name": "cost-per-hourly-ad-impressions-v1", "value": "10000.00"}
-{"timestamp": "2024-02-08 07:00:00+00:00", "associated-cost": {"custom:product": "product A"}, "metric-name": "cost-per-hourly-ad-impressions-v1", "value": "20000.00"}
-{"timestamp": "2024-02-08 08:00:00+00:00", "associated-cost": {"custom:product": "product A"}, "metric-name": "cost-per-hourly-ad-impressions-v1", "value": "30000.00"}
-{"timestamp": "2024-02-08 09:00:00+00:00", "associated-cost": {"custom:product": "product A"}, "metric-name": "cost-per-hourly-ad-impressions-v1", "value": "30000.00"}
+{"timestamp": "2024-02-08 00:00:00+00:00", "associated_cost": {"custom:product": "product A"}, "metric-name": "cost-per-hourly-ad-impressions-v1", "value": "10000.00"}
+{"timestamp": "2024-02-08 01:00:00+00:00", "associated_cost": {"custom:product": "product A"}, "metric-name": "cost-per-hourly-ad-impressions-v1", "value": "10000.00"}
+{"timestamp": "2024-02-08 02:00:00+00:00", "associated_cost": {"custom:product": "product A"}, "metric-name": "cost-per-hourly-ad-impressions-v1", "value": "20000.00"}
+{"timestamp": "2024-02-08 03:00:00+00:00", "associated_cost": {"custom:product": "product A"}, "metric-name": "cost-per-hourly-ad-impressions-v1", "value": "30000.00"}
+{"timestamp": "2024-02-08 04:00:00+00:00", "associated_cost": {"custom:product": "product A"}, "metric-name": "cost-per-hourly-ad-impressions-v1", "value": "30000.00"}
+{"timestamp": "2024-02-08 05:00:00+00:00", "associated_cost": {"custom:product": "product A"}, "metric-name": "cost-per-hourly-ad-impressions-v1", "value": "10000.00"}
+{"timestamp": "2024-02-08 06:00:00+00:00", "associated_cost": {"custom:product": "product A"}, "metric-name": "cost-per-hourly-ad-impressions-v1", "value": "10000.00"}
+{"timestamp": "2024-02-08 07:00:00+00:00", "associated_cost": {"custom:product": "product A"}, "metric-name": "cost-per-hourly-ad-impressions-v1", "value": "20000.00"}
+{"timestamp": "2024-02-08 08:00:00+00:00", "associated_cost": {"custom:product": "product A"}, "metric-name": "cost-per-hourly-ad-impressions-v1", "value": "30000.00"}
+{"timestamp": "2024-02-08 09:00:00+00:00", "associated_cost": {"custom:product": "product A"}, "metric-name": "cost-per-hourly-ad-impressions-v1", "value": "30000.00"}
 ```
 
 [Previous Page: Explanation of Unit Metric Data](./explanation_of_unit_metric_data.md) | [Next Page: Quick Start Scenario 2](./scenario_2.md)

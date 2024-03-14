@@ -21,20 +21,22 @@ PRECISION = 10000
 
 def generate_uca(time_range: TimeRange, uca_template, settings, uca_data):
     expand_month = False
-    if uca_template['granularity'] == "HOURLY":
-        delta = timedelta(hours=1)
-    elif uca_template['granularity'] == "DAILY":
-        delta = timedelta(days=1)
-    elif uca_template['granularity'] == "MONTHLY":
-        delta = timedelta(days=1)
-        uca_template['granularity'] = "DAILY"
-        expand_month = True
-    else:
-        eprint(f"Granularity {uca_template['granularity']} not supported")
-        sys.exit(-1)
 
     if "metric-name" in uca_template:
-        del uca_template["granularity"]
+        delta = timedelta(days=1)
+
+    else:
+        if uca_template['granularity'] == "HOURLY":
+            delta = timedelta(hours=1)
+        elif uca_template['granularity'] == "DAILY":
+            delta = timedelta(days=1)
+        elif uca_template['granularity'] == "MONTHLY":
+            delta = timedelta(days=1)
+            uca_template['granularity'] = "DAILY"
+            expand_month = True
+        else:
+            eprint(f"Granularity {uca_template['granularity']} not supported")
+            sys.exit(-1)
 
     uca_events = []
     if time_range:
@@ -66,6 +68,9 @@ def generate_uca(time_range: TimeRange, uca_template, settings, uca_data):
 
 
 def _render_uca_data(uca_data, settings, uca_template, timestamp=None):
+    uca_template.pop("telemetry-stream", "None")
+    uca_template.pop("metric-name", "None")
+
     unit_value_header = uca_template['value'].replace('$', '')
     timestamp_header = uca_template['timestamp'].replace('$', '')
 
