@@ -280,6 +280,9 @@ def transmit_uca_command(configuration, data, output, transform):
             except KeyError:
                 pass
 
+    if transmit_type == "update":
+        transmit_type = "replace"
+
     print(
         f" - Processed {len(records)} records "
         f"| {transformed_records} Transformed | {filtered_records} Filtered"
