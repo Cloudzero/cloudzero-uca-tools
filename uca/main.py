@@ -120,9 +120,13 @@ def generate_uca_command(configuration, start, end, today, input, output):
     configuration.output_path = output
     configuration.destination = "File"
 
+    configuration.template.pop("metric-name", None)
+    configuration.template.pop("telemetry-stream", None)
+
     if today:
         today = datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
         range_requested = TimeRange(start=today, end=today + timedelta(days=1))
+
     elif all([start, end]):
         try:
             start_date = utc_datetime_from_anything(start)
@@ -135,6 +139,7 @@ def generate_uca_command(configuration, start, end, today, input, output):
             print(f"Invalid end date: {error}")
             sys.exit(-1)
         range_requested = TimeRange(start=start_date, end=end_date)
+
     else:
         range_requested = None
 
@@ -156,17 +161,24 @@ def generate_uca_command(configuration, start, end, today, input, output):
         print("CloudZero UCA Data Generator")
         print("-" * 140)
         print(f"   Date Range : {range_requested or 'data driven'}")
+
         if "metric-name" not in configuration.template:
             print(f"  Granularity : {configuration.template['granularity']}")
+
         print(f"         Mode : {generate_settings['mode']}")
+
         if generate_settings["mode"] == "jitter":
             print(f"       Jitter : {generate_settings['jitter']}")
+
         elif generate_settings["mode"] == "allocation":
             print(f"   Allocation : {generate_settings['allocation']}")
+
             if generate_settings.get("jitter"):
                 print(f"              : with Jitter {generate_settings['jitter']}")
+
         if generate_settings.get("precision"):
             print(f"    Precision : {generate_settings['precision']}")
+
         print(f"Configuration : {configuration.configuration_path}")
         print(f"   Input Data : {input}")
         print(f"  Output File : {configuration.output_path}")
@@ -229,16 +241,16 @@ def transmit_uca_command(configuration, data, output, transform):
         configuration.output_path = output
         configuration.destination = "File"
 
-    if 'telemetry-stream' in configuration.template:
-        stream_name = configuration.template['telemetry-stream']
-        stream_type = 'allocation'
+    if "telemetry-stream" in configuration.template:
+        stream_name = configuration.template["telemetry-stream"].lower()
+        stream_type = "allocation"
 
-    elif 'metric-name' in configuration.template:
-        stream_name = configuration.template['metric-name']
-        stream_type = 'metric'
+    elif "metric-name" in configuration.template:
+        stream_name = configuration.template["metric-name"].lower()
+        stream_type = "metric"
 
     else:
-        print("Missing 'telemetry-stream' or 'metric-name' key in 'template' config:")
+        print("Missing 'telemetry-stream' or 'metric-name' key in 'template' config")
         sys.exit(-1)
 
     print(f"Transmitting UCA data from {data} to {configuration.destination}")
@@ -250,17 +262,26 @@ def transmit_uca_command(configuration, data, output, transform):
         records, transform_script
     )
 
-    transmit_type = "sum"
-    if "transmit_type" in configuration.settings and configuration.settings["transmit_type"].lower() in ["sum", "update", "delete"]:
-        transmit_type = configuration.settings["transmit_type"]
+    if "transmit_type" not in configuration.settings:
+        print("Missing 'transmit_type' key in 'settings' config")
+        sys.exit(-1)
 
-        if configuration.settings["transmit_type"] == "delete":
-            for record in uca_to_send:
-                try:
-                    del record["value"]
+    transmit_type = configuration.settings["transmit_type"].lower()
+    if transmit_type not in ["sum", "replace", "delete", "update"]:
+        print(f"Invalid value, '{transmit_type}', for 'transmit_type' key in 'settings' config")
+        print("Valid values: 'sum', 'replace', 'delete'")
+        sys.exit(-1)
 
-                except KeyError:
-                    pass
+    if transmit_type == "delete":
+        for record in uca_to_send:
+            try:
+                del record["value"]
+
+            except KeyError:
+                pass
+
+    if transmit_type == "update":
+        transmit_type = "replace"
 
     print(
         f" - Processed {len(records)} records "
@@ -269,9 +290,9 @@ def transmit_uca_command(configuration, data, output, transform):
     print(f" - {len(records) - filtered_records} records ready for transmission")
     print_uca_sample(uca_to_send)
     transmit(
-        stream_name.lower(),
-        stream_type.lower(),
-        transmit_type.lower(),
+        stream_name,
+        stream_type,
+        transmit_type,
         uca_to_send,
         configuration.output_path,
         configuration.api_key,

@@ -68,8 +68,6 @@ def generate_uca(time_range: TimeRange, uca_template, settings, uca_data):
 
 
 def _render_uca_data(uca_data, settings, uca_template, timestamp=None):
-    uca_template.pop("telemetry-stream", "None")
-    uca_template.pop("metric-name", "None")
 
     unit_value_header = uca_template['value'].replace('$', '')
     timestamp_header = uca_template['timestamp'].replace('$', '')
@@ -141,6 +139,7 @@ def _render_uca_data(uca_data, settings, uca_template, timestamp=None):
             sys.exit(-1)
         except Exception as err:
             print(f"Error: {err}")
+            print(row)
             sys.exit(-1)
 
     return uca_events
