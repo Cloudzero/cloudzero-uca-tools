@@ -22,13 +22,15 @@ def test_filter_nil_unit_values_exact_mode():
                       {'unit_id': 'Hooli', 'unit_value': '0'},
                       {'unit_id': 'Massive Dynamic', 'unit_value': '1000'}]
 
-    input_settings = {'allocation': '', 'jitter': '', 'mode': 'exact'}
+    input_settings = {
+        'stream_name': 'test-data',
+        'stream_type': 'allocation',
+        'generate': {'allocation': '', 'jitter': '', 'mode': 'exact'}
+        }
 
-    input_template = {'cost-context': 'Cost-Per-Fake-Customer',
-                      'granularity': 'DAILY',
+    input_template = {'granularity': 'DAILY',
                       'id': '$unit_id',
                       'target': {},
-                      'telemetry-stream': 'test-data',
                       'timestamp': '$timestamp',
                       'value': '$unit_value'}
 
@@ -53,13 +55,15 @@ def test_filter_nil_unit_values_random_mode():
                       {'unit_id': 'Hooli', 'unit_value': '0'},
                       {'unit_id': 'Massive Dynamic', 'unit_value': '1000'}]
 
-    input_settings = {'allocation': '', 'jitter': '', 'mode': 'random'}
+    input_settings = {
+        'stream_name': 'test-data',
+        'stream_type': 'allocation',
+        'generate': {'allocation': '', 'jitter': '', 'mode': 'exact'}
+        }
 
-    input_template = {'cost-context': 'Cost-Per-Fake-Customer',
-                      'granularity': 'DAILY',
+    input_template = {'granularity': 'DAILY',
                       'id': '$unit_id',
                       'target': {},
-                      'telemetry-stream': 'test-data',
                       'timestamp': '$timestamp',
                       'value': '$unit_value'}
 

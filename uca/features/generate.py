@@ -16,13 +16,13 @@ from uca.common.cli import eprint
 from uca.common.custom_types import TimeRange
 from uca.common.standards import datetime_chunks, utc_datetime_from_anything
 
-PRECISION = 10000
+PRECISION = 4
 
 
 def generate_uca(time_range: TimeRange, uca_template, settings, uca_data):
     expand_month = False
 
-    if "metric-name" in uca_template:
+    if settings.get("stream_type") == "metric":
         delta = timedelta(days=1)
 
     else:
@@ -69,14 +69,19 @@ def generate_uca(time_range: TimeRange, uca_template, settings, uca_data):
 
 def _render_uca_data(uca_data, settings, uca_template, timestamp=None):
 
+    generate_settings = settings.get("generate")
     unit_value_header = uca_template['value'].replace('$', '')
     timestamp_header = uca_template['timestamp'].replace('$', '')
 
-    if settings.get("precision"):
-        precision = int("1" + "0" * settings.get("precision"))
+    try:
+        precision = int("1" + "0" * int(settings.get("precision", PRECISION)))
 
-    else:
-        precision = PRECISION
+    except TypeError:
+        print("precision is Settings must be an integer")
+        sys.exit(-1)
+    except ValueError:
+        print("precision is Settings must be an integer")
+        sys.exit(-1)
 
     uca_events = []
     # skipped = 0
@@ -89,18 +94,18 @@ def _render_uca_data(uca_data, settings, uca_template, timestamp=None):
             print(f"{row[unit_value_header]}")
             sys.exit(-1)
 
-        if settings['mode'] == 'random':
+        if generate_settings.get('mode') == 'random':
             unit_value = preserve_precision(row[unit_value_header], precision)
             row[unit_value_header] = str(restore_precision(randint(0, unit_value), precision))
-        elif settings['mode'] == 'jitter':
-            jitter = int(settings['jitter'])
+        elif generate_settings.get('mode') == 'jitter':
+            jitter = int(generate_settings.get('jitter'))
             row[unit_value_header] = str(
                 round_decimal(max(Decimal(abs(Decimal(row[unit_value_header]) + randint(-jitter, jitter))), Decimal(1)),
                               precision))
-        elif settings['mode'] == 'allocation':
+        elif generate_settings.get('mode') == 'allocation':
             jitter = None
-            if settings.get('jitter'):
-                jitter = int(settings.get('jitter'))
+            if generate_settings.get('jitter'):
+                jitter = int(generate_settings.get('jitter'))
             try:
                 if jitter:
                     row[unit_value_header] = round_decimal((Decimal(settings['allocation']) *
@@ -117,11 +122,11 @@ def _render_uca_data(uca_data, settings, uca_template, timestamp=None):
                 print(f'ERROR: {error}')
                 sys.exit(-1)
 
-        elif settings['mode'] == 'exact':
+        elif generate_settings.get('mode') == 'exact':
             row[unit_value_header] = str(round_decimal(Decimal(row[unit_value_header]), precision))
         else:
             eprint(
-                f"Unsupported UCA Mode '{settings['mode']}', please choose either 'exact', 'random', 'jitter' or 'allocation'")
+                f"Unsupported UCA Mode '{generate_settings.get('mode')}', please choose either 'exact', 'random', 'jitter' or 'allocation'")
             sys.exit(-1)
 
         try:

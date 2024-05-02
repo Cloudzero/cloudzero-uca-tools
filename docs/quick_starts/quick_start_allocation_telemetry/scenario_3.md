@@ -38,20 +38,21 @@ Each value will have its own random `jitter`.
 {
   "version": "1",
   "template": {
-    "telemetry-stream": "product-cost-per-customer-v1",
+    "timestamp": "$timestamp",
     "granularity": "HOURLY",
+    "element_name": "$element_id",
     "filter": {
       "custom:$filter_dimension": [
         "$filter_dimension_group"
       ]
     },
-    "timestamp": "$timestamp",
-    "element-name": "$element_id",
     "value": "$unit_value"
   },
   "settings": {
-    "api_key": "",
+    "stream_name": "product-cost-per-customer-v1",
+    "stream_type": "allocation",
     "transmit_type": "sum",
+    "api_key": "<CLOUDZERO API KEY>",
     "generate": {
       "mode": "jitter",
       "jitter": 10
@@ -73,16 +74,16 @@ uca -c allocation-config.json generate -o allocation-telemetry-records.json -i a
 
 `allocation-telemetry-records.json`
 ```json
-{"timestamp": "2024-02-08 00:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 1", "filter": {"custom:product": ["product A"]}, "telemetry-stream": "product-cost-per-customer-v1", "value": "5.00"}
-{"timestamp": "2024-02-08 00:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 2", "filter": {"custom:product": ["product A"]}, "telemetry-stream": "product-cost-per-customer-v1", "value": "18.00"}
-{"timestamp": "2024-02-08 00:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 3", "filter": {"custom:product": ["product A"]}, "telemetry-stream": "product-cost-per-customer-v1", "value": "14.00"}
-{"timestamp": "2024-02-08 00:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 4", "filter": {"custom:product": ["product A"]}, "telemetry-stream": "product-cost-per-customer-v1", "value": "36.00"}
-{"timestamp": "2024-02-08 00:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 5", "filter": {"custom:product": ["product A"]}, "telemetry-stream": "product-cost-per-customer-v1", "value": "34.00"}
-{"timestamp": "2024-02-08 01:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 1", "filter": {"custom:product": ["product B"]}, "telemetry-stream": "product-cost-per-customer-v1", "value": "13.00"}
-{"timestamp": "2024-02-08 01:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 2", "filter": {"custom:product": ["product B"]}, "telemetry-stream": "product-cost-per-customer-v1", "value": "12.00"}
-{"timestamp": "2024-02-08 01:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 3", "filter": {"custom:product": ["product B"]}, "telemetry-stream": "product-cost-per-customer-v1", "value": "29.00"}
-{"timestamp": "2024-02-08 01:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 4", "filter": {"custom:product": ["product B"]}, "telemetry-stream": "product-cost-per-customer-v1", "value": "20.00"}
-{"timestamp": "2024-02-08 01:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 5", "filter": {"custom:product": ["product B"]}, "telemetry-stream": "product-cost-per-customer-v1", "value": "40.00"}
+{"timestamp": "2024-02-08 00:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 1", "filter": {"custom:product": ["product A"]}, "value": "5.00"}
+{"timestamp": "2024-02-08 00:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 2", "filter": {"custom:product": ["product A"]}, "value": "18.00"}
+{"timestamp": "2024-02-08 00:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 3", "filter": {"custom:product": ["product A"]}, "value": "14.00"}
+{"timestamp": "2024-02-08 00:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 4", "filter": {"custom:product": ["product A"]}, "value": "36.00"}
+{"timestamp": "2024-02-08 00:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 5", "filter": {"custom:product": ["product A"]}, "value": "34.00"}
+{"timestamp": "2024-02-08 01:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 1", "filter": {"custom:product": ["product B"]}, "value": "13.00"}
+{"timestamp": "2024-02-08 01:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 2", "filter": {"custom:product": ["product B"]}, "value": "12.00"}
+{"timestamp": "2024-02-08 01:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 3", "filter": {"custom:product": ["product B"]}, "value": "29.00"}
+{"timestamp": "2024-02-08 01:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 4", "filter": {"custom:product": ["product B"]}, "value": "20.00"}
+{"timestamp": "2024-02-08 01:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 5", "filter": {"custom:product": ["product B"]}, "value": "40.00"}
 ```
 
 [Previous Page: Quick Start Scenario 2](./scenario_2.md) | [Next Page: Home](./quick_start_allocation_telemetry.md)

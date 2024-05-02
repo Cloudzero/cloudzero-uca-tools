@@ -13,7 +13,7 @@ from uca.exceptions import InvalidDate
 
 def get_seconds_from_time(time_str):
     """Get seconds from time."""
-    h, m, s = time_str.split(':')
+    h, m, s = time_str.split(":")
     return int(h) * 3600 + int(m) * 60 + int(s)
 
 
@@ -54,3 +54,84 @@ def datetime_chunks(start, end, delta):
     while datetime_chunk + delta <= end:
         yield datetime_chunk
         datetime_chunk += delta
+
+
+def valid_settings(settings):
+
+    required_settings_keys = {"stream_type", "stream_name", "generate"}
+    missing_keys = required_settings_keys - set(settings.keys())
+
+    if missing_keys:
+        raise KeyError(
+            f"Missing required key(s) in Settings: {', '.join(missing_keys)}"
+        )
+
+    stream_type_values = {"allocation", "metric"}
+    if settings["stream_type"].lower() not in stream_type_values:
+        raise ValueError(f"Stream Type must be {' or '.join(stream_type_values)}")
+
+    if "transmit_type" in settings:
+        transmit_type_values = {"sum", "replace", "delete", "update"}
+        if settings["transmit_type"].lower() not in transmit_type_values:
+            raise ValueError(f"Transmit Type must be {' or '.join(transmit_type_values)}")
+
+    if not isinstance(settings["generate"], dict):
+        raise TypeError("Generate settings must be a dictionary")
+
+    required_generate_keys = {"mode"}
+    missing_keys = required_generate_keys - set(settings["generate"].keys())
+
+    if missing_keys:
+        raise KeyError(
+            f"Missing required key(s) in Generate settings: {', '.join(missing_keys)}"
+        )
+
+    return True
+
+
+def valid_template(template, stream_type):
+
+    if stream_type == "allocation":
+        required_template_keys = {
+            "granularity",
+            "element_name",
+            "filter",
+            "value",
+            "timestamp",
+        }
+
+    elif stream_type == "metric":
+        required_template_keys = {
+            "associated_cost",
+            "value",
+            "timestamp",
+        }
+
+    missing_keys = required_template_keys - set(template.keys())
+    extra_keys = set(template.keys()) - required_template_keys
+
+    if missing_keys:
+        raise KeyError(
+            f"Missing required key(s) in Template: {', '.join(missing_keys)}"
+        )
+
+    if extra_keys:
+        raise KeyError(
+            f"Extra key(s) present in Template: {', '.join(extra_keys)}"
+        )
+
+
+    if stream_type == "allocation":
+        granularity_values = {"hourly", "daily", "monthly"}
+        if template["granularity"].lower() not in granularity_values:
+            raise ValueError(f"Granularity must be {' or '.join(granularity_values)}")
+
+        if not isinstance(template["filter"], dict):
+            raise TypeError("filter must be a dictionary")
+        
+    elif stream_type == "metric":
+        if not isinstance(template["associated_cost"], dict):
+            raise TypeError("associated_cost must be a dictionary")
+
+    return True
+

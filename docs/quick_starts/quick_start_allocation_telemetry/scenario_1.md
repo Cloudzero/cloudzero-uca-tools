@@ -32,21 +32,25 @@
 {
     "version": "1",
     "template": {
-      "telemetry-stream": "product-cost-per-customer-v1",
+      "timestamp": "$timestamp",
       "granularity": "HOURLY",
+      "element_name": "$element_id",
       "filter": {
         "custom:$filter_dimension": [
           "$filter_dimension_group"
         ]
       },
-      "timestamp": "$timestamp",
-      "element-name": "$element_id",
       "value": "$unit_value"
     },
     "settings": {
-      "api_key": "<CLOUDZERO API KEY>",
+      "stream_name": "product-cost-per-customer-v1",
+      "stream_type": "allocation",
       "transmit_type": "sum",
-      "generate": {"mode": "exact"}
+      "api_key": "<CLOUDZERO API KEY>",
+      "generate": {
+        "mode": "exact"
+      },
+      "precision": 4
     }
   }
 ```
@@ -62,16 +66,16 @@ uca -c allocation-config.json generate -o allocation-telemetry-records.json -i a
 
 `allocation-telemetry-records.json`
 ```json
-{"timestamp": "2024-02-08 00:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 1", "filter": {"custom:product": ["product A"]}, "telemetry-stream": "product-cost-per-customer-v1", "value": "10.00"}
-{"timestamp": "2024-02-08 00:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 2", "filter": {"custom:product": ["product A"]}, "telemetry-stream": "product-cost-per-customer-v1", "value": "10.00"}
-{"timestamp": "2024-02-08 00:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 3", "filter": {"custom:product": ["product A"]}, "telemetry-stream": "product-cost-per-customer-v1", "value": "20.00"}
-{"timestamp": "2024-02-08 00:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 4", "filter": {"custom:product": ["product A"]}, "telemetry-stream": "product-cost-per-customer-v1", "value": "30.00"}
-{"timestamp": "2024-02-08 00:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 5", "filter": {"custom:product": ["product A"]}, "telemetry-stream": "product-cost-per-customer-v1", "value": "30.00"}
-{"timestamp": "2024-02-08 01:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 1", "filter": {"custom:product": ["product B"]}, "telemetry-stream": "product-cost-per-customer-v1", "value": "10.00"}
-{"timestamp": "2024-02-08 01:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 2", "filter": {"custom:product": ["product B"]}, "telemetry-stream": "product-cost-per-customer-v1", "value": "10.00"}
-{"timestamp": "2024-02-08 01:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 3", "filter": {"custom:product": ["product B"]}, "telemetry-stream": "product-cost-per-customer-v1", "value": "20.00"}
-{"timestamp": "2024-02-08 01:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 4", "filter": {"custom:product": ["product B"]}, "telemetry-stream": "product-cost-per-customer-v1", "value": "30.00"}
-{"timestamp": "2024-02-08 01:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 5", "filter": {"custom:product": ["product B"]}, "telemetry-stream": "product-cost-per-customer-v1", "value": "30.00"}
+{"timestamp": "2024-02-08 00:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 1", "filter": {"custom:product": ["product A"]}, "value": "10.00"}
+{"timestamp": "2024-02-08 00:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 2", "filter": {"custom:product": ["product A"]}, "value": "10.00"}
+{"timestamp": "2024-02-08 00:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 3", "filter": {"custom:product": ["product A"]}, "value": "20.00"}
+{"timestamp": "2024-02-08 00:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 4", "filter": {"custom:product": ["product A"]}, "value": "30.00"}
+{"timestamp": "2024-02-08 00:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 5", "filter": {"custom:product": ["product A"]}, "value": "30.00"}
+{"timestamp": "2024-02-08 01:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 1", "filter": {"custom:product": ["product B"]}, "value": "10.00"}
+{"timestamp": "2024-02-08 01:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 2", "filter": {"custom:product": ["product B"]}, "value": "10.00"}
+{"timestamp": "2024-02-08 01:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 3", "filter": {"custom:product": ["product B"]}, "value": "20.00"}
+{"timestamp": "2024-02-08 01:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 4", "filter": {"custom:product": ["product B"]}, "value": "30.00"}
+{"timestamp": "2024-02-08 01:00:00+00:00", "granularity": "HOURLY", "element-name": "customer 5", "filter": {"custom:product": ["product B"]}, "value": "30.00"}
 ```
 
 [Previous Page: Explanation of Allocation Data](./explanation_of_allocation_data.md) | [Next Page: Quick Start Scenario 2](./scenario_2.md)
