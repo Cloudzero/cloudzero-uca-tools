@@ -7,13 +7,18 @@ import sys
 from datetime import datetime, timedelta
 
 import click
+import pandas as pd
 import simplejson as json
 
 from uca.__version__ import __version__
 from uca.common.cli import eprint, print_uca_sample
 from uca.common.custom_types import TimeRange
 from uca.common.files import load_data_files, write_to_file
-from uca.common.standards import utc_datetime_from_anything
+from uca.common.standards import (
+    utc_datetime_from_anything,
+    valid_settings,
+    valid_template,
+)
 from uca.constants import FILE_FORMATS, DEFAULT_FILE_FORMAT
 from uca.exceptions import InvalidDate
 from uca.features.convert import convert
@@ -112,7 +117,8 @@ def cli(ctx, configuration, dry_run, api_key):
 @click.option("--output", "-o", required=True, help="Output file")
 @pass_root_configuration
 def generate_uca_command(configuration, start, end, today, input, output):
-    if not configuration.settings:
+
+    if not configuration.settings or not configuration.template:
         eprint("Please specify a --configuration file")
         sys.exit()
 
@@ -120,9 +126,7 @@ def generate_uca_command(configuration, start, end, today, input, output):
     configuration.output_path = output
     configuration.destination = "File"
 
-    configuration.template.pop("metric-name", None)
-    configuration.template.pop("telemetry-stream", None)
-
+    # Process Date Range Inputs
     if today:
         today = datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
         range_requested = TimeRange(start=today, end=today + timedelta(days=1))
@@ -143,65 +147,57 @@ def generate_uca_command(configuration, start, end, today, input, output):
     else:
         range_requested = None
 
-    try:
-        generate_settings = configuration.settings["generate"]
-
-        if not isinstance(generate_settings, dict):
-            raise TypeError("generate_settings must be a dictionary")
-
-        required_generate_keys = ["mode"]
-        missing_keys = [
-            key for key in required_generate_keys if key not in generate_settings
-        ]
-        if missing_keys:
-            raise ValueError(
-                f"Missing required key(s) in 'generate' config: {', '.join(missing_keys)}"
-            )
-
-        print("CloudZero UCA Data Generator")
-        print("-" * 140)
-        print(f"   Date Range : {range_requested or 'data driven'}")
-
-        if "metric-name" not in configuration.template:
-            print(f"  Granularity : {configuration.template['granularity']}")
-
-        print(f"         Mode : {generate_settings['mode']}")
-
-        if generate_settings["mode"] == "jitter":
-            print(f"       Jitter : {generate_settings['jitter']}")
-
-        elif generate_settings["mode"] == "allocation":
-            print(f"   Allocation : {generate_settings['allocation']}")
-
-            if generate_settings.get("jitter"):
-                print(f"              : with Jitter {generate_settings['jitter']}")
-
-        if generate_settings.get("precision"):
-            print(f"    Precision : {generate_settings['precision']}")
-
-        print(f"Configuration : {configuration.configuration_path}")
-        print(f"   Input Data : {input}")
-        print(f"  Output File : {configuration.output_path}")
-        print("-" * 140)
-
-    except KeyError as error:
-        eprint(f"Missing configurations: {error}")
+    if not valid_settings(configuration.settings):
         sys.exit(-1)
-    except TypeError:
-        eprint("'Generate' configuration must be a dictionary.")
+
+    if not valid_template(configuration.template):
         sys.exit(-1)
-    except ValueError as error:
-        eprint(error)
-        sys.exit(-1)
+
+    print("CloudZero UCA Data Generator")
+    print("-" * 140)
+    print(f"   Date Range : {range_requested or 'data driven'}")
+
+    generate_settings = configuration.settings["generate"]
+
+    mode = generate_settings.get("mode")
+    granularity = configuration.template.get("granularity")
+    stream_type = configuration.settings.get("stream_type")
+    jitter = generate_settings.get("jitter")
+    allocation = generate_settings.get("allocation")
+    precision = generate_settings.get("precision")
+
+    if stream_type == "allocation" and granularity:
+        print(f"  Granularity : {granularity}")
+
+    print(f"         Mode : {mode}")
+
+    if mode == "allocation":
+        print(f"   Allocation : {allocation}")
+        if jitter:
+            print(f"       Jitter : {jitter}")
+    elif mode == "jitter":
+        print(f"       Jitter : {jitter}")
+
+    if precision:
+        print(f"    Precision : {precision}")
+
+    print(f"Configuration : {configuration.configuration_path}")
+    print(f"   Input Data : {input}")
+    print(f"  Output File : {configuration.output_path}")
+    print("-" * 140)
 
     try:
         uca_data = load_data_files(input, "CSV")
+
     except Exception as error:
         eprint(f"Unable to read input file {input}, error: {error}")
         sys.exit(-1)
 
     uca_to_send = generate_uca(
-        range_requested, configuration.template, generate_settings, uca_data
+        range_requested,
+        configuration.template,
+        configuration.settings,
+        uca_data
     )
     if not uca_to_send:
         print(f" - Event Generation failed, {len(uca_to_send)} events created")
@@ -262,13 +258,17 @@ def transmit_uca_command(configuration, data, output, transform):
         records, transform_script
     )
 
-    if "transmit_type" not in configuration.settings:
-        print("Missing 'transmit_type' key in 'settings' config")
-        sys.exit(-1)
+    transmit_type = "replace"
+    if (
+        "transmit_type" in configuration.settings
+        and configuration.settings["transmit_type"]
+    ):
+        transmit_type = configuration.settings["transmit_type"].lower()
 
-    transmit_type = configuration.settings["transmit_type"].lower()
     if transmit_type not in ["sum", "replace", "delete", "update"]:
-        print(f"Invalid value, '{transmit_type}', for 'transmit_type' key in 'settings' config")
+        print(
+            f"Invalid value, '{transmit_type}', for 'transmit_type' key in 'settings' config"
+        )
         print("Valid values: 'sum', 'replace', 'delete'")
         sys.exit(-1)
 
