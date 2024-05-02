@@ -7,7 +7,6 @@ import sys
 from datetime import datetime, timedelta
 
 import click
-import pandas as pd
 import simplejson as json
 
 from uca.__version__ import __version__

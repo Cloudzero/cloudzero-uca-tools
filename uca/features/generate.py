@@ -76,10 +76,10 @@ def _render_uca_data(uca_data, settings, uca_template, timestamp=None):
     try:
         precision = int("1" + "0" * int(settings.get("precision", PRECISION)))
 
-    except TypeError as err:
+    except TypeError:
         print("precision is Settings must be an integer")
         sys.exit(-1)
-    except ValueError as err:
+    except ValueError:
         print("precision is Settings must be an integer")
         sys.exit(-1)
 
