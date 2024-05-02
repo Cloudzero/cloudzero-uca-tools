@@ -147,10 +147,20 @@ def generate_uca_command(configuration, start, end, today, input, output):
     else:
         range_requested = None
 
-    if not valid_settings(configuration.settings):
+    stream_type = configuration.settings.get("stream_type", None)
+    if stream_type not in ["allocation", "metric"]:
+        print(f"Invalid 'stream_type' in Settings: {stream_type}")
         sys.exit(-1)
 
-    if not valid_template(configuration.template):
+    try:
+        if not valid_settings(configuration.settings):
+            sys.exit(-1)
+
+        if not valid_template(configuration.template, stream_type):
+            sys.exit(-1)
+
+    except Exception as err:
+        print(err)
         sys.exit(-1)
 
     print("CloudZero UCA Data Generator")
@@ -237,17 +247,16 @@ def transmit_uca_command(configuration, data, output, transform):
         configuration.output_path = output
         configuration.destination = "File"
 
-    if "telemetry-stream" in configuration.template:
-        stream_name = configuration.template["telemetry-stream"].lower()
-        stream_type = "allocation"
+    try:
+        if not valid_settings(configuration.settings):
+            sys.exit(-1)
 
-    elif "metric-name" in configuration.template:
-        stream_name = configuration.template["metric-name"].lower()
-        stream_type = "metric"
-
-    else:
-        print("Missing 'telemetry-stream' or 'metric-name' key in 'template' config")
+    except Exception as err:
+        print(err)
         sys.exit(-1)
+
+    stream_name = configuration.settings.get("stream_name")
+    stream_type = configuration.settings.get("stream_type")
 
     print(f"Transmitting UCA data from {data} to {configuration.destination}")
     print("-" * 140)
@@ -258,19 +267,7 @@ def transmit_uca_command(configuration, data, output, transform):
         records, transform_script
     )
 
-    transmit_type = "replace"
-    if (
-        "transmit_type" in configuration.settings
-        and configuration.settings["transmit_type"]
-    ):
-        transmit_type = configuration.settings["transmit_type"].lower()
-
-    if transmit_type not in ["sum", "replace", "delete", "update"]:
-        print(
-            f"Invalid value, '{transmit_type}', for 'transmit_type' key in 'settings' config"
-        )
-        print("Valid values: 'sum', 'replace', 'delete'")
-        sys.exit(-1)
+    transmit_type = configuration.settings.get("transmit_type", "replace")
 
     if transmit_type == "delete":
         for record in uca_to_send:
