@@ -74,11 +74,12 @@ def confirm(prompt=None, resp=False):
 
 def print_uca_sample(uca_to_send, record_count=5):
     sample_count = min(record_count, len(uca_to_send))
+    sample_indexes = set(random.sample(range(len(uca_to_send)), sample_count))
     sample_events = []
+
+    for index, record in enumerate(uca_to_send):
+        if index in sample_indexes:
+            sample_events.append([index, json.dumps(record)])
+
     print(" - Sample of UCA records post-processing:")
-    # refactor
-    for x in sorted({*range(0, sample_count),
-                     *[random.randint(sample_count, len(uca_to_send) - sample_count) for x in range(0, sample_count)],
-                     *range(len(uca_to_send) - sample_count, len(uca_to_send))}):
-        sample_events.append([x, json.dumps(uca_to_send[x])])
     print(tabulate(sample_events, headers=["#", "Record"], tablefmt="simple", maxcolwidths=[None, 240]))
