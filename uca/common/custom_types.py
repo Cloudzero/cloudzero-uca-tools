@@ -9,15 +9,48 @@ from dateutil import parser
 
 
 class TimeRange(NamedTuple):
+
+    """
+    TimeRange class
+    """
+
     start: datetime
     end: datetime
 
     def __str__(self):
-        return f'{self.start} - {self.end}'
+        """
+        Return a string representation of TimeRange
+
+        Returns
+        -------
+            str
+
+        """
+        return f"{self.start} - {self.end}"
 
     def serializable(self):
+        """
+        Serialize TimeRange
+
+        Returns
+        -------
+            dict
+
+        """
         return {k: v.isoformat() for k, v in self._asdict().items()}
 
     @staticmethod
     def load(x: dict):
+        """
+        Load TimeRange
+
+        Args:
+        ----
+            x: dict
+
+        Returns:
+        -------
+            TimeRange
+
+        """
         return TimeRange(**{k: parser.isoparse(v) for k, v in x.items()})

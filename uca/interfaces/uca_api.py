@@ -13,6 +13,22 @@ from uca.constants import UCA_API_BATCH_SIZE
 
 
 def send_uca_events(stream_name, stream_type, transmit_type, api_key, uca_events):
+    """
+    Send UCA events to the UCA API
+
+    Args:
+    ----
+        stream_name:
+        stream_type:
+        transmit_type:
+        api_key:
+        uca_events:
+
+    Returns:
+    -------
+        None
+
+    """
     print(
         f"Sending {len(uca_events)} {stream_type} events to {transmit_type.upper()} UCA API in {max(ceil(len(uca_events) / UCA_API_BATCH_SIZE), 1)} transaction(s)"
     )

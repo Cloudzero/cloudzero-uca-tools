@@ -6,6 +6,14 @@ from uca.features.transform import apply_transform, compile_transform
 
 
 def test_apply_transform():
+    """
+    Test to apply transformation to the input data
+
+    Returns
+    -------
+        None
+
+    """
     input = {
         "uca": "v1.3",
         "timestamp": "2021-05-16 21:00:00+0000",
@@ -15,21 +23,16 @@ def test_apply_transform():
         "target": {},
         "telemetry-stream": "api-requests-per-second",
         "value": "234",
-        "metadata": {
-            "environment": "production"
-        }
+        "metadata": {"environment": "production"},
     }
     expected_output = {
-        'cost-context': 'cost-per-title',
-        'granularity': 'HOURLY',
-        'id': 'sandy',
-        'target': {
-            'feature': ['fred'],
-            'tag:environment': ['production']
-        },
-        'telemetry-stream': 'api-requests-per-second',
-        'timestamp': '2021-05-16 21:00:00+0000',
-        'value': '234'
+        "cost-context": "cost-per-title",
+        "granularity": "HOURLY",
+        "id": "sandy",
+        "target": {"feature": ["fred"], "tag:environment": ["production"]},
+        "telemetry-stream": "api-requests-per-second",
+        "timestamp": "2021-05-16 21:00:00+0000",
+        "value": "234",
     }
 
     jq = """select(.id != "")
