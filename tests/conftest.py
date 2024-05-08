@@ -3,6 +3,14 @@
 #  Direct all questions to support@cloudzero.com
 
 def input_uca_data():
+    """
+    Return input uca data fixture
+
+    Returns
+    -------
+        list
+
+    """
     return [
         {"unit_id": "Sunbank", "unit_value": "0"},
         {"unit_id": "SoftwareCorp", "unit_value": "0"},
@@ -21,6 +29,14 @@ def input_uca_data():
 
 
 def input_settings():
+    """
+    Return input settings fixture
+
+    Returns
+    -------
+        dict
+
+    """
     return {
         "stream_name": "test-data",
         "stream_type": "allocation",
@@ -29,6 +45,14 @@ def input_settings():
 
 
 def input_template():
+    """
+    Return input template fixture
+
+    Returns
+    -------
+        dict
+
+    """
     return {
         "granularity": "DAILY",
         "id": "$unit_id",

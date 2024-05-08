@@ -27,6 +27,7 @@ from uca.features.transmit import transmit
 
 
 class RootConfiguration:
+
     """
     Root Click Configuration Class
     """

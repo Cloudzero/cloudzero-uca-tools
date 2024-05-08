@@ -16,6 +16,7 @@ from uca.exceptions import MalformedUrl
 
 
 class JSONSanity(json.JSONEncoder):
+
     """
     JSON encoder that handles Decimal, Enum, datetime, and sets
     """

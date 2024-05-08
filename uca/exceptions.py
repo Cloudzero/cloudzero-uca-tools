@@ -4,8 +4,10 @@
 
 
 class MalformedUrl(Exception):
+
     """Thrown when we have a malformed URL"""
 
 
 class InvalidDate(Exception):
+
     """Thrown when we have a un-parsable date"""
