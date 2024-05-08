@@ -14,6 +14,7 @@ def cli(ctx, data):
     print(ctx.parent.params)
     print(data)
 
+
 # @cli.group()
 # @click.option("--data", "-d", help="Data to convert")
 # def convert(data):

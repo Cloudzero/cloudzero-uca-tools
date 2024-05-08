@@ -11,33 +11,47 @@ import sys
 import botocore
 import simplejson as json
 
-from uca.common.aws import list_s3_bucket_contents, open_file_from_s3, get_s3_client
+from uca.common.aws import get_s3_client, list_s3_bucket_contents, open_file_from_s3
 from uca.common.cli import eprint
 from uca.common.formatters import parse_url
 from uca.constants import SUPPORTED_FILE_EXTENSIONS
 
 
 def open_local_file(file_path: pathlib.PurePath):
+    """
+    Open a local file for reading
+
+    Args:
+    ----
+        file_path:
+
+    Returns:
+    -------
+        file object
+
+    """
     if file_path.suffix == ".gz":  # poor man's GZip detection
-        raw_file = gzip.open(file_path, mode='r', newline='', encoding="utf-8-sig")
+        raw_file = gzip.open(file_path, mode="r", newline="", encoding="utf-8-sig")
     else:
-        raw_file = open(file_path, mode='r', newline='', encoding="utf-8-sig")
+        raw_file = open(file_path, newline="", encoding="utf-8-sig")
     return raw_file
 
 
 def list_all_local_files_in_path(root_path: str) -> list:
     """
-    Returns a list of PurePath objects for all files in and below the provided root path
+    Return a list of PurePath objects for all files in and below the provided root path
 
     Args:
+    ----
         root_path (str):
 
     Returns:
+    -------
         list
 
     """
     all_files = []
-    for path, subdirs, files in os.walk(root_path):
+    for path, _subdirs, files in os.walk(root_path):
         for name in files:
             full_path = pathlib.PurePath(path, name)
             if full_path.suffix in SUPPORTED_FILE_EXTENSIONS:
@@ -47,13 +61,15 @@ def list_all_local_files_in_path(root_path: str) -> list:
 
 def load_data_files(source: str, file_format: [str] = None) -> list:
     """
-        Loads data from files located locally or in S3
+    Load data from files located locally or in S3
 
     Args:
+    ----
         source (str):
         file_format (str, None): CSV, JSON, None (None means just plain ASCII or UTF-8 text)
 
     Returns:
+    -------
         list:
 
     """
@@ -65,14 +81,14 @@ def load_data_files(source: str, file_format: [str] = None) -> list:
         sys.exit(1)
 
     loaded_records = []
-    if source.lower().startswith('s3://'):
+    if source.lower().startswith("s3://"):
         print(f" - Reading {file_format} from S3")
 
         bucket, key = parse_url(source)
         client = get_s3_client()
 
         try:
-            if source.lower().endswith('/'):  # load all files in bucket
+            if source.lower().endswith("/"):  # load all files in bucket
                 files = list(list_s3_bucket_contents(client, bucket, prefix=key))
                 print(f" - Found {len(files)} files")
             else:
@@ -80,8 +96,8 @@ def load_data_files(source: str, file_format: [str] = None) -> list:
 
             print("   --------------------------------------------------------------------------------------")
             for file in files:
-                fp = open_file_from_s3(client, bucket, file['Key'])
-                if file_format == 'JSON':
+                fp = open_file_from_s3(client, bucket, file["Key"])
+                if file_format == "JSON":
                     records = fp.readlines()
                     loaded_records += [json.loads(x) for x in records]
                 elif file_format.upper() == "CSV":
@@ -111,11 +127,11 @@ def load_data_files(source: str, file_format: [str] = None) -> list:
         for file in files:
             try:
                 with open_local_file(file) as fp:
-                    if file_format == 'JSON':
+                    if file_format == "JSON":
                         records = fp.readlines()
                         loaded_records += [json.loads(x) for x in records]
                     elif file_format.upper() == "CSV":
-                        csv_data = csv.DictReader(open(file, mode='r', newline='', encoding="utf-8-sig"))
+                        csv_data = csv.DictReader(open(file, newline="", encoding="utf-8-sig"))
                         records = list(csv_data)
                         loaded_records += records
                     else:
@@ -129,11 +145,44 @@ def load_data_files(source: str, file_format: [str] = None) -> list:
     return loaded_records
 
 
+def load_jsonl(file_path):
+    """
+    Load a JSONL file into a list of dictionaries
+
+    Args:
+    ----
+        file_path:
+
+    Returns:
+    -------
+        list[dict]
+
+    """
+    data = []
+    with open(file_path) as file:
+        for line in file:
+            data.append(json.loads(line))
+    return data
+
+
 def write_to_file(uca_to_send: list[dict], output_file: str):
-    with open(os.path.expanduser(output_file), 'w') as fp:
+    """
+    Write data to a file
+
+    Args:
+    ----
+        uca_to_send:
+        output_file:
+
+    Returns:
+    -------
+        None
+
+    """
+    with open(os.path.expanduser(output_file), "w") as fp:
         for line in uca_to_send:
             try:
-                fp.write(json.dumps(line) + '\n')
+                fp.write(json.dumps(line) + "\n")
             except Exception as error:
                 eprint(f"Unable to write data to file {output_file}, error: {error}")
                 eprint(f"Data: {line}")

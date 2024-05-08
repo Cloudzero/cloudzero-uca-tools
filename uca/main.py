@@ -18,16 +18,30 @@ from uca.common.standards import (
     valid_settings,
     valid_template,
 )
-from uca.constants import FILE_FORMATS, DEFAULT_FILE_FORMAT
+from uca.constants import DEFAULT_FILE_FORMAT, FILE_FORMATS
 from uca.exceptions import InvalidDate
 from uca.features.convert import convert
 from uca.features.generate import generate_uca
-from uca.features.transform import transform_data, load_transform_script
+from uca.features.transform import load_transform_script, transform_data
 from uca.features.transmit import transmit
 
 
-class RootConfiguration(object):
+class RootConfiguration:
+    """
+    Root Click Configuration Class
+    """
+
     def __init__(self, configuration=None, dry_run=False, api_key=False):
+        """
+        Initialize the configuration
+
+        Args:
+        ----
+            configuration:
+            dry_run:
+            api_key:
+
+        """
         if configuration:
             self.configuration_path = os.path.abspath(configuration)
             self.settings, self.template = self.load_settings()
@@ -47,6 +61,14 @@ class RootConfiguration(object):
             self.destination = "CloudZero API"
 
     def print(self):
+        """
+        Print the configuration
+
+        Returns
+        -------
+            None
+
+        """
         print(
             f" Configuration: {self.configuration_path}\n"
             f"       Dry Run: {self.dry_run}\n"
@@ -55,15 +77,21 @@ class RootConfiguration(object):
         )
 
     def load_settings(self):
+        """
+        Load the settings from the configuration file
+
+        Returns
+        -------
+            dict, dict
+
+        """
         try:
-            with open(self.configuration_path, mode="r") as fp:
+            with open(self.configuration_path) as fp:
                 configuration_file = json.load(fp)
                 uca_settings = configuration_file["settings"]
                 uca_template = configuration_file["template"]
         except Exception as error:
-            eprint(
-                f"Unable to read configuration file {self.configuration_path}, error: {error}"
-            )
+            eprint(f"Unable to read configuration file {self.configuration_path}, error: {error}")
             sys.exit(-1)
         return uca_settings, uca_template
 
@@ -81,9 +109,7 @@ def add_version(f):
 
 @click.group(name="cloudzero-uca-tools")
 @click.version_option(version=__version__)
-@click.option(
-    "--configuration", "-c", required=False, help="UCA configuration file (JSON)"
-)
+@click.option("--configuration", "-c", required=False, help="UCA configuration file (JSON)")
 @click.option(
     "--dry-run",
     "-dry",
@@ -92,31 +118,39 @@ def add_version(f):
     help="Perform a dry run, read and transform the data but do not send it to the API. "
     "Sample events will be output to the screen",
 )
-@click.option(
-    "--api-key", "-k", required=False, envvar="CZ_API_KEY", help="API Key to use"
-)
+@click.option("--api-key", "-k", required=False, envvar="CZ_API_KEY", help="API Key to use")
 @click.pass_context
 @add_version
 def cli(ctx, configuration, dry_run, api_key):
     """CloudZero Unit Cost Analytics toolkit"""
-    ctx.obj = RootConfiguration(
-        configuration=configuration, dry_run=dry_run, api_key=api_key
-    )
+    ctx.obj = RootConfiguration(configuration=configuration, dry_run=dry_run, api_key=api_key)
 
 
 @cli.command("generate")
-@click.option(
-    "--start", "-s", required=False, help="start datetime <YYYY-MM-DD HH:MM:SS>"
-)
+@click.option("--start", "-s", required=False, help="start datetime <YYYY-MM-DD HH:MM:SS>")
 @click.option("--end", "-e", required=False, help="End datetime <YYYY-MM-DD HH:MM:SS>")
-@click.option(
-    "--today", is_flag=True, required=False, help="Generate events for the current day"
-)
+@click.option("--today", is_flag=True, required=False, help="Generate events for the current day")
 @click.option("--input", "-i", required=True, help="Input UCA data (CSV)")
 @click.option("--output", "-o", required=True, help="Output file")
 @pass_root_configuration
 def generate_uca_command(configuration, start, end, today, input, output):
+    """
+    Generate UCA data from input data and a configuration file
 
+    Args:
+    ----
+        configuration:
+        start:
+        end:
+        today:
+        input:
+        output:
+
+    Returns:
+    -------
+        None
+
+    """
     if not configuration.settings or not configuration.template:
         eprint("Please specify a --configuration file")
         sys.exit()
@@ -202,12 +236,7 @@ def generate_uca_command(configuration, start, end, today, input, output):
         eprint(f"Unable to read input file {input}, error: {error}")
         sys.exit(-1)
 
-    uca_to_send = generate_uca(
-        range_requested,
-        configuration.template,
-        configuration.settings,
-        uca_data
-    )
+    uca_to_send = generate_uca(range_requested, configuration.template, configuration.settings, uca_data)
     if not uca_to_send:
         print(f" - Event Generation failed, {len(uca_to_send)} events created")
         sys.exit(-1)
@@ -242,6 +271,21 @@ def generate_uca_command(configuration, start, end, today, input, output):
 )
 @pass_root_configuration
 def transmit_uca_command(configuration, data, output, transform):
+    """
+    Transmit UCA data to CloudZero
+
+    Args:
+    ----
+        configuration:
+        data:
+        output:
+        transform:
+
+    Returns:
+    -------
+        None
+
+    """
     if output:
         configuration.output_path = output
         configuration.destination = "File"
@@ -262,9 +306,7 @@ def transmit_uca_command(configuration, data, output, transform):
 
     records = load_data_files(data, file_format="JSON")
     transform_script = load_transform_script(transform)
-    uca_to_send, transformed_records, filtered_records = transform_data(
-        records, transform_script
-    )
+    uca_to_send, transformed_records, filtered_records = transform_data(records, transform_script)
 
     transmit_type = configuration.settings.get("transmit_type", "replace")
 
@@ -279,10 +321,7 @@ def transmit_uca_command(configuration, data, output, transform):
     if transmit_type == "update":
         transmit_type = "replace"
 
-    print(
-        f" - Processed {len(records)} records "
-        f"| {transformed_records} Transformed | {filtered_records} Filtered"
-    )
+    print(f" - Processed {len(records)} records " f"| {transformed_records} Transformed | {filtered_records} Filtered")
     print(f" - {len(records) - filtered_records} records ready for transmission")
     print_uca_sample(uca_to_send)
     transmit(
@@ -303,11 +342,23 @@ def transmit_uca_command(configuration, data, output, transform):
     required=True,
     help="Source data, in text or gzip + text format, supports file:// or s3:// paths",
 )
-@click.option(
-    "--output", "-o", required=True, help="Destination file for converted data"
-)
+@click.option("--output", "-o", required=True, help="Destination file for converted data")
 @pass_root_configuration
 def convert_uca_command(configuration, data, output):
+    """
+    Convert data to CloudZero UCA format
+
+    Args:
+    ----
+        configuration:
+        data:
+        output:
+
+    Returns:
+    -------
+        None
+
+    """
     output = os.path.abspath(output)
     if not configuration.settings:
         eprint("Please specify a --configuration file")
@@ -326,9 +377,7 @@ def convert_uca_command(configuration, data, output):
     records = load_data_files(data, file_format)
     converted_data = convert(records, configuration)
 
-    print(
-        f" - Aggregated {len(records)} {data_format} records into {len(converted_data)} UCA records"
-    )
+    print(f" - Aggregated {len(records)} {data_format} records into {len(converted_data)} UCA records")
     print_uca_sample(converted_data)
 
     print(f"\n - Writing UCA data to {output}")
@@ -343,6 +392,18 @@ def convert_uca_command(configuration, data, output):
     help="Name of a CloudZero telemetry stream",
 )
 def delete_telemetry_stream(stream):
+    """
+    Delete a telemetry stream from CloudZero
+
+    Args:
+    ----
+        stream:
+
+    Returns:
+    -------
+        None
+
+    """
     print(stream)
 
 

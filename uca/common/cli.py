@@ -2,25 +2,50 @@
 #  SPDX-License-Identifier: Apache-2.0
 #  Direct all questions to support@cloudzero.com
 
-import json
 import random
 import sys
 
-from colored import fg, attr
+from colored import attr, fg
 from tabulate import tabulate
 
 
 def eprint(*args, **kwargs):
+    """
+    Print to stderr
+
+    Args:
+    ----
+        *args:
+        **kwargs:
+
+    Returns:
+    -------
+        None
+
+    """
     print(*args, file=sys.stderr, **kwargs)
 
 
 def get_input(question, default=None):
-    if default:
-        question = "{} [{}]: ".format(question, default)
-    else:
-        question += ': '
+    """
+    Get input from the user
 
-    question = "{}{}{}".format(fg('light_green'), question, attr('reset'))
+    Args:
+    ----
+        question:
+        default:
+
+    Returns:
+    -------
+        str
+
+    """
+    if default:
+        question = f"{question} [{default}]: "
+    else:
+        question += ": "
+
+    question = "{}{}{}".format(fg("light_green"), question, attr("reset"))
 
     result = input(question).strip()
     if result:
@@ -31,8 +56,7 @@ def get_input(question, default=None):
 
 def confirm(prompt=None, resp=False):
     """
-    prompts for yes or no response from the user. Returns True for yes and
-    False for no.
+    Prompts for yes or no response from the user. Returns True for yes and False for no.
 
     'resp' should be set to the default value assumed by the caller when
     user simply types ENTER.
@@ -50,35 +74,53 @@ def confirm(prompt=None, resp=False):
     :param prompt:
     :param resp:
     """
-
     if prompt is None:
-        prompt = 'Confirm'
+        prompt = "Confirm"
 
     if resp:
-        prompt = '{0} [{1}]|{2} '.format(prompt, 'y', 'n')
+        prompt = "{} [{}]|{} ".format(prompt, "y", "n")
     else:
-        prompt = '{0} [{1}]|{2} '.format(prompt, 'n', 'y')
+        prompt = "{} [{}]|{} ".format(prompt, "n", "y")
 
     while True:
         ans = get_input(prompt)
         if not ans:
             return resp
-        if ans not in ['y', 'Y', 'n', 'N']:
-            print('please enter y or n.')
+        if ans not in ["y", "Y", "n", "N"]:
+            print("please enter y or n.")
             continue
-        if ans == 'y' or ans == 'Y':
+        if ans in ("y", "Y"):
             return True
-        if ans == 'n' or ans == 'N':
+        if ans in ("n", "N"):
             return False
 
 
 def print_uca_sample(uca_to_send, record_count=5):
-    sample_count = min(record_count, len(uca_to_send))
-    sample_events = []
+    """
+    Print a sample of UCA records post-processing
+
+    Args:
+    ----
+        uca_to_send:
+        record_count:
+
+    Returns:
+    -------
+        list
+
+    """
+    if record_count == 0:
+        return []
+
+    if len(uca_to_send) == 0:
+        eprint(" - No UCA records to sample.")
+        return []
+
+    sample_count = max(min(record_count, len(uca_to_send)), 1)
+    sample_indexes = set(random.sample(range(len(uca_to_send)), sample_count))
+    print(uca_to_send)
+    sample_events = [uca_to_send[i] for i in sample_indexes]
+
     print(" - Sample of UCA records post-processing:")
-    # refactor
-    for x in sorted({*range(0, sample_count),
-                     *[random.randint(sample_count, len(uca_to_send) - sample_count) for x in range(0, sample_count)],
-                     *range(len(uca_to_send) - sample_count, len(uca_to_send))}):
-        sample_events.append([x, json.dumps(uca_to_send[x])])
-    print(tabulate(sample_events, headers=["#", "Record"], tablefmt="simple", maxcolwidths=[None, 240]))
+    print(tabulate(enumerate(sample_events), headers=["#", "Record"], tablefmt="simple", maxcolwidths=[None, 240]))
+    return sample_events

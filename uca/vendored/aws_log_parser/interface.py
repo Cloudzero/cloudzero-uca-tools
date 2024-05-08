@@ -29,9 +29,7 @@ class AwsLogParser:
     plugins: typing.List[str] = field(default_factory=list)
 
     def __post_init__(self):
-        self.aws_client = AwsClient(
-            region=self.region, profile=self.profile, verbose=self.verbose
-        )
+        self.aws_client = AwsClient(region=self.region, profile=self.profile, verbose=self.verbose)
 
         self.plugins_loaded = [
             self.load_plugin(
@@ -46,17 +44,12 @@ class AwsLogParser:
         for row in csv.reader(content, delimiter=self.log_type.delimiter):
             if not row[0].startswith("#"):
                 yield self.log_type.model(  # type: ignore
-                    *[
-                        to_python(value, field)
-                        for value, field in zip(row, model_fields)
-                    ]
+                    *[to_python(value, field) for value, field in zip(row, model_fields)]
                 )
 
     def load_plugin(self, plugin, plugin_path):
         plugin_module, plugin_classs = plugin.split(":")
-        spec = importlib.util.spec_from_file_location(
-            plugin_module, f"{plugin_path}/{plugin_module}.py"
-        )
+        spec = importlib.util.spec_from_file_location(plugin_module, f"{plugin_path}/{plugin_module}.py")
         if spec is None:
             raise ValueError("{plugin} not found")
 
@@ -119,9 +112,7 @@ class AwsLogParser:
         :return: Parsed log entries.
         :rtype: Dependant on log_type.
         """
-        yield from self.parse(
-            self.aws_client.s3_service.read_keys(bucket, prefix, endswith=endswith)
-        )
+        yield from self.parse(self.aws_client.s3_service.read_keys(bucket, prefix, endswith=endswith))
 
     def read_url(self, url):
         """

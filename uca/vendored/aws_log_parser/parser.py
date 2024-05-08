@@ -23,9 +23,7 @@ def to_http_type(value):
 
 
 def to_datetime(value):
-    return datetime.datetime.fromisoformat(value.rstrip("Z")).replace(
-        tzinfo=datetime.timezone.utc
-    )
+    return datetime.datetime.fromisoformat(value.rstrip("Z")).replace(tzinfo=datetime.timezone.utc)
 
 
 def to_http_request(value):

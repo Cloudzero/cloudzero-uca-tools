@@ -16,7 +16,23 @@ from uca.exceptions import MalformedUrl
 
 
 class JSONSanity(json.JSONEncoder):
+    """
+    JSON encoder that handles Decimal, Enum, datetime, and sets
+    """
+
     def default(self, o):
+        """
+        Perform sane serialization
+
+        Args:
+        ----
+            o:
+
+        Returns:
+        -------
+            object
+
+        """
         if isinstance(o, set):
             return list(o)
         if isinstance(o, Decimal):
@@ -27,7 +43,7 @@ class JSONSanity(json.JSONEncoder):
             return o.isoformat()
         if isinstance(o, float):
             return str(o)
-        return super(JSONSanity, self).default(o)
+        return super().default(o)
 
 
 def chunks(li, n):
@@ -35,10 +51,22 @@ def chunks(li, n):
     Yield successive n-sized chunks from li.
     """
     for i in range(0, len(li), n):
-        yield li[i:i + n]
+        yield li[i : i + n]
 
 
 def serialize_for_dynamodb(data):
+    """
+    Serialize data for DynamoDB
+
+    Args:
+    ----
+        data:
+
+    Returns:
+    -------
+        object
+
+    """
     return json.loads(json.dumps(data, cls=JSONSanity))
 
 
@@ -47,6 +75,7 @@ def parse_url(url):
     Parse an URL, returning a tuple containing the bucket name and key, supports s3 or file
 
     Args:
+    ----
         url (string): URL, like s3://some_bucket/some_path/and/maybe/a.file
 
     Returns (tuple): bucket/root folder (some_location), file (some_path/and/maybe/a.file)
@@ -82,10 +111,10 @@ def parse_url(url):
 
     """
     parsed_url = urlparse(url)
-    if str(parsed_url.scheme) == 's3':
+    if str(parsed_url.scheme) == "s3":
         root = parsed_url.netloc
-        file = parsed_url.path.lstrip('/')
-    elif str(parsed_url.scheme) == 'file':
+        file = parsed_url.path.lstrip("/")
+    elif str(parsed_url.scheme) == "file":
         root, file = os.path.split(f"{parsed_url.netloc}{parsed_url.path}")
     else:
         raise MalformedUrl(f"{parsed_url.scheme} url '{url}' is malformed or unsupported")
@@ -93,7 +122,22 @@ def parse_url(url):
 
 
 def rgetattr(obj, attr, *args):
+    """
+    Recursively get an attribute from an object
+
+    Args:
+    ----
+        obj:
+        attr:
+        *args:
+
+    Returns:
+    -------
+        object
+
+    """
+
     def _getattr(obj, attr):
         return getattr(obj, attr, *args)
 
-    return functools.reduce(_getattr, [obj] + attr.split('.'))
+    return functools.reduce(_getattr, [obj, *attr.split(".")])

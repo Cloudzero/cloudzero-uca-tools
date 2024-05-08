@@ -1,0 +1,16 @@
+{"timestamp": "2021-03-22 00:00:00+00:00", "granularity": "DAILY", "cost-context": "Cost-Per-Fake-Customer", "id": "StateEx", "target": {}, "telemetry-stream": "test-data", "value": 40.0000}
+{"timestamp": "2021-04-01 00:00:00+00:00", "granularity": "DAILY", "cost-context": "Cost-Per-Fake-Customer", "id": "Hooli", "target": {}, "telemetry-stream": "test-data", "value": 23.0000}
+{"timestamp": "2021-04-01 00:00:00+00:00", "granularity": "DAILY", "cost-context": "Cost-Per-Fake-Customer", "id": "Sunbank", "target": {}, "telemetry-stream": "test-data", "value": 37.0000}
+{"timestamp": "2021-04-06 00:00:00+00:00", "granularity": "DAILY", "cost-context": "Cost-Per-Fake-Customer", "id": "Transport Co.", "target": {}, "telemetry-stream": "test-data", "value": 25.0000}
+{"timestamp": "2021-03-19 00:00:00+00:00", "granularity": "DAILY", "cost-context": "Cost-Per-Fake-Customer", "id": "StateEx", "target": {}, "telemetry-stream": "test-data", "value": 40.0000}
+{"timestamp": "2021-03-30 00:00:00+00:00", "granularity": "DAILY", "cost-context": "Cost-Per-Fake-Customer", "id": "Hooli", "target": {}, "telemetry-stream": "test-data", "value": 23.0000}
+{"timestamp": "2021-03-27 00:00:00+00:00", "granularity": "DAILY", "cost-context": "Cost-Per-Fake-Customer", "id": "Bank of Sokovia", "target": {}, "telemetry-stream": "test-data", "value": 43.0000}
+{"timestamp": "2021-03-27 00:00:00+00:00", "granularity": "DAILY", "cost-context": "Cost-Per-Fake-Customer", "id": "Hooli", "target": {}, "telemetry-stream": "test-data", "value": 23.0000}
+{"timestamp": "2021-03-13 00:00:00+00:00", "granularity": "DAILY", "cost-context": "Cost-Per-Fake-Customer", "id": "Sunbank", "target": {}, "telemetry-stream": "test-data", "value": 37.0000}
+{"timestamp": "2021-03-18 00:00:00+00:00", "granularity": "DAILY", "cost-context": "Cost-Per-Fake-Customer", "id": "SoftwareCorp", "target": {}, "telemetry-stream": "test-data", "value": 17.0000}
+{"timestamp": "2021-03-24 00:00:00+00:00", "granularity": "DAILY", "cost-context": "Cost-Per-Fake-Customer", "id": "Bank of Sokovia", "target": {}, "telemetry-stream": "test-data", "value": 43.0000}
+{"timestamp": "2021-03-17 00:00:00+00:00", "granularity": "DAILY", "cost-context": "Cost-Per-Fake-Customer", "id": "SoftwareCorp", "target": {}, "telemetry-stream": "test-data", "value": 17.0000}
+{"timestamp": "2021-04-01 00:00:00+00:00", "granularity": "DAILY", "cost-context": "Cost-Per-Fake-Customer", "id": "SoftwareCorp", "target": {}, "telemetry-stream": "test-data", "value": 17.0000}
+{"timestamp": "2021-04-03 00:00:00+00:00", "granularity": "DAILY", "cost-context": "Cost-Per-Fake-Customer", "id": "SoftwareCorp", "target": {}, "telemetry-stream": "test-data", "value": 17.0000}
+{"timestamp": "2021-04-04 00:00:00+00:00", "granularity": "DAILY", "cost-context": "Cost-Per-Fake-Customer", "id": "WeShipit, Inc.", "target": {}, "telemetry-stream": "test-data", "value": 124.0000}
+{"timestamp": "2021-05-04 00:00:00+00:00", "granularity": "DAILY", "cost-context": "Cost-Per-Fake-Customer", "id": "WeShipit, Inc.", "target": {}, "telemetry-stream": "test-data", "value": 0.0}
