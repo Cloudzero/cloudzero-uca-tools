@@ -1,7 +1,10 @@
 #  Copyright (c) 2024 CloudZero, Inc. or its affiliates. All Rights Reserved.
 #  SPDX-License-Identifier: Apache-2.0
 #  Direct all questions to support@cloudzero.com
+import pytest
 
+
+@pytest.fixture
 def input_uca_data():
     """
     Return input uca data fixture
@@ -28,6 +31,7 @@ def input_uca_data():
     ]
 
 
+@pytest.fixture
 def input_settings():
     """
     Return input settings fixture
@@ -44,6 +48,7 @@ def input_settings():
     }
 
 
+@pytest.fixture
 def input_template():
     """
     Return input template fixture
