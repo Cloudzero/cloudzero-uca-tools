@@ -6,7 +6,7 @@ pytest>=7.2.1
 pytest-cov>=4.0.0
 pytest-mock>=3.10.0
 pytest-env>=0.8.1
-setuptools==67.7.2
+setuptools==68.0.0
 wheel>=0.38.4
 hatch>=1.6.3
 ruff>=0.0.243
