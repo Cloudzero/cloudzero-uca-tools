@@ -3,7 +3,6 @@
   "template": {
     "timestamp": "$timestamp",
     "granularity": "HOURLY",
-    "cost-context": "Cost-Per-Fake-Customer",
     "id": "$unit_id",
     "target": {
       "product": [
@@ -18,6 +17,7 @@
       "mode": "exact",
       "jitter": 35,
       "allocation": 100000
-    }
+    },
+    "transmit_type": "sum"
   }
 }
