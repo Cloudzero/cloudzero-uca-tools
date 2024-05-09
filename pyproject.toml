@@ -179,3 +179,12 @@ dependencies = [
 [tool.hatch.envs.lint.scripts]
 fix = "ruff check --fix"
 check = "ruff check"
+
+[tool.hatch.envs.pypi]
+detached = true
+dependencies = [
+    "twine>=3.4.2",
+    "wheel>=0.37.0"
+]
+[tool.hatch.envs.pypi.scripts]
+upload = "twine upload dist/*"
