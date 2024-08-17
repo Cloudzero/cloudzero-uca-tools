@@ -4,6 +4,7 @@
 
 import calendar
 import copy
+import locale
 import sys
 from datetime import timedelta
 from decimal import Decimal
@@ -115,14 +116,32 @@ def _render_uca_data(uca_data, settings, uca_template, timestamp=None):
 
     uca_events = []
     # skipped = 0
+    row_count = 1
+    locale.setlocale(locale.LC_ALL, locale.getlocale())
     for row in uca_data:
         try:
-            if not row[unit_value_header] or Decimal(row[unit_value_header]) <= 0:
+            if not row[unit_value_header]:
                 continue
+
+            # support localized numbers
+            unit_value = locale.delocalize(row[unit_value_header])
+
+            # skip zero or negative values
+            if Decimal(unit_value) <= 0:
+                continue
+
+            row[unit_value_header] = unit_value
+
         except Exception as err:
-            print(f"Error: {err}")
-            print(f"{row[unit_value_header]}")
-            sys.exit(-1)
+            if "Conversion" in str(err):
+                eprint(f"Error processing input data in row {row_count}")
+                eprint(f"  Column: {unit_value_header}")
+                eprint(f"   Value: {row[unit_value_header]}")
+                sys.exit(-1)
+            else:
+                eprint(f"Unexpected error: {err}")
+                eprint(f"{row[unit_value_header]}")
+                sys.exit(-1)
 
         if generate_settings.get("mode") == "random":
             unit_value = preserve_precision(row[unit_value_header], precision)
@@ -182,6 +201,8 @@ def _render_uca_data(uca_data, settings, uca_template, timestamp=None):
             print(row)
             sys.exit(-1)
 
+        row_count += 1
+
     return uca_events
 
 
@@ -224,7 +245,7 @@ def preserve_precision(input_number: (str, int, Decimal), precision: int) -> int
     return int(round_decimal(Decimal(input_number), precision) * precision)
 
 
-def restore_precision(input_number: (str, int, Decimal), precision: int) -> int:
+def restore_precision(input_number: (str, int, Decimal), precision: int) -> Decimal:
     """
     Restore the precision of a number
 

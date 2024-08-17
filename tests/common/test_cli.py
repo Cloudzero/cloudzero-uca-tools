@@ -1,7 +1,7 @@
 #  Copyright (c) 2021-2024 CloudZero, Inc. or its affiliates. All Rights Reserved.
 #  SPDX-License-Identifier: Apache-2.0
 #  Direct all questions to support@cloudzero.com
-import os
+from pathlib import Path
 
 from uca.common.cli import print_uca_sample
 from uca.common.files import load_jsonl
@@ -17,7 +17,7 @@ def test_print_uca_sample():
 
     """
     # load sample uca data
-    uca_sample_data_path = os.path.join(os.path.dirname(__file__), "../data/sample_uca_data.jsonl")
+    uca_sample_data_path = str((Path(__file__).parent / "../data/sample_uca_data.jsonl").resolve())
     uca_data = load_jsonl(uca_sample_data_path)
 
     print("Running test\n\n")
