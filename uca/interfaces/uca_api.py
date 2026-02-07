@@ -5,8 +5,8 @@
 import sys
 from math import ceil
 
-import requests
-from requests import HTTPError
+import httpx
+from httpx import HTTPStatusError
 
 from uca.common.formatters import chunks
 from uca.constants import UCA_API_BATCH_SIZE
@@ -39,10 +39,11 @@ def send_uca_events(stream_name, stream_type, transmit_type, api_key, uca_events
         payload = {"records": chunk}
         headers = {"Authorization": api_key, "Content-Type": "application/json"}
         try:
-            response = requests.post(url, json=payload, headers=headers)
-            response.raise_for_status()
+            with httpx.Client() as client:
+                response = client.post(url, json=payload, headers=headers)
+                response.raise_for_status()
             print(".", end="", flush=True)
-        except HTTPError as error:
+        except HTTPStatusError as error:
             print(error)
             print(response.text)
             sys.exit(-1)

@@ -1,25 +1,60 @@
-name: Dependabot auto-merge
-on: pull_request_target
+name: Dependabot Auto-merge
+
+on: 
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
 permissions:
   pull-requests: write
   contents: write
+  issues: write
 
 jobs:
-  dependabot:
+  review-dependabot-pr:
     runs-on: ubuntu-latest
-    if: ${{ github.event.pull_request.user.login == 'dependabot[bot]' }}
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
     steps:
-      - name: Auto-Approve Dependabot PRs
-        uses: hmarr/auto-approve-action@v3
-        with:
-          review-message: "Auto approved automated PR"
       - name: Dependabot metadata
         id: metadata
-        uses: dependabot/fetch-metadata@v1.4.0
+        uses: dependabot/fetch-metadata@v2
         with:
-          github-token: '${{ secrets.CLOUDZERO_BOT_TOKEN }}'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Auto-approve Dependabot PRs
+        if: |
+          steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
+          steps.metadata.outputs.update-type == 'version-update:semver-minor'
+        uses: hmarr/auto-approve-action@v4
+        with:
+          review-message: |
+            Auto-approved automated PR from Dependabot.
+            
+            **Update type**: ${{ steps.metadata.outputs.update-type }}
+            **Dependency**: ${{ steps.metadata.outputs.dependency-names }}
+            **New version**: ${{ steps.metadata.outputs.new-version }}
+            **Previous version**: ${{ steps.metadata.outputs.previous-version }}
+
       - name: Enable auto-merge for Dependabot PRs
+        if: |
+          steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
+          steps.metadata.outputs.update-type == 'version-update:semver-minor'
         run: gh pr merge --auto --squash "$PR_URL"
         env:
-          PR_URL: ${{github.event.pull_request.html_url}}
-          GH_TOKEN: ${{secrets.CLOUDZERO_BOT_TOKEN}}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Comment on major updates
+        if: steps.metadata.outputs.update-type == 'version-update:semver-major'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `⚠️ **Major version update detected!**
+              
+              This PR updates ${{ steps.metadata.outputs.dependency-names }} from ${{ steps.metadata.outputs.previous-version }} to ${{ steps.metadata.outputs.new-version }}.
+              
+              Major version updates may contain breaking changes. Manual review is required.`
+            })

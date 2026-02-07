@@ -9,7 +9,6 @@ from dateutil import parser
 
 
 class TimeRange(NamedTuple):
-
     """
     TimeRange class
     """

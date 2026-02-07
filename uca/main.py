@@ -27,7 +27,6 @@ from uca.features.transmit import transmit
 
 
 class RootConfiguration:
-
     """
     Root Click Configuration Class
     """
@@ -322,7 +321,7 @@ def transmit_uca_command(configuration, data, output, transform):
     if transmit_type == "update":
         transmit_type = "replace"
 
-    print(f" - Processed {len(records)} records " f"| {transformed_records} Transformed | {filtered_records} Filtered")
+    print(f" - Processed {len(records)} records | {transformed_records} Transformed | {filtered_records} Filtered")
     print(f" - {len(records) - filtered_records} records ready for transmission")
     print_uca_sample(uca_to_send)
     transmit(

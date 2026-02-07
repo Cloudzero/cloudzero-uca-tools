@@ -31,7 +31,7 @@ class S3Service(AwsService):
         contents = self.client.get_object(Bucket=bucket, Key=key)
         if endswith == ".gz":
             with gzip.GzipFile(fileobj=contents["Body"]) as _gz:
-                yield from [line for line in _gz.read().decode("utf-8").splitlines()]
+                yield from _gz.read().decode("utf-8").splitlines()
         else:
             yield from [line.decode("utf-8") for line in contents["Body"].iter_lines()]
 

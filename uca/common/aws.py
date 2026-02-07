@@ -6,7 +6,6 @@ import gzip
 import sys
 from datetime import datetime
 from io import BytesIO, TextIOWrapper
-from typing import Optional
 
 import boto3
 import botocore
@@ -19,8 +18,8 @@ def list_s3_bucket_contents(
     bucket_name,
     prefix="/",
     delimiter="/",
-    cursor: Optional[str] = None,
-    last_modified: Optional[datetime] = None,
+    cursor: str | None = None,
+    last_modified: datetime | None = None,
 ):
     """
     List the contents of an S3 bucket

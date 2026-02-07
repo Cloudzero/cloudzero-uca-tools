@@ -1,1 +1,20 @@
-* @cloudzero/open-source-maintainers
+# Default owners for everything in the repo
+* @cloudzero/engineering
+
+# Python source code
+/uca/ @cloudzero/engineering
+
+# Tests
+/tests/ @cloudzero/engineering
+
+# GitHub Actions workflows
+/.github/ @cloudzero/devops @cloudzero/engineering
+
+# Documentation
+/docs/ @cloudzero/documentation @cloudzero/engineering
+*.md @cloudzero/documentation @cloudzero/engineering
+
+# Dependencies and build configuration
+pyproject.toml @cloudzero/engineering
+uv.lock @cloudzero/engineering
+.python-version @cloudzero/engineering

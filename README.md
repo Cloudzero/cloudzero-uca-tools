@@ -1,4 +1,10 @@
 # CloudZero UCA Toolkit
+
+[![CI](https://github.com/Cloudzero/cloudzero-uca-tools/actions/workflows/ci.yml/badge.svg)](https://github.com/Cloudzero/cloudzero-uca-tools/actions/workflows/ci.yml)
+[![Security](https://github.com/Cloudzero/cloudzero-uca-tools/actions/workflows/security.yml/badge.svg)](https://github.com/Cloudzero/cloudzero-uca-tools/actions/workflows/security.yml)
+[![PyPI](https://img.shields.io/pypi/v/cloudzero-uca-tools.svg)](https://pypi.org/project/cloudzero-uca-tools/)
+[![Python Versions](https://img.shields.io/pypi/pyversions/cloudzero-uca-tools.svg)](https://pypi.org/project/cloudzero-uca-tools/)
+[![License](https://img.shields.io/pypi/l/cloudzero-uca-tools.svg)](https://github.com/Cloudzero/cloudzero-uca-tools/blob/main/LICENSE)
 Utilities for generating, transforming and transmitting unit cost analytics (UCA) data to the CloudZero API.
 Visit our [UCA documentation](https://docs.cloudzero.com/docs/unit-cost-analytics) to learn more about
 [CloudZero](https://www.cloudzero.com) and our enhanced unit cost analytics capabilities.
@@ -10,11 +16,15 @@ Visit our [UCA documentation](https://docs.cloudzero.com/docs/unit-cost-analytic
 
 ## Prerequisites
 * Tested on MacOS, should probably run on Linux in general
-* Python 3.9 or newer
+* Python 3.12 or newer
 * `pipx` or your favorite method of installing packages from PyPi. Have you considered [pipx](https://pypa.github.io/pipx/)?
 
 ## Installation
       $ pipx install cloudzero-uca-tools
+
+Alternatively, if you're using `uv` for Python package management:
+
+      $ uv pip install cloudzero-uca-tools
 
 ## Quick Starts
 
@@ -289,6 +299,28 @@ Using the `exact` configuration above, this data will produce UCA events similar
     {'timestamp': '2021-03-19 00:00:00+00:00', 'granularity': 'DAILY', 'element-name': 'StateEx', 'filter': {}, 'telemetry-stream': 'test-data', 'value': '40.0000'}
 
 ## Testing/Developing
+
+### Using uv (Recommended)
+If you're using `uv` for Python package management:
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd cloudzero-uca-tools
+
+# Create a virtual environment with uv
+uv venv
+
+# Activate the virtual environment
+source .venv/bin/activate  # On macOS/Linux
+# or
+.venv\Scripts\activate  # On Windows
+
+# Install the package in editable mode with dependencies
+uv pip install -e .
+```
+
+### Using traditional pip
 First create a virtual environment of your choice, and activate it. Then, install UCA Toolkit for local development:
 ```bash
 python -m pip install --editable .
@@ -300,3 +332,16 @@ Run the following commands if you had previously installed it using pip or pipx:
 3. Enter your virtualenv and install all of the necessary dependencies by running make init
 4. Finally, configure `uca` for use in your environment using pip install -e .
 5. Once that is done, the `uca` cli will be available in your shell (you may or may not need to restart your shell).
+
+### Linting
+This project uses `ruff` for linting. To run the linter:
+
+```bash
+ruff check .
+```
+
+To automatically fix linting issues:
+
+```bash
+ruff check --fix .
+```

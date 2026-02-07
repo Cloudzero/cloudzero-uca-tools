@@ -3,8 +3,8 @@
 #  Direct all questions to support@cloudzero.com
 
 
-from datetime import datetime, timezone
-from typing import Any, Optional
+from datetime import UTC, datetime
+from typing import Any
 
 import dateutil.parser as parser
 
@@ -19,7 +19,7 @@ def get_seconds_from_time(time_str):
     return int(h) * 3600 + int(m) * 60 + int(s)
 
 
-def utc_datetime_from_anything(input_data: Any) -> Optional[datetime]:
+def utc_datetime_from_anything(input_data: Any) -> datetime | None:
     """
     Convert a variety of input data types to a UTC datetime object
 
@@ -43,11 +43,11 @@ def utc_datetime_from_anything(input_data: Any) -> Optional[datetime]:
             # if it's larger than the max size for a 32-bit integer it's in ms
             if input_data > 2147483647:
                 input_data /= 1000
-            parsed_datetime = datetime.fromtimestamp(input_data, tz=timezone.utc)
+            parsed_datetime = datetime.fromtimestamp(input_data, tz=UTC)
         if parsed_datetime.tzinfo is None:
-            return parsed_datetime.replace(tzinfo=timezone.utc)
+            return parsed_datetime.replace(tzinfo=UTC)
         else:
-            return parsed_datetime.astimezone(tz=timezone.utc)
+            return parsed_datetime.astimezone(tz=UTC)
     except parser.ParserError as error:
         raise InvalidDate(error) from error
 
